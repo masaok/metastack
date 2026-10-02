@@ -1,3 +1,6 @@
 # Mechanical reformat commits. Point git at this file once per clone:
 #   git config blame.ignoreRevsFile .git-blame-ignore-revs
 # GitHub's blame view reads it automatically.
+
+# Mechanical reformat: import order and Tailwind class order
+b2fe5992aaf974ab720fec10e9aedd440f6f7c4e
