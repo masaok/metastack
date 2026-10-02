@@ -1,0 +1,29 @@
+# Dependency automation that respects deliberate pins.
+# - minors and patches arrive grouped, weekly, in one reviewable PR
+# - majors arrive one PR each
+# - @types/node is held at the runtime major declared in .nvmrc / engines
+# - hash-pinned GitHub Actions are moved forward weekly (the pin is the control,
+#   the bot is what keeps it from rotting)
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]

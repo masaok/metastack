@@ -7,8 +7,9 @@
     "build": "pnpm --filter @metastack/content compile && next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
-    "e2e": "playwright test"
+    "typecheck": "pnpm --filter @metastack/content compile && tsc --noEmit",
+    "e2e": "playwright test",
+    "lint:fix": "eslint --fix"
   },
   "dependencies": {
     "@metastack/content": "workspace:*",

@@ -6,3 +6,5 @@ allowBuilds:
   sharp: false
   unrs-resolver: false
   esbuild: true
+  # hooks are installed by the root "prepare" script, not by this postinstall
+  simple-git-hooks: false

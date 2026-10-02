@@ -13,10 +13,11 @@
   "scripts": {
     "compile": "tsx scripts/compile.ts",
     "validate": "tsx scripts/validate.ts",
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "tsx scripts/compile.ts && tsc -p tsconfig.json",
     "lint": "eslint src scripts",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "tsx scripts/compile.ts && vitest run",
+    "test:coverage": "tsx scripts/compile.ts && vitest run --coverage",
+    "lint:fix": "eslint --fix src scripts"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

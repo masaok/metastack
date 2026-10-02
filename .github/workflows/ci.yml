@@ -1,3 +1,8 @@
+# One named job per check so each can be a required status check on main.
+# Required checks (set in branch protection, by job name):
+#   typecheck, lint, format, test, build, e2e, docs, guardrails, gitleaks
+# No path filters on the trigger: a job that must skip does so at job level so
+# it still reports a status.
 name: CI
 
 on:
@@ -5,67 +10,117 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Typecheck, lint, test, build
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
+      - run: pnpm typecheck
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
+      - name: Validate card content
+        run: pnpm validate
+      - name: ESLint (read-only)
+        run: pnpm lint
+
+  format:
+    name: format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
+      - name: Prettier (check mode)
+        run: pnpm format:check
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
+      - name: Unit tests with coverage thresholds
+        run: pnpm test:coverage
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
+      - name: Production build (same Node major as the host)
+        run: pnpm build
+
+  e2e:
+    name: e2e
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Validate card content
-        run: pnpm validate
-
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm format:check
-
-      - name: Unit tests with coverage
-        run: pnpm test:coverage
-
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
       - run: pnpm build
-
       - name: Install Playwright browsers
         run: pnpm --filter @metastack/web exec playwright install --with-deps chromium
-
-      - name: End-to-end tests
+      - name: Playwright (hermetic, local server only)
         run: pnpm e2e
         env:
           CI: "true"
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: ${{ !cancelled() }}
         with:
           name: playwright-report
           path: apps/web/playwright-report
           retention-days: 7
 
-  public-guardrails:
-    name: Public-repo guardrails
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
+      - name: Link checker proves it can fail
+        run: pnpm check:docs:test
+      - name: Relative links and anchors in Markdown
+        run: pnpm check:docs
+
+  guardrails:
+    name: guardrails
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Guardrail proves it can fail
+        run: bash scripts/check-public.test.sh
+      - name: No private paths, env files or credential patterns
+        run: bash scripts/check-public.sh
+
+  gitleaks:
+    name: gitleaks
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
-
-      - name: No private paths or tracked secrets
-        run: bash scripts/check-public.sh
-
-      - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
