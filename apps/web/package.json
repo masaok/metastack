@@ -12,7 +12,7 @@
     "lint:fix": "eslint --fix",
     "check:blog": "tsx scripts/check-blog.ts ../..",
     "check:blog:test": "tsx scripts/check-blog.test.ts",
-    "test": "tsx src/lib/progress/merge.test.ts"
+    "test": "tsx src/lib/progress/merge.test.ts && tsx src/lib/dashboard/rows.test.ts"
   },
   "dependencies": {
     "@metastack/content": "workspace:*",

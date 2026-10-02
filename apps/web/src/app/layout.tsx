@@ -3,8 +3,7 @@ import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/goo
 
 import "./globals.css";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { AppFrame } from "@/components/app-frame";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -70,11 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
+        <AppFrame>{children}</AppFrame>
       </body>
     </html>
   );

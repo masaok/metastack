@@ -64,7 +64,7 @@ Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync ar
 
 **Export/import.** A versioned JSON envelope (`app`, `version`, `exportedAt`, `cardStates`, `reviews`, `settings`). Import validates the envelope and replaces local data. The same envelope is what `/api/progress` stores per user.
 
-**Sign-in.** `/api/auth/github` sends the browser to GitHub. GitHub returns to `/api/auth/callback/github`, which upserts the user, sets an httpOnly cookie, and redirects to Settings. Settings merges the local and remote envelopes. Studying without signing in is unchanged.
+**Sign-in.** `/api/auth/github` sends the browser to GitHub. GitHub returns to `/api/auth/callback/github`, which upserts the user, sets an httpOnly cookie, and redirects to `/dashboard`. The dashboard merges the local and remote envelopes, then lists every card with that user's scheduling state. Studying without signing in is unchanged.
 
 ## Durable state and schema changes
 

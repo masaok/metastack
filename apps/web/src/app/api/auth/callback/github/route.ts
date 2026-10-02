@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const user = await exchangeCode(code, request.url);
     await upsertUser(user);
     await setSessionCookie(user);
-    return Response.redirect(`${origin}/settings?auth=ok`);
+    return Response.redirect(`${origin}/dashboard?auth=ok`);
   } catch {
     return Response.redirect(`${origin}/settings?auth=error`);
   }
