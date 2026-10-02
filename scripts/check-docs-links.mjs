@@ -87,8 +87,8 @@ function isExternal(target) {
   return /^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("//");
 }
 
-export function checkDocs(root) {
-  const files = listMarkdownFiles(root);
+export function checkDocs(root, { ignore = [] } = {}) {
+  const files = listMarkdownFiles(root, ignore);
   const anchorCache = new Map();
   const anchorsOf = (file) => {
     if (!anchorCache.has(file)) anchorCache.set(file, headingAnchors(readFileSync(file, "utf8")));
@@ -127,8 +127,14 @@ export function checkDocs(root) {
 const isMain =
   process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname);
 if (isMain) {
-  const root = resolve(process.argv[2] ?? ".");
-  const { files, problems } = checkDocs(root);
+  const args = process.argv.slice(2);
+  const ignore = args
+    .filter((a) => a.startsWith("--ignore="))
+    .flatMap((a) => a.slice("--ignore=".length).split(","))
+    .filter(Boolean);
+  const positional = args.filter((a) => !a.startsWith("--"));
+  const root = resolve(positional[0] ?? ".");
+  const { files, problems } = checkDocs(root, { ignore });
   for (const p of problems) console.error(`::error::${p}`);
   if (problems.length > 0) {
     console.error(`check-docs: ${problems.length} problem(s) in ${files} file(s)`);

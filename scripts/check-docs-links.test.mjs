@@ -126,6 +126,18 @@ assert(slugify("`packages/content`") === "packagescontent", "slug: code ticks an
   rmSync(dir, { recursive: true });
 }
 
+// extra ignored directories are skipped, and only when asked
+{
+  const dir = fixture({ "vendor/plugin/README.md": "[x](nowhere.md)\n", "README.md": "# ok\n" });
+  const without = checkDocs(dir);
+  const withIgnore = checkDocs(dir, { ignore: ["vendor"] });
+  assert(
+    without.problems.length === 1 && withIgnore.problems.length === 0,
+    "--ignore skips named directories only when given",
+  );
+  rmSync(dir, { recursive: true });
+}
+
 if (failures > 0) {
   console.error(`check-docs-links.test: ${failures} assertion(s) failed`);
   process.exit(1);
