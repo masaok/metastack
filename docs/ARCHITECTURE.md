@@ -46,10 +46,13 @@ Parameters: target retention 0.9, maximum interval 180 days, fuzz disabled so te
 
 ### `apps/web`
 
-Next.js 16 App Router, fully static. Pages are server components that read from `@metastack/content`; anything touching IndexedDB is a client component.
+Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync are Node route handlers.
 
-- `lib/db.ts`: Dexie schema (`cardStates`, `reviews`, `settings`), export/import, daily new-card counting (local day).
-- `components/study/session.tsx`: the drill loop. Loads states for the current card set, builds the queue, handles reveal/rubric/rate, keyboard shortcuts, end-of-session summary, and the "study more" path that bypasses the daily limit.
+- `lib/db.ts`: Dexie schema (`cardStates`, `reviews`, `settings`), export/import, daily new-card counting (local day). IndexedDB remains the working copy while you study.
+- `lib/auth/`: GitHub OAuth (`GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`) and a signed session cookie (`AUTH_SECRET`).
+- `lib/server/`: Neon Postgres (`NEON_URL` or `DATABASE_URL`). Tables `users`, `card_states`, `reviews`, `settings`. Created on first use.
+- `lib/progress/merge.ts`: last-write-wins per card, union of reviews. Used on sign-in to merge browser and server copies.
+- `components/study/session.tsx`: the drill loop. After each rating it writes IndexedDB, then posts the review to `/api/progress/review` if a session cookie is present.
 - `components/markdown.tsx` + `mermaid-block.tsx`: react-markdown with GFM; Mermaid fences are rendered client-side with a lazily loaded Mermaid bundle, themed to match light/dark.
 - Theme is a `data-theme` attribute set by an inline script before paint; the toggle writes `localStorage`.
 
@@ -57,13 +60,15 @@ Next.js 16 App Router, fully static. Pages are server components that read from 
 
 **Session build.** `/study` passes all card ids; `/study/[deck]` passes that deck's ids. The client reads matching `cardStates`, counts how many new cards were introduced today (reviews whose `previousState` was `new` and whose `reviewedAt` is today), and calls `buildSession`. The queue is due cards sorted by due date, then shuffled new cards up to `newLimit - introducedToday`.
 
-**Rating.** In rubric mode the suggested rating comes from ticked key points; the user can accept with Enter or override. `rate` produces the new state and a review record; both are written in a single Dexie transaction.
+**Rating.** In rubric mode the suggested rating comes from ticked key points; the user can accept with Enter or override. `rate` produces the new state and a review record; both are written in a single Dexie transaction. If the user is signed in, the same pair is posted to the server.
 
-**Export/import.** A versioned JSON envelope (`app`, `version`, `exportedAt`, `cardStates`, `reviews`, `settings`). Import validates the envelope and replaces local data.
+**Export/import.** A versioned JSON envelope (`app`, `version`, `exportedAt`, `cardStates`, `reviews`, `settings`). Import validates the envelope and replaces local data. The same envelope is what `/api/progress` stores per user.
+
+**Sign-in.** `/api/auth/github` sends the browser to GitHub. The callback upserts the user, sets an httpOnly cookie, and redirects to Settings, which merges local and remote envelopes. Studying without signing in is unchanged.
 
 ## Durable state and schema changes
 
-The only durable state is the user's IndexedDB. It has a version history and the rules are:
+The working copy of progress is still IndexedDB. Signed-in copies also live in Neon. IndexedDB versioning is unchanged:
 
 - `db.version(1).stores(...)` in `lib/db.ts` is the baseline. It is never edited.
 - A schema change is a new `db.version(n + 1).stores(...)` with an `upgrade()` function that transforms existing rows. Dexie applies versions in order and the browser serialises upgrades, so no lock is needed.
@@ -72,7 +77,7 @@ The only durable state is the user's IndexedDB. It has a version history and the
 
 ## Verification
 
-How the checks are wired, and why each is shaped the way it is, is in [ENGINEERING_PRACTICES.md](ENGINEERING_PRACTICES.md). In short: nine named CI jobs are required on `main`; hooks only format staged files at commit and run typecheck plus the production build at push; every hand-written check ships with a test that proves it can fail; nothing required touches the network.
+How the checks are wired, and why each is shaped the way it is, is in [ENGINEERING_PRACTICES.md](ENGINEERING_PRACTICES.md). In short: named CI jobs are required on `main`; hooks only format staged files at commit and run typecheck plus the production build at push; every hand-written check ships with a test that proves it can fail; nothing required touches the network.
 
 ## Decisions
 

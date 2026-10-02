@@ -34,11 +34,11 @@ export const metadata: Metadata = {
     template: "%s · MetaStack",
   },
   description:
-    "Open-source flashcards for system design interviews. Sixty original cards, FSRS spaced repetition, progress saved in your browser. No account.",
+    "Open-source flashcards for system design interviews. Sixty-four original cards, FSRS spaced repetition, progress saved in your browser. GitHub sign-in is optional.",
   openGraph: {
     title: "MetaStack — system design flashcards",
     description:
-      "Drill system design interview questions with spaced repetition. First card in one click, no signup.",
+      "Drill system design interview questions with spaced repetition. First card in one click. GitHub sign-in is optional.",
     type: "website",
   },
 };

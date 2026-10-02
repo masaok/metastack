@@ -41,7 +41,8 @@ export default function HomePage() {
             <p className="mt-6 text-lg leading-relaxed text-ink-2">
               {total} original flashcards on caching, sharding, consistency, estimation and the
               classic design prompts. Spaced repetition decides what you see next. Progress saves in
-              this browser. No account, no paywall.
+              this browser. No paywall. Sign in with GitHub only if you want a copy that follows
+              you.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <ButtonLink href="/study" size="xl">

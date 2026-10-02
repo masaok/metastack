@@ -21,11 +21,11 @@ This is a **public, MIT-licensed** repository. Everything you write here will be
 
 ## Engineering practices (see `docs/ENGINEERING_PRACTICES.md`)
 
-- Verification is structural. Hooks format staged files at commit and run typecheck + build at push; CI runs nine named required jobs. Never bypass a hook with `--no-verify` or weaken a check to get green.
+- Verification is structural. Hooks format staged files at commit and run typecheck + build at push; CI runs named required jobs. Never bypass a hook with `--no-verify` or weaken a check to get green.
 - Automated paths run read-only tools only: `lint`, `format:check`. `lint:fix` and `format` are for humans.
 - One home per fact. Node version lives in `.nvmrc` (CI, `engines`, `@types/node` follow it). pnpm version lives in `packageManager`. Tags, decks and card types live in `packages/content/src/schema.ts`; derive, never restate.
 - A check that reads generated files generates them in the same command.
-- Every hand-written check (`scripts/check-*.{sh,mjs}`) has a proof-of-failure test beside it that CI runs first. If you add a check, add its test.
+- Every hand-written check (`scripts/check-*.{sh,mjs}` and `apps/web/scripts/check-blog.ts`) has a proof-of-failure test beside it that CI runs first. If you add a check, add its test.
 - Required CI jobs must be hermetic: no live services, no network fetches. Anything that needs infrastructure goes on a schedule with its report as an artifact, never on the gate.
 - Durable state is versioned. Never edit `db.version(1)`; add a new version with an `upgrade()`. Bump the export envelope `version` when its shape changes.
 - When you replace a mechanism, delete the old one in the same change.
@@ -39,9 +39,11 @@ This is a **public, MIT-licensed** repository. Everything you write here will be
 - New cards ship with `reviewed: false`. Only a maintainer sets `reviewed: true`.
 - In YAML list items avoid `: ` (colon-space); it turns the item into a mapping.
 
+- Blog posts: `docs/blog.md`. Keyword map: `docs/blog-keywords.md`.
+
 ## Things not to do
 
-- Do not add accounts, a backend, analytics, or third-party scripts. The app is static and private by design.
-- Do not commit `.env` files, credentials, or absolute paths from your machine. CI runs `scripts/check-public.sh` and gitleaks and will fail.
+- Do not add analytics or third-party scripts. GitHub sign-in and Neon-backed progress sync are optional; studying without an account still works and still writes IndexedDB first.
+- Do not commit `.env` files, credentials, or absolute paths from your machine. CI runs `scripts/check-public.sh` and gitleaks and will fail. Document new env vars by name only in `.env.example`.
 - Do not mention or copy from any private companion repository. If you are working across repositories, nothing crosses into this one unless a human asks for that specific change.
 - Do not reduce test coverage or weaken the content validator to make something pass.

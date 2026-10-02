@@ -13,7 +13,9 @@ export default function SettingsPage() {
       <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
         Settings
       </h1>
-      <p className="mt-2 text-ink-2">Nothing here leaves your browser.</p>
+      <p className="mt-2 text-ink-2">
+        Progress lives in this browser. Sign in with GitHub to keep a copy on the server.
+      </p>
       <div className="mt-8">
         <SettingsPanel />
       </div>

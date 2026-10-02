@@ -1,22 +1,38 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
 import { MermaidBlock } from "@/components/mermaid-block";
 import { cn } from "@/lib/utils";
 
-export function Markdown({ source, className }: { source: string; className?: string }) {
+const isExternal = (href?: string) => /^[a-z]+:\/\//i.test(href ?? "");
+
+export function Markdown({
+  source,
+  className,
+  headingIds = false,
+}: {
+  source: string;
+  className?: string;
+  /** Give h2/h3 the ids `headingsOf()` predicts, so a table of contents can link to them. */
+  headingIds?: boolean;
+}) {
   return (
     <div className={cn("answer", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        rehypePlugins={headingIds ? [rehypeSlug] : []}
         components={{
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noreferrer">
-              {children}
-            </a>
-          ),
+          a: ({ href, children }) =>
+            isExternal(href) ? (
+              <a href={href} target="_blank" rel="noreferrer">
+                {children}
+              </a>
+            ) : (
+              <a href={href}>{children}</a>
+            ),
           code: ({ className: codeClass, children, ...rest }) => {
             const match = /language-(\w+)/.exec(codeClass ?? "");
             const text = String(children).replace(/\n$/, "");

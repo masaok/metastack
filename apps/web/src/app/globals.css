@@ -262,6 +262,28 @@ body {
 .answer strong {
   font-weight: 650;
 }
+/* Long-form posts: larger headings, anchors land below the sticky header */
+.blog-prose {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.blog-prose h2 {
+  font-size: 1.5rem;
+  margin-top: 2em;
+  padding-top: 0.75em;
+  border-top: 1px solid var(--rule);
+}
+.blog-prose h3 {
+  font-size: 1.15rem;
+}
+.blog-prose h2,
+.blog-prose h3 {
+  scroll-margin-top: 5.5rem;
+}
+.blog-prose table {
+  display: block;
+  overflow-x: auto;
+}
 .mermaid-block svg {
   max-width: 100%;
   height: auto;

@@ -1,6 +1,7 @@
 import { Github } from "lucide-react";
 import Link from "next/link";
 
+import { AuthButton } from "@/components/auth-button";
 import { Logo, Wordmark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ButtonLink } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { GITHUB_URL } from "@/lib/utils";
 const nav = [
   { href: "/decks", label: "Decks" },
   { href: "/cards", label: "Cards" },
+  { href: "/blog", label: "Blog" },
   { href: "/settings", label: "Settings" },
 ] as const;
 
@@ -41,6 +43,7 @@ export function SiteHeader() {
           >
             <Github className="h-4 w-4" />
           </a>
+          <AuthButton />
           <ThemeToggle />
           <ButtonLink href="/study" size="sm" className="ml-1">
             Start drilling

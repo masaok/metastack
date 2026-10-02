@@ -102,6 +102,18 @@ jobs:
       - name: Relative links and anchors in Markdown
         run: pnpm check:docs
 
+  blog:
+    name: blog
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: ./.github/actions/setup
+      - name: Content check proves every rule can fail
+        run: pnpm check:blog:test
+      - name: Blog posts pass the content rules
+        run: pnpm check:blog
+
   guardrails:
     name: guardrails
     runs-on: ubuntu-latest

@@ -80,7 +80,7 @@ pnpm typecheck && pnpm lint && pnpm test
 
 ## Checks that must pass
 
-Every pull request runs these as separate required checks: `typecheck`, `lint`, `format`, `test`, `build`, `e2e`, `docs`, `guardrails`, `gitleaks`. All of them run hermetically on a fresh runner; none touches the network. A red check blocks the merge button; there is no "try again" culture, so if a check is flaky, fix the check.
+Every pull request runs these as separate required checks: `typecheck`, `lint`, `format`, `test`, `build`, `e2e`, `docs`, `blog`, `guardrails`, `gitleaks`. All of them run hermetically on a fresh runner; none touches the network. A red check blocks the merge button; there is no "try again" culture, so if a check is flaky, fix the check.
 
 The reasoning behind how these are set up is in [docs/ENGINEERING_PRACTICES.md](docs/ENGINEERING_PRACTICES.md).
 

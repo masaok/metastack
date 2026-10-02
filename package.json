@@ -18,10 +18,13 @@
     "e2e": "pnpm --filter @metastack/web e2e",
     "check:public": "bash scripts/check-public.sh",
     "check:public:test": "bash scripts/check-public.test.sh",
-    "check:docs": "node scripts/check-docs-links.mjs",
+    "check:docs": "node scripts/check-docs-links.mjs --ignore=vendor,blog",
     "check:docs:test": "node scripts/check-docs-links.test.mjs",
+    "check:blog": "pnpm --filter @metastack/web check:blog",
+    "check:blog:test": "pnpm --filter @metastack/web check:blog:test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "verify": "pnpm typecheck && pnpm validate && pnpm lint && pnpm format:check && pnpm test:coverage && pnpm check:docs:test && pnpm check:docs && pnpm check:blog:test && pnpm check:blog && pnpm check:public:test && pnpm check:public && pnpm build",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {

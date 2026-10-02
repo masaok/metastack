@@ -15,12 +15,18 @@ import {
   type Settings,
   type StudyMode,
 } from "@/lib/db";
+import { fetchSession, syncProgress, type SessionUser } from "@/lib/sync";
 import { cn } from "@/lib/utils";
+
+const buttonClass =
+  "inline-flex h-10 items-center justify-center rounded-full border border-rule px-4 text-sm font-medium";
 
 export function SettingsPanel() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [syncing, setSyncing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const totals = useLiveQuery(
@@ -38,7 +44,64 @@ export function SettingsPanel() {
 
   useEffect(() => {
     void getSettings().then(setSettings);
+    void fetchSession().then((signedIn) => {
+      setUser(signedIn);
+      const auth = new URLSearchParams(window.location.search).get("auth");
+      if (auth) window.history.replaceState({}, "", "/settings");
+      if (auth === "denied") {
+        setMessage({ tone: "error", text: "GitHub sign-in was cancelled." });
+        return;
+      }
+      if (auth === "error") {
+        setMessage({ tone: "error", text: "GitHub sign-in failed. Check the app callback URL." });
+        return;
+      }
+      if (auth === "ok") {
+        setSyncing(true);
+        return syncProgress()
+          .then(async (result) => {
+            setSettings(await getSettings());
+            setUser(await fetchSession());
+            if (!result) {
+              setMessage({ tone: "error", text: "Sign in first to sync." });
+              return;
+            }
+            setMessage({
+              tone: "ok",
+              text: `Signed in. Progress merged with the server copy. ${result.cards} cards, ${result.reviews} reviews.`,
+            });
+          })
+          .catch((err: unknown) => {
+            setMessage({
+              tone: "error",
+              text: err instanceof Error ? err.message : "Sync failed.",
+            });
+          })
+          .finally(() => setSyncing(false));
+      }
+    });
   }, []);
+
+  async function onSync(okText = "Progress synced with the server.") {
+    setSyncing(true);
+    try {
+      const result = await syncProgress();
+      setSettings(await getSettings());
+      setUser(await fetchSession());
+      if (!result) {
+        setMessage({ tone: "error", text: "Sign in first to sync." });
+        return;
+      }
+      setMessage({
+        tone: "ok",
+        text: `${okText} ${result.cards} cards, ${result.reviews} reviews.`,
+      });
+    } catch (err) {
+      setMessage({ tone: "error", text: err instanceof Error ? err.message : "Sync failed." });
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   async function updateLimit(value: number) {
     const n = Math.min(100, Math.max(1, Math.round(value)));
@@ -146,11 +209,40 @@ export function SettingsPanel() {
       </Section>
 
       <Section
+        title="Account"
+        description={
+          user
+            ? `Signed in as ${user.login}. Reviews in this browser are copied to your account after each rating.`
+            : "Optional. Sign in with GitHub so progress follows you to another browser."
+        }
+      >
+        <div className="flex flex-wrap gap-3">
+          {user ? (
+            <>
+              <Button variant="outline" onClick={() => void onSync()} disabled={syncing}>
+                {syncing ? "Syncing…" : "Sync now"}
+              </Button>
+              <a href="/api/auth/logout" className={cn(buttonClass, "hover:bg-paper-2")}>
+                Sign out
+              </a>
+            </>
+          ) : (
+            <a
+              href="/api/auth/github"
+              className={cn(buttonClass, "bg-ink text-bg hover:opacity-90")}
+            >
+              Sign in with GitHub
+            </a>
+          )}
+        </div>
+      </Section>
+
+      <Section
         title="Your data"
         description={
           totals
-            ? `${totals.learned} cards learned, ${totals.reviews} reviews, all stored in this browser's IndexedDB. Export to move it or back it up.`
-            : "Stored in this browser's IndexedDB. Export to move it or back it up."
+            ? `${totals.learned} cards learned, ${totals.reviews} reviews, stored in this browser. Export to move it, or sign in to keep a server copy.`
+            : "Stored in this browser. Export to move it, or sign in to keep a server copy."
         }
       >
         <div className="flex flex-wrap gap-3">

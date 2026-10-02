@@ -30,6 +30,7 @@ import {
   type Settings,
   type StudyMode,
 } from "@/lib/db";
+import { pushReview } from "@/lib/sync";
 import { cn } from "@/lib/utils";
 
 type Status = "loading" | "ready" | "empty" | "done";
@@ -160,6 +161,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
       if (!current || !currentState) return;
       const result = rate(currentState, rating);
       await saveReview(result.state, result.review);
+      void pushReview(result.state, result.review).catch(() => undefined);
       setStates((prev) => new Map(prev).set(current.id, result.state));
       setTally((t) => ({ ...t, [rating]: t[rating] + 1 }));
       if (index + 1 >= queue.length) {

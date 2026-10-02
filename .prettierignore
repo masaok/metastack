@@ -6,3 +6,5 @@ test-results
 packages/content/generated
 pnpm-lock.yaml
 packages/content/cards
+apps/web/content/blog
+docs/vendor

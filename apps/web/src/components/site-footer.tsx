@@ -10,8 +10,8 @@ export function SiteFooter() {
         <div className="flex items-center gap-3">
           <Logo className="h-7 w-7" />
           <p>
-            MetaStack is open source under the MIT license. Progress lives in your browser and never
-            leaves it.
+            MetaStack is open source under the MIT license. Progress lives in your browser. Sign in
+            if you want a copy that follows you.
           </p>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
@@ -34,6 +34,9 @@ export function SiteFooter() {
           >
             Report a problem
           </a>
+          <Link href="/blog" className="hover:text-ink">
+            Blog
+          </Link>
           <Link href="/settings" className="hover:text-ink">
             Export progress
           </Link>
