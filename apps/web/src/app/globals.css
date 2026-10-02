@@ -85,6 +85,23 @@ body {
   border-radius: 6px;
 }
 
+/* The question on a flashcard. The body face, not the display face, so a long prompt stays readable. */
+.card-prompt {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+@media (min-width: 640px) {
+  .card-prompt {
+    font-size: 1.5rem;
+  }
+}
+
 /* An index card: paper, blue rules, a red header rule. */
 .index-card {
   position: relative;

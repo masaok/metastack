@@ -390,9 +390,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
           </span>
         </header>
 
-        <h2 className="mt-6 font-display text-[1.5rem] leading-[1.3] font-semibold tracking-tight text-ink sm:text-[1.8rem]">
-          {current.prompt.trim()}
-        </h2>
+        <h2 className="card-prompt mt-6">{current.prompt.trim()}</h2>
 
         {phase === "prompt" && (
           <div className="mt-8">

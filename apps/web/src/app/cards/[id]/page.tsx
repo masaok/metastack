@@ -54,9 +54,7 @@ export default async function CardPage({ params }: Props) {
           <Badge>difficulty {card.difficulty}/3</Badge>
           <span className="ml-auto font-mono text-xs text-ink-3">#{card.id}</span>
         </header>
-        <h1 className="mt-6 font-display text-[1.6rem] leading-[1.3] font-semibold tracking-tight text-ink sm:text-[1.9rem]">
-          {card.prompt.trim()}
-        </h1>
+        <h1 className="card-prompt mt-6">{card.prompt.trim()}</h1>
 
         <section className="mt-8">
           <h2 className="text-sm font-medium text-ink-2">Key points</h2>

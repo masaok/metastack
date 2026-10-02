@@ -17,7 +17,7 @@ import type { SessionUser } from "@/lib/sync";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: "/dashboard", label: "Overview", icon: LayoutGrid },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
   { href: "/admin", label: "Admin", icon: Shield, admin: true },
   { href: "/study", label: "Study", icon: Play },
   { href: "/decks", label: "Decks", icon: Layers },

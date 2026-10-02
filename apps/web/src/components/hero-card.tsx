@@ -51,9 +51,7 @@ export function HeroCard({ card }: { card: Card }) {
               <Badge>{card.type}</Badge>
               <span className="ml-auto font-mono text-xs text-ink-3">#{card.id}</span>
             </div>
-            <p className="mt-7 font-display text-[1.45rem] leading-[1.3] font-semibold tracking-tight text-ink sm:text-[1.65rem]">
-              {card.prompt.trim()}
-            </p>
+            <p className="card-prompt mt-7">{card.prompt.trim()}</p>
             <div className="mt-auto flex items-center gap-2 pt-8 text-sm text-ink-2">
               <RotateCw className="h-4 w-4" />
               Flip to check your answer
