@@ -36,5 +36,5 @@ export function siteUrl(requestUrl?: string): string {
 }
 
 export function githubCallbackUrl(requestUrl?: string): string {
-  return `${siteUrl(requestUrl)}/api/auth/callback`;
+  return `${siteUrl(requestUrl)}/api/auth/callback/github`;
 }
