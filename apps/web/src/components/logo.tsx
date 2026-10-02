@@ -104,7 +104,9 @@ export function Logo({
 
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("font-display text-[1.15rem] font-bold tracking-tight", className)}>
+    <span
+      className={cn("shrink-0 font-display text-[1.15rem] font-bold tracking-tight", className)}
+    >
       Meta<span className="text-red">Stack</span>
     </span>
   );

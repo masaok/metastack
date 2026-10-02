@@ -111,7 +111,8 @@ export default async function BlogPostPage({ params }: Props) {
                 Reading is the easy part.
               </p>
               <p className="mt-1 text-sm text-ink-2">
-                Drill the cards behind this post. Progress stays in your browser, no account.
+                Drill the cards behind this post. Progress stays in your browser. Sign in if you
+                want a copy that follows you.
               </p>
             </div>
             <ButtonLink href="/study" className="mt-4 sm:mt-0">
