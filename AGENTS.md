@@ -19,6 +19,18 @@ This is a **public, MIT-licensed** repository. Everything you write here will be
 - `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` must all pass before a PR. `packages/srs` enforces 100% coverage.
 - Next 16 specifics: `params` is a Promise; `next lint` no longer exists (use `eslint`); the favicon is `apps/web/src/app/icon.svg`.
 
+## Engineering practices (see `docs/ENGINEERING_PRACTICES.md`)
+
+- Verification is structural. Hooks format staged files at commit and run typecheck + build at push; CI runs nine named required jobs. Never bypass a hook with `--no-verify` or weaken a check to get green.
+- Automated paths run read-only tools only: `lint`, `format:check`. `lint:fix` and `format` are for humans.
+- One home per fact. Node version lives in `.nvmrc` (CI, `engines`, `@types/node` follow it). pnpm version lives in `packageManager`. Tags, decks and card types live in `packages/content/src/schema.ts`; derive, never restate.
+- A check that reads generated files generates them in the same command.
+- Every hand-written check (`scripts/check-*.{sh,mjs}`) has a proof-of-failure test beside it that CI runs first. If you add a check, add its test.
+- Required CI jobs must be hermetic: no live services, no network fetches. Anything that needs infrastructure goes on a schedule with its report as an artifact, never on the gate.
+- Durable state is versioned. Never edit `db.version(1)`; add a new version with an `upgrade()`. Bump the export envelope `version` when its shape changes.
+- When you replace a mechanism, delete the old one in the same change.
+- If something in a guide here disagrees with the code, fix the guide to describe the code, and note the decision.
+
 ## Content rules (enforced by `pnpm validate`, then by humans)
 
 - Cards are Markdown with YAML front matter in `packages/content/cards/<deck>/<id>.md`. The schema is `packages/content/src/schema.ts`; read it before writing a card.

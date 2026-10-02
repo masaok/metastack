@@ -28,7 +28,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://metastack.dev"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.metastack.app"),
   title: {
     default: "MetaStack — system design flashcards",
     template: "%s · MetaStack",

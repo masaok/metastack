@@ -74,7 +74,15 @@ pnpm typecheck && pnpm lint && pnpm test
 - `packages/srs` must stay at 100% coverage. If you add a branch, add a test.
 - Keep `packages/srs` and `packages/content` free of browser or Node-only APIs so they stay portable.
 - UI must work with keyboard only and in both themes.
-- Run `pnpm format` before committing.
+- Formatting is automatic: `pnpm install` installs a pre-commit hook that formats staged files, and a pre-push hook that runs typecheck and the production build. `pnpm lint:fix` is a convenience for you; CI only runs the read-only `pnpm lint`.
+- One home per fact: Node version in `.nvmrc` (CI and `engines` follow it), pnpm version in `packageManager`, tags and decks in `packages/content/src/schema.ts`.
+- If you add a hand-written check script, add a test that proves it fails on the thing it detects, and run that test in CI right before the check. See `scripts/*.test.*`.
+
+## Checks that must pass
+
+Every pull request runs these as separate required checks: `typecheck`, `lint`, `format`, `test`, `build`, `e2e`, `docs`, `guardrails`, `gitleaks`. All of them run hermetically on a fresh runner; none touches the network. A red check blocks the merge button; there is no "try again" culture, so if a check is flaky, fix the check.
+
+The reasoning behind how these are set up is in [docs/ENGINEERING_PRACTICES.md](docs/ENGINEERING_PRACTICES.md).
 
 ## Public repository guardrail
 

@@ -61,6 +61,19 @@ Next.js 16 App Router, fully static. Pages are server components that read from 
 
 **Export/import.** A versioned JSON envelope (`app`, `version`, `exportedAt`, `cardStates`, `reviews`, `settings`). Import validates the envelope and replaces local data.
 
+## Durable state and schema changes
+
+The only durable state is the user's IndexedDB. It has a version history and the rules are:
+
+- `db.version(1).stores(...)` in `lib/db.ts` is the baseline. It is never edited.
+- A schema change is a new `db.version(n + 1).stores(...)` with an `upgrade()` function that transforms existing rows. Dexie applies versions in order and the browser serialises upgrades, so no lock is needed.
+- The export envelope's `version` is bumped with any change to its shape, and `importData` must accept every previous version it has ever written, or reject it with a message that says so.
+- Card ids are stable. Renaming a card id is a schema change for the user's data and needs an upgrade step that rewrites `cardStates.cardId` and `reviews.cardId`.
+
+## Verification
+
+How the checks are wired, and why each is shaped the way it is, is in [ENGINEERING_PRACTICES.md](ENGINEERING_PRACTICES.md). In short: nine named CI jobs are required on `main`; hooks only format staged files at commit and run typecheck plus the production build at push; every hand-written check ships with a test that proves it can fail; nothing required touches the network.
+
 ## Decisions
 
 See the ADRs in [`docs/adr`](adr):

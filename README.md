@@ -17,7 +17,7 @@
 
 ---
 
-**[Try it](https://metastack.dev)** · [Browse the cards](https://metastack.dev/cards) · [Contribute a card](CONTRIBUTING.md)
+**[Try it](https://www.metastack.app)** · [Browse the cards](https://www.metastack.app/cards) · [Contribute a card](CONTRIBUTING.md)
 
 ## What it is
 
