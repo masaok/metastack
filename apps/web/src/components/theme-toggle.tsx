@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useSyncExternalStore } from "react";
+
 import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark";

@@ -1,5 +1,6 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { compileDirectory } from "../src/compile";
 
 const here = dirname(fileURLToPath(import.meta.url));

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+
 import { cards, DECKS, tagCounts } from "@metastack/content";
+
 import { CardBrowser, type CardSummary } from "@/components/card-browser";
 
 export const metadata: Metadata = {

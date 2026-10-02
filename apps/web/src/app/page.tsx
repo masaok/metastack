@@ -1,6 +1,8 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { cards, DECKS, cardsForDeck, getCard } from "@metastack/content";
+import Link from "next/link";
+
+import { cards, cardsForDeck, DECKS, getCard } from "@metastack/content";
+
 import { HeroCard } from "@/components/hero-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";

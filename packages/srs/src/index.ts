@@ -8,12 +8,12 @@
 import {
   createEmptyCard,
   fsrs,
-  generatorParameters,
   Rating as FsrsRating,
   State as FsrsState,
+  generatorParameters,
   type Card as FsrsCard,
-  type Grade,
   type FSRSParameters,
+  type Grade,
 } from "ts-fsrs";
 
 export type Rating = "again" | "hard" | "good" | "easy";

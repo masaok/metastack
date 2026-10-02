@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+
 import { cards } from "@metastack/content";
+
 import { StudySession } from "@/components/study/session";
 
 export const metadata: Metadata = {

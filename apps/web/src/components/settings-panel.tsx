@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Download, Trash2, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   db,
   exportData,
@@ -13,7 +15,6 @@ import {
   type Settings,
   type StudyMode,
 } from "@/lib/db";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function SettingsPanel() {

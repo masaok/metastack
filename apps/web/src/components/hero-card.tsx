@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { RotateCw } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import type { Card } from "@metastack/content";
+
 import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";

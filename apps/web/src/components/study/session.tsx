@@ -1,8 +1,9 @@
 "use client";
 
+import { ArrowRight, ExternalLink, PenLine, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ExternalLink, PenLine, RotateCcw } from "lucide-react";
+
 import type { Card } from "@metastack/content";
 import {
   buildSession,
@@ -15,6 +16,11 @@ import {
   type CardState,
   type Rating,
 } from "@metastack/srs";
+
+import { Markdown } from "@/components/markdown";
+import { Badge } from "@/components/ui/badge";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import {
   countNewIntroducedToday,
   db,
@@ -24,10 +30,6 @@ import {
   type Settings,
   type StudyMode,
 } from "@/lib/db";
-import { Markdown } from "@/components/markdown";
-import { Badge } from "@/components/ui/badge";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 
 type Status = "loading" | "ready" | "empty" | "done";
@@ -300,7 +302,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
           <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {RATINGS.map((r) => (
               <div key={r} className={cn("rounded-xl border bg-paper-2 px-4 py-3", RATING_TONE[r])}>
-                <dt className="text-xs font-medium uppercase tracking-wide opacity-80">
+                <dt className="text-xs font-medium tracking-wide uppercase opacity-80">
                   {RATING_LABEL[r]}
                 </dt>
                 <dd className="mt-1 font-mono text-2xl text-ink">{tally[r]}</dd>
@@ -437,7 +439,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
                   <li key={kp}>
                     <Row
                       className={cn(
-                        "flex items-start gap-3 rounded-lg px-2 py-1.5 -mx-2",
+                        "-mx-2 flex items-start gap-3 rounded-lg px-2 py-1.5",
                         settings.mode === "rubric" && "cursor-pointer hover:bg-paper-2",
                       )}
                     >
@@ -460,7 +462,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
                       )}
                       <span className={cn("leading-snug", on && "text-ink-2")}>{kp}</span>
                       {settings.mode === "rubric" && i < 9 && (
-                        <Kbd className="ml-auto mt-0.5 hidden sm:inline-flex">{i + 1}</Kbd>
+                        <Kbd className="mt-0.5 ml-auto hidden sm:inline-flex">{i + 1}</Kbd>
                       )}
                     </Row>
                   </li>
@@ -471,7 +473,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
             {scratch.trim() && (
               <div className="mt-5 rounded-xl border border-rule bg-paper-2 px-4 py-3">
                 <p className="text-xs font-medium text-ink-3">Your scratchpad</p>
-                <pre className="mt-1 whitespace-pre-wrap font-mono text-sm text-ink-2">
+                <pre className="mt-1 font-mono text-sm whitespace-pre-wrap text-ink-2">
                   {scratch}
                 </pre>
               </div>

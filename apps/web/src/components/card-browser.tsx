@@ -1,9 +1,11 @@
 "use client";
 
+import { Search, X } from "lucide-react";
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+
 import type { CardType, DeckSlug, Tag } from "@metastack/content";
+
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 

@@ -1,8 +1,10 @@
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+
 import { cards, getCard, getDeck } from "@metastack/content";
+
 import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";

@@ -6,7 +6,9 @@
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
+
 import matter from "gray-matter";
+
 import { DECK_SLUGS, frontMatterSchema, type Card } from "./schema";
 
 export interface CompileIssue {

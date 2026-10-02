@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { Github } from "lucide-react";
+import Link from "next/link";
+
 import { Logo, Wordmark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ButtonLink } from "@/components/ui/button";

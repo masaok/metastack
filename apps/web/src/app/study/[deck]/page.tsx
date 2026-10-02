@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
 import { cardsForDeck, DECKS, getDeck, isDeckSlug } from "@metastack/content";
+
 import { StudySession } from "@/components/study/session";
 
 type Props = { params: Promise<{ deck: string }> };

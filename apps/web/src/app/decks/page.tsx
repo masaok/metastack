@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+
 import { cardIdsForDeck, DECKS } from "@metastack/content";
+
 import { DeckGrid } from "@/components/deck-grid";
 import { ButtonLink } from "@/components/ui/button";
 

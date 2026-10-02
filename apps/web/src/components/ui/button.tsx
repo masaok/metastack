@@ -1,14 +1,15 @@
-import * as React from "react";
-import Link from "next/link";
 import { cva, type VariantProps } from "class-variance-authority";
+import Link from "next/link";
+import * as React from "react";
+
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition-[background-color,color,box-shadow,transform] duration-150 select-none disabled:pointer-events-none disabled:opacity-50 active:translate-y-px",
+  "inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap transition-[background-color,color,box-shadow,transform] duration-150 select-none active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "bg-red text-white hover:bg-red-ink shadow-[0_6px_18px_-8px_var(--red)]",
+        primary: "bg-red text-white shadow-[0_6px_18px_-8px_var(--red)] hover:bg-red-ink",
         secondary: "bg-ink text-bg hover:opacity-90",
         outline: "border border-rule-strong bg-paper text-ink hover:bg-paper-2",
         ghost: "text-ink-2 hover:bg-paper-2 hover:text-ink",

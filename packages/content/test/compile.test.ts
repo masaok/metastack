@@ -1,6 +1,8 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
+
 import { compileDirectory, compileSource } from "../src/compile";
 
 const here = dirname(fileURLToPath(import.meta.url));

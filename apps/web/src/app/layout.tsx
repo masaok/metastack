@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
+
 import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",

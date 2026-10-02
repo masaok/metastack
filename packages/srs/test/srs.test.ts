@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import {
   buildSession,
   countDeck,
@@ -10,8 +11,8 @@ import {
   previewDue,
   rate,
   ratingFromRubric,
-  retrievability,
   RATINGS,
+  retrievability,
   type CardState,
 } from "../src/index";
 

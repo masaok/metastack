@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+
 import type { Deck } from "@metastack/content";
 import { countDeck } from "@metastack/srs";
+
 import { db } from "@/lib/db";
 
 export function DeckGrid({ decks }: { decks: Array<Deck & { cardIds: string[] }> }) {
