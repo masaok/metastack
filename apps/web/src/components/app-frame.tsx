@@ -7,7 +7,7 @@ import { SiteHeader } from "@/components/site-header";
 
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  if (path.startsWith("/dashboard")) {
+  if (path.startsWith("/dashboard") || path.startsWith("/admin")) {
     return (
       <div id="main" className="fixed inset-0 overflow-hidden">
         {children}

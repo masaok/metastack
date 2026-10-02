@@ -66,7 +66,7 @@ Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync ar
 
 **Sign-in.** `/api/auth/github` sends the browser to GitHub with `read:user` and `user:email`. GitHub returns to `/api/auth/callback/github`, which upserts the user, sets an httpOnly cookie, and redirects to `/dashboard`. The dashboard merges the local and remote envelopes, then lists every card with that user's scheduling state. Studying without signing in is unchanged.
 
-**Admin.** Admin is not a column and not a setting. A session is an admin only when GitHub reports `masaok@gmail.com` as a verified address for that account. No other address is an admin.
+**Admin.** Admin is not a column and not a setting. A session is an admin only when GitHub reports `masaok@gmail.com` as a verified address for that account. No other address is an admin. `/admin` uses the dashboard shell and lists every account plus review totals. Anyone else is redirected to `/dashboard`.
 
 ## Durable state and schema changes
 
