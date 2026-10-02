@@ -1,0 +1,23 @@
+name: Report a card error
+description: A card is wrong, misleading, outdated, or badly worded.
+title: "Card error: "
+labels: [content, card-error]
+body:
+  - type: input
+    id: card-id
+    attributes:
+      label: Card id
+      description: The id shown on the card page, for example `caching-write-strategies`.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix
+      description: Optional. If you have a source, link it.

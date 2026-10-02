@@ -1,27 +1,30 @@
 {
-  "name": "metastack",
+  "name": "metastack-monorepo",
   "version": "0.1.0",
   "private": true,
+  "description": "Open-source flashcards for system design interviews. FSRS scheduling, Markdown cards, no account.",
+  "license": "MIT",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "next": "16.3.8",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "dev": "pnpm --filter @metastack/web dev",
+    "build": "pnpm --filter @metastack/web build",
+    "start": "pnpm --filter @metastack/web start",
+    "compile": "pnpm --filter @metastack/content compile",
+    "validate": "pnpm --filter @metastack/content validate",
+    "typecheck": "pnpm compile && pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm compile && pnpm -r --if-present test",
+    "test:coverage": "pnpm compile && pnpm -r --if-present test:coverage",
+    "e2e": "pnpm --filter @metastack/web e2e",
+    "check:public": "bash scripts/check-public.sh",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.8",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@12.4.1"
+  "packageManager": "pnpm@12.4.1",
+  "engines": {
+    "node": ">=20.9"
+  }
 }

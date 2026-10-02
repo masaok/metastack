@@ -1,0 +1,268 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  color-scheme: light;
+  /* Index-card palette: cool paper, navy ink, blue rules, one red rule. */
+  --bg: #f1f4f9;
+  --paper: #ffffff;
+  --paper-2: #f7f9fc;
+  --ink: #15203a;
+  --ink-2: #4e5d78;
+  --ink-3: #8b97ad;
+  --rule: #c5d3e8;
+  --rule-strong: #9fb3d3;
+  --red: #e2505c;
+  --red-ink: #b7303c;
+  --blue: #2f5fd0;
+  --green: #1f9d6a;
+  --amber: #d9941b;
+  --shadow: 21 32 58;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1526;
+  --paper: #17213a;
+  --paper-2: #1d2946;
+  --ink: #e9eef8;
+  --ink-2: #aab6cc;
+  --ink-3: #74829d;
+  --rule: #2b3a5c;
+  --rule-strong: #3d507a;
+  --red: #ff6b76;
+  --red-ink: #ff8b94;
+  --blue: #7ea2ff;
+  --green: #4cc695;
+  --amber: #f0b43a;
+  --shadow: 0 0 0;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-red: var(--red);
+  --color-red-ink: var(--red-ink);
+  --color-blue: var(--blue);
+  --color-green: var(--green);
+  --color-amber: var(--amber);
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-plex-sans), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-card: 14px;
+  --shadow-card: 0 1px 0 rgb(var(--shadow) / 0.06), 0 10px 30px -14px rgb(var(--shadow) / 0.35);
+  --shadow-lift: 0 1px 0 rgb(var(--shadow) / 0.08), 0 24px 50px -20px rgb(var(--shadow) / 0.45);
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--red) 25%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* An index card: paper, blue rules, a red header rule. */
+.index-card {
+  position: relative;
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  --rule-gap: 32px;
+  --rule-top: 64px;
+  background-image:
+    linear-gradient(var(--red) 0 0),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--rule-gap) - 1px),
+      var(--rule) calc(var(--rule-gap) - 1px),
+      var(--rule) var(--rule-gap)
+    );
+  background-size:
+    100% 2px,
+    100% var(--rule-gap);
+  background-position:
+    0 calc(var(--rule-top) - 2px),
+    0 var(--rule-top);
+  background-repeat: no-repeat, repeat-y;
+}
+
+.index-card.plain {
+  background-image: none;
+}
+
+/* Keep the red header rule but drop the blue lines; for long-form content */
+.index-card.header-only {
+  background-image: linear-gradient(var(--red) 0 0);
+  background-size: 100% 2px;
+  background-position: 0 calc(var(--rule-top) - 2px);
+  background-repeat: no-repeat;
+}
+
+/* Flip animation for the hero / study card */
+.flip-scene {
+  perspective: 1600px;
+}
+.flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner {
+    transition: none;
+  }
+  .mascot-blink {
+    animation: none !important;
+  }
+}
+
+/* Mascot blink: one quiet, occasional blink */
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+.mascot-blink {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: blink 6s infinite;
+}
+
+/* Prose for model answers */
+.answer {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.answer > * + * {
+  margin-top: 0.9em;
+}
+.answer h2,
+.answer h3 {
+  font-family: var(--font-display);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin-top: 1.6em;
+}
+.answer h2 {
+  font-size: 1.25rem;
+}
+.answer h3 {
+  font-size: 1.1rem;
+}
+.answer p {
+  margin-top: 0.75em;
+}
+.answer ul,
+.answer ol {
+  padding-left: 1.4em;
+}
+.answer ul {
+  list-style: disc;
+}
+.answer ol {
+  list-style: decimal;
+}
+.answer li + li {
+  margin-top: 0.3em;
+}
+.answer a {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.answer code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 0.1em 0.35em;
+}
+.answer pre {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.answer pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+.answer table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+}
+.answer th,
+.answer td {
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.answer th {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.answer blockquote {
+  border-left: 3px solid var(--rule-strong);
+  padding-left: 1rem;
+  color: var(--ink-2);
+}
+.answer strong {
+  font-weight: 650;
+}
+.mermaid-block svg {
+  max-width: 100%;
+  height: auto;
+}

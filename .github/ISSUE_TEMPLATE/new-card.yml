@@ -1,0 +1,47 @@
+name: Propose a new card
+description: Suggest a question that belongs in the deck.
+title: "New card: "
+labels: [content, new-card]
+body:
+  - type: dropdown
+    id: deck
+    attributes:
+      label: Deck
+      options:
+        - fundamentals
+        - estimation
+        - designs
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Prompt
+      description: The question as an interviewer would ask it. One or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: key-points
+    attributes:
+      label: Key points
+      description: Three to six things a strong answer must mention. Your own words, not copied from anywhere.
+      placeholder: |
+        - ...
+        - ...
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: Public references
+      description: At least one link to public documentation, a paper, or an engineering blog post.
+    validations:
+      required: true
+  - type: checkboxes
+    id: originality
+    attributes:
+      label: Originality
+      options:
+        - label: This wording is my own and not copied from a paid course, book, or another flashcard deck.
+          required: true

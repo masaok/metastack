@@ -7,3 +7,29 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# MetaStack: notes for coding agents
+
+This is a **public, MIT-licensed** repository. Everything you write here will be published.
+
+## Project shape
+
+- pnpm workspace. `apps/web` is a Next.js 16 App Router app (Turbopack, Tailwind v4, Dexie). `packages/content` holds the cards and their compiler. `packages/srs` wraps ts-fsrs in pure functions.
+- The content package must be compiled before the app runs: `pnpm compile` writes `packages/content/generated/cards.json` (gitignored). `pnpm dev` and `pnpm build` do this automatically.
+- `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` must all pass before a PR. `packages/srs` enforces 100% coverage.
+- Next 16 specifics: `params` is a Promise; `next lint` no longer exists (use `eslint`); the favicon is `apps/web/src/app/icon.svg`.
+
+## Content rules (enforced by `pnpm validate`, then by humans)
+
+- Cards are Markdown with YAML front matter in `packages/content/cards/<deck>/<id>.md`. The schema is `packages/content/src/schema.ts`; read it before writing a card.
+- **Original wording only.** Never reproduce text or list structure from courses, books, or other decks. Write from understanding, then cite a public source.
+- 3 to 6 `keyPoints`, each something a strong answer _says_. At least one public `reference`. Tags from the closed vocabulary. `type: design` cards need `stages`.
+- New cards ship with `reviewed: false`. Only a maintainer sets `reviewed: true`.
+- In YAML list items avoid `: ` (colon-space); it turns the item into a mapping.
+
+## Things not to do
+
+- Do not add accounts, a backend, analytics, or third-party scripts. The app is static and private by design.
+- Do not commit `.env` files, credentials, or absolute paths from your machine. CI runs `scripts/check-public.sh` and gitleaks and will fail.
+- Do not mention or copy from any private companion repository. If you are working across repositories, nothing crosses into this one unless a human asks for that specific change.
+- Do not reduce test coverage or weaken the content validator to make something pass.
