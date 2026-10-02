@@ -20,11 +20,12 @@ const IGNORED_DIRS = new Set([
   "playwright-report",
 ]);
 
-export function listMarkdownFiles(root) {
+export function listMarkdownFiles(root, extraIgnored = []) {
+  const ignored = new Set([...IGNORED_DIRS, ...extraIgnored]);
   const out = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir)) {
-      if (IGNORED_DIRS.has(entry)) continue;
+      if (ignored.has(entry)) continue;
       const full = join(dir, entry);
       const st = statSync(full);
       if (st.isDirectory()) walk(full);
