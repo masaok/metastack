@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/admin", label: "Admin", icon: Shield, admin: true },
   { href: "/study", label: "Study", icon: Play },
   { href: "/decks", label: "Decks", icon: Layers },
   { href: "/cards", label: "Cards", icon: GalleryVerticalEnd },
@@ -37,7 +36,8 @@ export function DashboardShell({
   active: "/dashboard" | "/admin";
   children: React.ReactNode;
 }) {
-  const items = NAV.filter((item) => !("admin" in item && item.admin) || user?.admin);
+  const onAdmin = active === "/admin";
+  const items = user?.admin ? NAV.filter((item) => item.href !== "/dashboard") : NAV;
 
   return (
     <div className="flex h-full min-h-0 bg-bg text-ink">
@@ -91,6 +91,34 @@ export function DashboardShell({
             ))}
           </ul>
         </nav>
+        {user?.admin ? (
+          <div className="shrink-0 space-y-1 border-t border-rule px-2 py-2">
+            <Link
+              href="/dashboard"
+              aria-current={active === "/dashboard" ? "page" : undefined}
+              title="Dashboard"
+              className={cn(
+                "flex items-center justify-center gap-2 rounded-md px-2 py-2 text-sm text-ink-2 hover:bg-paper-2 hover:text-ink sm:justify-start",
+                active === "/dashboard" && "bg-paper-2 font-medium text-ink",
+              )}
+            >
+              <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="hidden sm:inline">Dashboard</span>
+            </Link>
+            <Link
+              href="/admin"
+              aria-current={onAdmin ? "page" : undefined}
+              title="Admin"
+              className={cn(
+                "flex items-center justify-center gap-2 rounded-md bg-red/10 px-2 py-2 text-sm font-semibold text-red hover:bg-red/20 sm:justify-start",
+                onAdmin && "bg-red text-white hover:bg-red-ink",
+              )}
+            >
+              <Shield className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="hidden sm:inline">Admin</span>
+            </Link>
+          </div>
+        ) : null}
         <div className="shrink-0 border-t border-rule p-2">
           {user ? (
             <div className="flex items-center gap-2 px-1 py-1">
@@ -110,7 +138,6 @@ export function DashboardShell({
               )}
               <div className="hidden min-w-0 flex-1 sm:block">
                 <p className="truncate text-sm">{user.login}</p>
-                {user.admin ? <p className="text-xs text-red">Admin</p> : null}
                 <a href="/api/auth/logout" className="text-xs text-ink-3 hover:text-ink">
                   Sign out
                 </a>
