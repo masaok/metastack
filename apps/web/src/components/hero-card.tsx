@@ -32,7 +32,6 @@ export function HeroCard({ card }: { card: Card }) {
   return (
     <div className="relative" data-hero-card>
       <Logo
-        animate
         className="pointer-events-none absolute -top-14 right-8 z-0 h-28 w-28 sm:-top-16 sm:right-10 sm:h-32 sm:w-32"
         title=""
       />

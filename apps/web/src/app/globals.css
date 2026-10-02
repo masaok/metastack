@@ -150,26 +150,6 @@ body {
   .flip-inner {
     transition: none;
   }
-  .mascot-blink {
-    animation: none !important;
-  }
-}
-
-/* Mascot blink: one quiet, occasional blink */
-@keyframes blink {
-  0%,
-  92%,
-  100% {
-    transform: scaleY(1);
-  }
-  95% {
-    transform: scaleY(0.1);
-  }
-}
-.mascot-blink {
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: blink 6s infinite;
 }
 
 /* Prose for model answers */
