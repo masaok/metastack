@@ -147,6 +147,7 @@ export function DashboardView({
               )}
               <div className="hidden min-w-0 flex-1 sm:block">
                 <p className="truncate text-sm">{user.login}</p>
+                {user.admin ? <p className="text-xs text-red">Admin</p> : null}
                 <a href="/api/auth/logout" className="text-xs text-ink-3 hover:text-ink">
                   Sign out
                 </a>

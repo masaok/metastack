@@ -67,12 +67,13 @@ function toReview(row: ReviewRow): ReviewRecord {
 export async function upsertUser(user: SessionUser): Promise<void> {
   const sql = await ensureSchema();
   await sql`
-    INSERT INTO users (id, login, name, avatar_url)
-    VALUES (${user.id}, ${user.login}, ${user.name}, ${user.avatarUrl})
+    INSERT INTO users (id, login, name, avatar_url, email)
+    VALUES (${user.id}, ${user.login}, ${user.name}, ${user.avatarUrl}, ${user.email})
     ON CONFLICT (id) DO UPDATE SET
       login = EXCLUDED.login,
       name = EXCLUDED.name,
       avatar_url = EXCLUDED.avatar_url,
+      email = EXCLUDED.email,
       updated_at = now()
   `;
 }

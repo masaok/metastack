@@ -9,6 +9,8 @@ export interface SessionUser {
   login: string;
   name: string | null;
   avatarUrl: string | null;
+  email: string | null;
+  admin: boolean;
 }
 
 export async function fetchSession(): Promise<SessionUser | null> {

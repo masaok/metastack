@@ -1,5 +1,6 @@
 import "server-only";
 
+import { isAdminEmail } from "./admin";
 import { githubCallbackUrl, githubClientId, githubClientSecret } from "./env";
 import type { SessionUser } from "./session";
 
@@ -7,7 +8,7 @@ export function authorizeUrl(state: string, requestUrl?: string): string {
   const url = new URL("https://github.com/login/oauth/authorize");
   url.searchParams.set("client_id", githubClientId());
   url.searchParams.set("redirect_uri", githubCallbackUrl(requestUrl));
-  url.searchParams.set("scope", "read:user");
+  url.searchParams.set("scope", "read:user user:email");
   url.searchParams.set("state", state);
   return url.toString();
 }
@@ -23,6 +24,12 @@ interface GithubUser {
   login: string;
   name: string | null;
   avatar_url: string | null;
+}
+
+interface GithubEmail {
+  email: string;
+  primary: boolean;
+  verified: boolean;
 }
 
 export async function exchangeCode(code: string, requestUrl?: string): Promise<SessionUser> {
@@ -51,10 +58,29 @@ export async function exchangeCode(code: string, requestUrl?: string): Promise<S
   });
   if (!userRes.ok) throw new Error("GitHub user lookup failed");
   const user = (await userRes.json()) as GithubUser;
+  const email = await verifiedEmail(token.access_token);
   return {
     id: String(user.id),
     login: user.login,
     name: user.name,
     avatarUrl: user.avatar_url,
+    email,
+    admin: isAdminEmail(email),
   };
+}
+
+async function verifiedEmail(token: string): Promise<string | null> {
+  const res = await fetch("https://api.github.com/user/emails", {
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${token}`,
+      "User-Agent": "metastack",
+    },
+  });
+  if (!res.ok) throw new Error("GitHub email lookup failed");
+  const rows = (await res.json()) as GithubEmail[];
+  const verified = rows.filter((row) => row.verified && row.email);
+  const admin = verified.find((row) => isAdminEmail(row.email));
+  const primary = verified.find((row) => row.primary) ?? verified[0];
+  return admin?.email ?? primary?.email ?? null;
 }

@@ -15,9 +15,11 @@ const STATEMENTS = [
     login TEXT NOT NULL,
     name TEXT,
     avatar_url TEXT,
+    email TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT`,
   `CREATE TABLE IF NOT EXISTS card_states (
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     card_id TEXT NOT NULL,
