@@ -1,6 +1,6 @@
 import "server-only";
 
-import { isAdminEmail } from "./admin";
+import { isAdminAccount, isAdminEmail } from "./admin";
 import { githubCallbackUrl, githubClientId, githubClientSecret } from "./env";
 import type { SessionUser } from "./session";
 
@@ -65,7 +65,7 @@ export async function exchangeCode(code: string, requestUrl?: string): Promise<S
     name: user.name,
     avatarUrl: user.avatar_url,
     email,
-    admin: isAdminEmail(email),
+    admin: isAdminAccount({ email, login: user.login }),
   };
 }
 

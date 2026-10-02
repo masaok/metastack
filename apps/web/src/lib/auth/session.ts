@@ -3,7 +3,7 @@ import "server-only";
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 
-import { isAdminEmail } from "./admin";
+import { isAdminAccount } from "./admin";
 import { authSecret } from "./env";
 
 export const SESSION_COOKIE = "ms_session";
@@ -48,7 +48,7 @@ export async function readSession(token: string): Promise<SessionUser | null> {
       name: typeof payload.name === "string" ? payload.name : null,
       avatarUrl: typeof payload.avatarUrl === "string" ? payload.avatarUrl : null,
       email,
-      admin: isAdminEmail(email),
+      admin: isAdminAccount({ email, login: payload.login }),
     };
   } catch {
     return null;
