@@ -1,4 +1,66 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+/** Pin the random draw so a card shows one known exercise: 0 slots, 0.25 cues, 0.5 match, 0.75 pick. */
+async function pinRandom(page: Page, value: number) {
+  await page.addInitScript((v) => {
+    Math.random = () => v;
+  }, value);
+}
+
+test.describe("exercises", () => {
+  const card = "/study/card/authn-authz-basics";
+
+  test("recall slots credit each point marked as got", async ({ page }) => {
+    await pinRandom(page, 0);
+    await page.goto(card);
+    await expect(page.getByText("Recall the 5 key points, one at a time")).toBeVisible();
+    await page.getByLabel("Your answer for point 1").fill("opaque id, server state");
+    for (let i = 0; i < 5; i++) {
+      await page.getByRole("button", { name: "Show point" }).click();
+      if (i === 0) await expect(page.getByText("You wrote: opaque id, server state")).toBeVisible();
+      await page.getByRole("button", { name: i < 4 ? "Got it" : "Missed it" }).click();
+    }
+    await expect(page.getByText("Tick the points you covered")).toBeVisible();
+    await expect(page.getByText(/4\/5 covered → suggested Good/)).toBeVisible();
+    await expect(page.getByRole("checkbox", { checked: true })).toHaveCount(4);
+  });
+
+  test("cues show the plain-language hints, and space skips the exercise", async ({ page }) => {
+    await pinRandom(page, 0.25);
+    await page.goto(card);
+    await expect(page.getByText("Turn each plain-language hint into the key point")).toBeVisible();
+    await expect(page.getByText(/A session is a coat check ticket/)).toBeVisible();
+    await page.keyboard.press("Space");
+    await expect(page.getByText(/0\/5 covered → suggested Again/)).toBeVisible();
+  });
+
+  test("match credits the lines matched on the first try", async ({ page }) => {
+    await pinRandom(page, 0.5);
+    await page.goto(card);
+    const exercise = page.locator("[data-exercise]");
+    let matched = 0;
+    for (let i = 0; i < 5; i++) {
+      await expect(exercise.getByText(`Line ${i + 1} of 5`)).toBeVisible();
+      await exercise.locator("ul button").first().click();
+      if ((await exercise.getByRole("status").textContent()) === "Matched.") matched += 1;
+      await exercise.getByRole("button", { name: i < 4 ? "Next line" : "See key points" }).click();
+    }
+    expect(matched).toBe(1);
+    await expect(page.getByText(/1\/5 covered → suggested Again/)).toBeVisible();
+  });
+
+  test("pick cancels a correct point for each point from another card", async ({ page }) => {
+    await pinRandom(page, 0.75);
+    await page.goto(card);
+    const exercise = page.locator("[data-exercise]");
+    await expect(exercise.getByRole("checkbox")).toHaveCount(8);
+    for (const box of await exercise.getByRole("checkbox").all()) await box.check();
+    await exercise.getByRole("button", { name: "Check answers" }).click();
+    await expect(exercise.getByText("From another card", { exact: true })).toHaveCount(3);
+    await exercise.getByRole("button", { name: "See key points" }).click();
+    await expect(page.getByText(/2\/5 covered → suggested Hard/)).toBeVisible();
+  });
+});
 
 test.describe("drill flow", () => {
   test("home → study, rate three cards, progress survives a reload", async ({ page }) => {

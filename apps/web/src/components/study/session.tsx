@@ -26,6 +26,7 @@ import {
 } from "@metastack/srs";
 
 import { Markdown } from "@/components/markdown";
+import { ExercisePanel } from "@/components/study/exercise-panel";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import {
@@ -38,6 +39,7 @@ import {
   type StudyMode,
 } from "@/lib/db";
 import { studyCardPath } from "@/lib/study-url";
+import { buildExercise, type Exercise } from "@/lib/study/exercise";
 import { pushReview, savePreference } from "@/lib/sync";
 import { cn } from "@/lib/utils";
 
@@ -149,6 +151,8 @@ export function StudySession({
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [scratchOpen, setScratchOpen] = useState(false);
   const [scratch, setScratch] = useState("");
+  // Drawn again each time a card is shown. `serial` remounts the panel for a new draw.
+  const [drawn, setDrawn] = useState<{ serial: number; exercise: Exercise } | null>(null);
   const [tally, setTally] = useState<Record<Rating, number>>({
     again: 0,
     hard: 0,
@@ -158,6 +162,7 @@ export function StudySession({
   const [nextDueLabel, setNextDueLabel] = useState<string | null>(null);
   const [timing, setTiming] = useState({ startedAt: 0, finishedAt: 0 });
   const scratchRef = useRef<HTMLTextAreaElement>(null);
+  const drawSerial = useRef(0);
   const router = useRouter();
   const onQueueRef = useRef(onQueue);
   const indexRef = useRef(0);
@@ -170,6 +175,14 @@ export function StudySession({
     onQueueRef.current = onQueue;
     activeIdRef.current = activeId;
   });
+
+  const drawExercise = useCallback(
+    (id: string | undefined) => {
+      const card = id ? cardById.get(id) : undefined;
+      setDrawn(card ? { serial: ++drawSerial.current, exercise: buildExercise(card, bank) } : null);
+    },
+    [bank, cardById],
+  );
 
   const load = useCallback(
     (opts: { ignoreLimit?: boolean } = {}) => {
@@ -194,6 +207,7 @@ export function StudySession({
         setChecked(new Set());
         setScratch("");
         setScratchOpen(false);
+        drawExercise(loaded.queue[startIndex]);
         setTally({ again: 0, hard: 0, good: 0, easy: 0 });
         setTiming({ startedAt, finishedAt: 0 });
         setNextDueLabel(loaded.nextDueLabel);
@@ -206,7 +220,7 @@ export function StudySession({
         setStatus(loaded.queue.length === 0 ? "empty" : "ready");
       });
     },
-    [cardIds, router],
+    [cardIds, drawExercise, router],
   );
 
   useEffect(() => {
@@ -232,8 +246,9 @@ export function StudySession({
     setChecked(new Set());
     setScratch("");
     setScratchOpen(false);
+    drawExercise(activeId);
     setStatus("ready");
-  }, [activeId, queue, status]);
+  }, [activeId, drawExercise, queue, status]);
 
   const currentId = queue[index];
   const current = currentId ? cardById.get(currentId) : undefined;
@@ -303,6 +318,8 @@ export function StudySession({
   }
 
   const reveal = useCallback(() => setPhase("revealed"), []);
+  const creditPoints = useCallback((points: number[]) => setChecked(new Set(points)), []);
+  const exercise = settings.mode === "rubric" ? drawn : null;
 
   async function setMode(mode: StudyMode) {
     setSettings((s) => ({ ...s, mode }));
@@ -344,6 +361,8 @@ export function StudySession({
       }
 
       if (phase === "prompt") {
+        // Inside the exercise, Space and Enter belong to its own buttons and tick boxes.
+        if (target?.closest("[data-exercise]")) return;
         if (e.code === "Space" || e.key === "Enter") {
           e.preventDefault();
           reveal();
@@ -564,8 +583,16 @@ export function StudySession({
           <h2 className="card-prompt mt-5 max-w-2xl text-balance">{current.prompt.trim()}</h2>
 
           {phase === "prompt" && (
-            <div className="mt-7">
-              {scratchOpen ? (
+            <div className="mt-7" data-exercise={exercise ? "" : undefined}>
+              {exercise ? (
+                <ExercisePanel
+                  key={exercise.serial}
+                  exercise={exercise.exercise}
+                  card={current}
+                  onCovered={creditPoints}
+                  onDone={reveal}
+                />
+              ) : scratchOpen ? (
                 <textarea
                   ref={scratchRef}
                   value={scratch}
@@ -751,7 +778,7 @@ export function StudySession({
               Reveal key points
             </Button>
             <span className="text-sm text-ink-3">
-              or press <Kbd>space</Kbd>
+              {exercise ? "to skip the exercise, " : ""}or press <Kbd>space</Kbd>
             </span>
           </footer>
         )}
