@@ -4,7 +4,13 @@ import type { CardState, LearningState, Rating, ReviewRecord } from "@metastack/
 
 import type { SessionUser } from "@/lib/auth/session";
 import type { ExportFile } from "@/lib/db";
-import { isNewLimit, isStudyMode, isTheme, type Settings } from "@/lib/settings";
+import {
+  isNewLimit,
+  isStudyMode,
+  isTheme,
+  parseSettingsPatch,
+  type Settings,
+} from "@/lib/settings";
 
 import { ensureSchema } from "./neon";
 
@@ -31,8 +37,8 @@ interface ReviewRow {
 }
 
 interface SettingsRow {
-  new_limit: number;
-  mode: string;
+  new_limit: number | null;
+  mode: string | null;
   theme: string | null;
 }
 
@@ -137,7 +143,7 @@ export async function replaceProgress(userId: string, data: ExportFile): Promise
       ON CONFLICT (user_id, card_id, reviewed_at, rating) DO NOTHING
     `;
   }
-  await upsertSettings(userId, data.settings);
+  await upsertSettings(userId, parseSettingsPatch(data.settings));
 }
 
 export async function loadSettings(userId: string): Promise<Partial<Settings>> {
@@ -156,7 +162,7 @@ export async function upsertSettings(userId: string, patch: Partial<Settings>): 
   const sql = await ensureSchema();
   await sql`
     INSERT INTO settings (user_id, new_limit, mode, theme)
-    VALUES (${userId}, ${patch.newLimit ?? 10}, ${patch.mode ?? "rubric"}, ${patch.theme ?? null})
+    VALUES (${userId}, ${patch.newLimit ?? null}, ${patch.mode ?? null}, ${patch.theme ?? null})
     ON CONFLICT (user_id) DO UPDATE SET
       new_limit = COALESCE(${patch.newLimit ?? null}::int, settings.new_limit),
       mode = COALESCE(${patch.mode ?? null}::text, settings.mode),

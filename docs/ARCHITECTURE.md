@@ -54,7 +54,8 @@ Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync ar
 - `lib/progress/merge.ts`: last-write-wins per card, union of reviews. Used on sign-in to merge browser and server copies.
 - `components/study/session.tsx`: the drill loop. After each rating it writes IndexedDB, then posts the review to `/api/progress/review` if a session cookie is present.
 - `components/markdown.tsx` + `mermaid-block.tsx`: react-markdown with GFM; Mermaid fences are rendered client-side with a lazily loaded Mermaid bundle, themed to match light/dark.
-- Theme is a `data-theme` attribute set by an inline script before paint; the toggle writes `localStorage`.
+- `lib/settings.ts`: the preference model (`newLimit`, `mode`, `theme`) and the parser both the browser and `/api/settings` use.
+- Theme is a `data-theme` attribute set by an inline script before paint. The script reads a `localStorage` cache. `lib/theme.ts` writes that cache and the attribute.
 
 ## Key flows
 
@@ -66,7 +67,9 @@ Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync ar
 
 **Sign-in.** `/api/auth/github` sends the browser to GitHub with `read:user` and `user:email`. GitHub returns to `/api/auth/callback/github`, which upserts the user, sets an httpOnly cookie, and redirects to `/dashboard`. The dashboard merges the local and remote envelopes, then lists every card with that user's scheduling state. Studying without signing in is unchanged.
 
-**Admin.** Admin is not a column and not a setting. A session is an admin only for GitHub login `masaok`, the account whose verified address is `masaok@gmail.com`. No other login or address is an admin. `/admin` uses the dashboard shell and lists every account plus review totals. Anyone else is redirected to `/dashboard`. The Dashboard and Admin items are in that same sidebar.
+**Preferences.** Daily new-card limit, study mode and theme are stored in IndexedDB for everyone. A change is marked unsynced and sent to `PATCH /api/settings`, one request at a time. The mark clears when the server accepts it or answers 401 (signed out), and survives a failed request, so the next save or page load retries it. Every page load pulls `GET /api/settings` into IndexedDB for every key that is not unsynced, so the account's copy wins across browsers. The sign-in merge follows the same rule. The server stores only keys the user set. An unset key is NULL, so it never overwrites another device. Adding `theme` to the export envelope's `settings` did not bump the envelope `version`, because the key is optional and older files still import unchanged.
+
+**Admin.** Admin is not a column and not a setting. A session is an admin only for GitHub login `masaok`, the account whose verified address is `masaok@gmail.com`. No other login or address is an admin. Each admin page calls `requireAdmin()` itself, which redirects anyone else to `/dashboard`. The admin pages use the dashboard shell with their own sidebar: `/admin` is an overview of site totals and `/admin/users` lists every account. The Dashboard and Admin links stay pinned at the bottom of both sidebars.
 
 ## Durable state and schema changes
 
