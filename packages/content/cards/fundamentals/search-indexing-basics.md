@@ -20,9 +20,12 @@ eli5:
   - Results are ranked higher when the matching words are rare overall and frequent in that document, adjusted for document length
   - The search index is a copy fed from the main database a moment later, so it can be slightly behind
 distractors:
-  - LIKE with a leading wildcard is served efficiently by an ordinary B-tree index
-  - An inverted index maps each document to the list of terms it contains
-  - The search index is updated in the same transaction as the primary database, so it is never stale
+  - text: LIKE with a leading wildcard is served efficiently by an ordinary B-tree index
+    why: A B-tree is sorted from the start of the value, so a pattern with a leading wildcard forces a full scan
+  - text: An inverted index maps each document to the list of terms it contains
+    why: It is the other way round. Each term maps to the documents that contain it
+  - text: The search index is updated in the same transaction as the primary database, so it is never stale
+    why: The index is fed asynchronously from the primary database, so it lags by a short time
 followUps:
   - How do you keep the search index in sync with the database, and what happens when the indexer falls behind?
   - How would you support typo tolerance or prefix matching?

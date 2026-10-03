@@ -20,9 +20,12 @@ eli5:
   - Divide the cores by cores per server, then add one or two spare servers in each location
   - Test under real load, because a request that mostly waits on other things does not occupy a core the whole time
 distractors:
-  - A core that needs 50 ms per request handles 200 requests per second
-  - Plan for 100% CPU utilisation so that no capacity is wasted
-  - 60,000 QPS at 50 ms each means 300 requests in flight
+  - text: A core that needs 50 ms per request handles 200 requests per second
+    why: One request takes 50 ms, so a core finishes 1 / 0.05 = 20 per second
+  - text: Plan for 100% CPU utilisation so that no capacity is wasted
+    why: Queueing delay grows sharply as utilisation nears 100%. Target 50 to 70% to keep latency low
+  - text: 60,000 QPS at 50 ms each means 300 requests in flight
+    why: 60,000 × 0.05 seconds is 3,000 in flight
 followUps:
   - How does the estimate change if 40 of the 50 ms are spent waiting on a database call?
   - Why does p99 latency explode as utilisation approaches 100%?

@@ -20,9 +20,12 @@ eli5:
   - Loosest, the copies agree once the writing stops, with no promises before then
   - Most apps just need you to see your own changes and never see time go backwards
 distractors:
-  - Eventual consistency guarantees that a client reads its own write straight away
-  - Sequential consistency requires the agreed order to match real-time order, exactly as linearizability does
-  - Causal consistency puts every operation, concurrent ones included, into one total order that all clients see
+  - text: Eventual consistency guarantees that a client reads its own write straight away
+    why: Eventual consistency promises only that replicas converge. Reading your own write needs a separate session guarantee
+  - text: Sequential consistency requires the agreed order to match real-time order, exactly as linearizability does
+    why: Sequential consistency needs one agreed order but lets it differ from real time. Matching real time is what linearizability adds
+  - text: Causal consistency puts every operation, concurrent ones included, into one total order that all clients see
+    why: Causal consistency orders only operations that depend on each other. Concurrent ones may be seen in different orders
 followUps:
   - How would you implement read-your-writes with async read replicas?
   - Why is causal consistency the strongest model that stays available under partition?

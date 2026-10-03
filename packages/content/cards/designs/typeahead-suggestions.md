@@ -20,9 +20,12 @@ eli5:
   - Keep answers near the user and in the browser, and wait until typing pauses before asking
   - Rebuild the lookup on a schedule, add a small fast layer for what is suddenly popular, and remove offensive suggestions
 distractors:
-  - Compute the top suggestions at request time by scanning the query log for the prefix
-  - Update the serving structure synchronously on every search, so suggestions are always exact
-  - Send a request on every keystroke with no debounce and no caching, to keep results fresh
+  - text: Compute the top suggestions at request time by scanning the query log for the prefix
+    why: Scanning logs cannot answer in 100 ms. Results must come from a structure built ahead of time
+  - text: Update the serving structure synchronously on every search, so suggestions are always exact
+    why: Rebuilding on every search puts heavy writes on the hot read path. Popularity is aggregated offline with a small real-time layer
+  - text: Send a request on every keystroke with no debounce and no caching, to keep results fresh
+    why: That multiplies load for no benefit, since suggestions for a prefix barely change between keystrokes
 followUps:
   - How do you personalise suggestions without destroying cache hit rates?
   - How would you support typo tolerance or mid-word matching?

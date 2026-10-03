@@ -20,9 +20,12 @@ eli5:
   - Reading a megabyte in a row takes microseconds from memory, about a millisecond from fast disk and about ten from the network
   - So keep busy data in memory, group slow trips together, and never make a user wait on a trip across the world
 distractors:
-  - A main memory reference takes about 1 ms
-  - An SSD random read is about as fast as a main memory reference
-  - A cross-continent round trip is about 1 ms, the same as one inside a datacenter
+  - text: A main memory reference takes about 1 ms
+    why: It is about 100 nanoseconds, ten thousand times faster than a millisecond
+  - text: An SSD random read is about as fast as a main memory reference
+    why: An SSD random read is about 100 microseconds, roughly a thousand times slower than memory
+  - text: A cross-continent round trip is about 1 ms, the same as one inside a datacenter
+    why: It is about 100 to 150 ms. A round trip inside a datacenter is about 0.5 ms
 followUps:
   - Why is a single cross-region call often worse than ten in-region calls?
   - How does compression change the network row of this table?

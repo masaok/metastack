@@ -20,9 +20,12 @@ eli5:
   - Fill in the message wording at the moment of sending, and keep a record of what was sent and what happened
   - Sending twice must do no harm, urgent messages get a fast lane ahead of adverts, and outside companies cap how fast you can send
 distractors:
-  - Call the push, SMS and email providers synchronously inside the request that triggers the notification
-  - Check user preferences and quiet hours after the provider has sent the message
-  - Put marketing and transactional messages in one queue with equal priority
+  - text: Call the push, SMS and email providers synchronously inside the request that triggers the notification
+    why: A slow or failing provider would then block or fail the caller. A queue per channel decouples them
+  - text: Check user preferences and quiet hours after the provider has sent the message
+    why: The checks must run before sending. Afterwards the user has already received the message
+  - text: Put marketing and transactional messages in one queue with equal priority
+    why: A marketing burst would delay password resets and receipts. Transactional messages need their own priority lane
 followUps:
   - How do you prevent the same event from notifying a user twice across push and email?
   - How would you implement "digest" notifications that batch low-priority events hourly?

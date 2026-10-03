@@ -21,9 +21,12 @@ eli5:
   - Keeping several copies for safety multiplies everything, so the five-year total runs to tens of petabytes
   - The facts about each photo take almost no room next to the photos themselves
 distractors:
-  - 50M × 10% × 2 = 1 million photos per day
-  - 10M photos × 2 MB = 20 GB per day
-  - Replicating three times leaves the storage total unchanged, since replicas are compressed copies
+  - text: 50M × 10% × 2 = 1 million photos per day
+    why: 10% of 50 million is 5 million uploaders, and two photos each makes 10 million
+  - text: 10M photos × 2 MB = 20 GB per day
+    why: 10 million × 2 MB is 20 million MB, which is 20 TB
+  - text: Replicating three times leaves the storage total unchanged, since replicas are compressed copies
+    why: Each replica is a full copy, so three replicas triple the storage
 followUps:
   - How would lifecycle tiering to cold storage change the cost estimate?
   - What does the per-day write bandwidth come to, and does it stress the network?

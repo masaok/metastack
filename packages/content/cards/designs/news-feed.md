@@ -20,9 +20,12 @@ eli5:
   - First collect a pile of possible posts, then sort them by interest, and fall back to newest first if sorting breaks
   - You must see your own post straight away, but it is fine if other people's posts show up a few seconds late
 distractors:
-  - Fan out on write for every account, including those with tens of millions of followers
-  - Store the full post content inside every follower's feed list
-  - Rank all posts from everyone the user follows from scratch on every request, with no candidate step
+  - text: Fan out on write for every account, including those with tens of millions of followers
+    why: One post from such an account would trigger tens of millions of feed writes. Those accounts are pulled at read time
+  - text: Store the full post content inside every follower's feed list
+    why: Copying content into every feed multiplies storage and makes edits and deletes expensive. Feeds hold post ids only
+  - text: Rank all posts from everyone the user follows from scratch on every request, with no candidate step
+    why: Ranking everything on every request is too slow. Retrieval first narrows to a candidate set, then ranking orders it
 followUps:
   - How do you handle a user who follows 5,000 accounts and opens the app after a week away?
   - How would you add "likes" and comment counts to the feed without hammering the counters?

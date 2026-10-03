@@ -21,9 +21,12 @@ eli5:
   - Keeping several quality levels means more files to store, but each viewer still downloads only one of them
   - Sending data out is the biggest bill, so the share of requests answered by nearby copies matters most
 distractors:
-  - Peak egress is 5M × 3 Mbps = 15 Gbps, which one datacenter uplink can carry
-  - Offering five renditions per title multiplies egress by five, since every viewer downloads all of them
-  - Storage cost dominates egress cost, so the edge cache hit rate matters little
+  - text: Peak egress is 5M × 3 Mbps = 15 Gbps, which one datacenter uplink can carry
+    why: 5 million × 3 Mbps is 15 million Mbps, which is 15 Tbps, a thousand times more than 15 Gbps
+  - text: Offering five renditions per title multiplies egress by five, since every viewer downloads all of them
+    why: Each viewer pulls one rendition at a time. More renditions increase storage, not egress
+  - text: Storage cost dominates egress cost, so the edge cache hit rate matters little
+    why: At this scale egress is the dominant cost, so the edge hit rate is the number that matters most
 followUps:
   - How much origin bandwidth do you need if the CDN hit rate is 98%?
   - How do live streams change the caching story compared with on-demand?

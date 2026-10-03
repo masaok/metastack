@@ -20,9 +20,12 @@ eli5:
   - Both kinds can now spread over many machines, so the real difference is free-form questions versus designing around known lookups
   - Begin with a relational database, and add a specialised store only for a problem you have measured
 distractors:
-  - Relational databases cannot scale horizontally, so any large system has to use NoSQL
-  - A document store is the best fit for highly connected data queried through ad hoc joins
-  - Choose NoSQL by default and add a relational database only when you need speed
+  - text: Relational databases cannot scale horizontally, so any large system has to use NoSQL
+    why: Relational databases scale out with sharding, and distributed SQL systems do it natively
+  - text: A document store is the best fit for highly connected data queried through ad hoc joins
+    why: Document stores have weak joins. Highly connected data with ad hoc queries is where relational wins
+  - text: Choose NoSQL by default and add a relational database only when you need speed
+    why: The safer default is relational. Add a specialised store only for a specific, measured problem
 followUps:
   - How does designing a DynamoDB table differ from designing a Postgres schema?
   - When does a graph database earn its place?

@@ -20,9 +20,12 @@ eli5:
   - Hand out downloads through copies near the user, with expiring passes for private files
   - Make thumbnails and conversions afterwards in the background, triggered when a file arrives
 distractors:
-  - Store the image bytes in a database BLOB column so files and metadata commit in one transaction and scale together
-  - Route every upload through the application servers so they can stream the bytes onward to storage
-  - Generate thumbnails synchronously inside the upload request so they exist before it returns
+  - text: Store the image bytes in a database BLOB column so files and metadata commit in one transaction and scale together
+    why: Large blobs bloat the database, slow its backups and replication, and tie file throughput to database capacity
+  - text: Route every upload through the application servers so they can stream the bytes onward to storage
+    why: Proxying the bytes makes the application servers the bottleneck. Presigned URLs let clients upload straight to storage
+  - text: Generate thumbnails synchronously inside the upload request so they exist before it returns
+    why: Transcoding and resizing are slow, so doing them in the request makes uploads slow and fragile. They belong in background jobs
 followUps:
   - How do you prevent an orphaned object when the database write fails after upload?
   - How would you support resumable uploads for multi-gigabyte files?

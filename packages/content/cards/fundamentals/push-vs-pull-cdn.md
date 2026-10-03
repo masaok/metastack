@@ -20,9 +20,12 @@ eli5:
   - Pull makes the first visitor wait and hits your server for cold items, and push stores things nobody may ever ask for
   - A blend is to pre-load the items you expect to be popular before a launch and let the rest fill in on demand
 distractors:
-  - A pull CDN needs every file uploaded to the edge before the first request
-  - A push CDN populates itself on demand from the origin
-  - Pull is the wasteful one for a long-tail catalog, since it stores items that nobody requests
+  - text: A pull CDN needs every file uploaded to the edge before the first request
+    why: That describes a push CDN. A pull CDN fetches a file from the origin the first time it is requested
+  - text: A push CDN populates itself on demand from the origin
+    why: That describes a pull CDN. With push you upload the content ahead of time
+  - text: Pull is the wasteful one for a long-tail catalog, since it stores items that nobody requests
+    why: Pull stores only what was actually requested. Push is the one that stores items nobody asks for
 followUps:
   - How would you pre-warm a pull CDN for a global product launch?
   - What happens to a pull CDN if the origin is down?

@@ -20,9 +20,12 @@ eli5:
   - Reading through everything once can push all the useful items out of a recency-based cache
   - Real caches mix these rules or use cheap approximations of them
 distractors:
-  - LFU adapts instantly when popularity shifts, so it needs no aging of old counts
-  - A TTL caps how much memory the cache can use
-  - An O(1) LRU cache is built on a min-heap keyed by last access time
+  - text: LFU adapts instantly when popularity shifts, so it needs no aging of old counts
+    why: LFU remembers old counts, so an item that was once popular lingers unless counts decay
+  - text: A TTL caps how much memory the cache can use
+    why: A TTL limits how long an item lives, not how many items there are. Memory still needs a size limit
+  - text: An O(1) LRU cache is built on a min-heap keyed by last access time
+    why: A heap costs O(log n) per access. The O(1) design is a hash map plus a doubly linked list
 followUps:
   - Why does Redis use approximated LRU instead of exact LRU?
   - What is the problem with a naive LFU under a changing workload?

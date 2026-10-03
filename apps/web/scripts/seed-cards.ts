@@ -3,7 +3,8 @@
  * with the same id is kept, since it may have been edited in the admin area;
  * pass `--overwrite` to replace stored cards with the repository's copy.
  * Cards that exist only in the database are always left alone. A stored card
- * with no distractors gets the repository's, since that field was added later.
+ * with no distractors, or with the repository's distractors minus their reasons,
+ * gets the repository's, since that field and its reasons were added later.
  */
 import { neon } from "@neondatabase/serverless";
 
@@ -33,7 +34,7 @@ async function main() {
   console.log(
     `✔ seeded ${seedCards.length} card(s), ${how}; the database now serves ${stored.length}`,
   );
-  if (filled > 0) console.log(`✔ added distractors to ${filled} stored card(s) that had none`);
+  if (filled > 0) console.log(`✔ filled in distractors on ${filled} stored card(s)`);
 }
 
 void main();

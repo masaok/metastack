@@ -20,9 +20,12 @@ eli5:
   - When a read and a write overlap, the old value can slip back into the cache whichever order you delete and write in
   - Vary expiry times a little and let one request refill while the others wait, so the store is not rushed all at once
 distractors:
-  - A short enough TTL guarantees that readers never see stale data
-  - Deleting the cache key before writing the database rules out stale entries under concurrency
-  - Giving every key the same TTL spreads expirations evenly and so prevents stampedes
+  - text: A short enough TTL guarantees that readers never see stale data
+    why: Data can change the moment after it is cached, so a TTL only bounds how stale a read can be
+  - text: Deleting the cache key before writing the database rules out stale entries under concurrency
+    why: A reader can load the old value between the delete and the write, then put it back in the cache
+  - text: Giving every key the same TTL spreads expirations evenly and so prevents stampedes
+    why: Identical TTLs make keys that were filled together expire together, which is what causes a stampede. Jitter spreads them
 followUps:
   - Walk through the race where a reader repopulates stale data after an invalidation.
   - How would you invalidate across a multi-region CDN?

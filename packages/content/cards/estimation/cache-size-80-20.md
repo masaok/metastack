@@ -21,9 +21,12 @@ eli5:
   - Spread ten billion daily reads over a day to get the per-second rate, and the share the cache misses is what the database must handle
   - Most reading is of posts from the last day or two, so caching just those may catch even more
 distractors:
-  - Cache every post, 500M × 1 KB = 500 GB, because a partial cache cannot reach 80%
-  - 10 billion reads a day is about 1.15 million reads per second
-  - With an 80% hit rate the database still serves 80% of the reads
+  - text: Cache every post, 500M × 1 KB = 500 GB, because a partial cache cannot reach 80%
+    why: Reads are skewed, so about 20% of posts receive about 80% of reads. Caching that 20% is enough
+  - text: 10 billion reads a day is about 1.15 million reads per second
+    why: 10 billion divided by 86,400 seconds is about 115,000 per second, ten times less
+  - text: With an 80% hit rate the database still serves 80% of the reads
+    why: An 80% hit rate means the cache answers 80%, so only the remaining 20% reach the database
 followUps:
   - How do you keep the cache from being flushed by a bulk backfill job?
   - What TTL would you choose and why?

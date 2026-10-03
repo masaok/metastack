@@ -21,9 +21,12 @@ eli5:
   - A short post is a few hundred bytes, an API reply is a few thousand, and a full web page is a couple of million
   - A photo is from a fifth of a megabyte to a few megabytes, and a minute of sharp video is fifty to a hundred
 distractors:
-  - 2^20 is about one billion
-  - A UUID is 4 bytes
-  - A minute of 1080p video is about 1 MB
+  - text: 2^20 is about one billion
+    why: 2^20 is about one million. One billion is 2^30
+  - text: A UUID is 4 bytes
+    why: A UUID is 128 bits, which is 16 bytes. Four bytes is a 32-bit integer
+  - text: A minute of 1080p video is about 1 MB
+    why: It is about 50 to 100 MB. 1 MB is the size of a photo
 followUps:
   - Why do ids often use 8 bytes even when 4 would do today?
   - How does the 2 MB web page figure affect CDN and bandwidth estimates?

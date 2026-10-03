@@ -20,9 +20,12 @@ eli5:
   - Checking the version at the end throws away a lot of work when clashes are common
   - Lock up front for booking seats, and check versions for editing a shared page
 distractors:
-  - Optimistic locking takes a row lock before reading, so conflicts block
-  - Pessimistic locking is best when conflicts are rare, since locks are cheap to hold
-  - Optimistic concurrency can deadlock, because transactions wait on each other's version numbers
+  - text: Optimistic locking takes a row lock before reading, so conflicts block
+    why: That describes pessimistic locking. Optimistic takes no lock and checks a version when it writes
+  - text: Pessimistic locking is best when conflicts are rare, since locks are cheap to hold
+    why: When conflicts are rare the locks are pure overhead. Pessimistic pays off when contention is high
+  - text: Optimistic concurrency can deadlock, because transactions wait on each other's version numbers
+    why: Optimistic transactions never wait on each other, so they cannot deadlock. A conflict simply fails and retries
 followUps:
   - How would you implement optimistic locking in a REST API using ETags?
   - What happens to a pessimistic lock if the application crashes mid-transaction?

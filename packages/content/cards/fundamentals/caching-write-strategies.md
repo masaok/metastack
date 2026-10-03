@@ -20,9 +20,12 @@ eli5:
   - Choose by how often data is read compared with written, and by how bad it would be to lose a write
   - Writing only to the database usually pairs with reads that check the cache and fill it on a miss
 distractors:
-  - Write-back is the safest choice for data that must never be lost, because the cache holds a second copy
-  - Write-through makes writes faster because the cache absorbs them before the store
-  - Write-around guarantees that a read straight after a write is served from the cache
+  - text: Write-back is the safest choice for data that must never be lost, because the cache holds a second copy
+    why: Write-back acknowledges before the store has the data, so a cache failure loses the writes that were not yet flushed
+  - text: Write-through makes writes faster because the cache absorbs them before the store
+    why: Write-through performs two synchronous writes, so each write is slower, not faster
+  - text: Write-around guarantees that a read straight after a write is served from the cache
+    why: Write-around skips the cache on writes, so the first read after a write is a miss that goes to the store
 followUps:
   - How would you make write-back safe against a cache node crash?
   - What happens to a write-through cache under a burst of writes to the same key?

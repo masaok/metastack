@@ -20,9 +20,12 @@ eli5:
   - Others always wait for agreement and accept slower answers
   - Mixtures exist too, and one system can choose differently for different requests
 distractors:
-  - PACELC replaces CAP and says nothing about behaviour during a partition
-  - The E in PACELC stands for eventual consistency
-  - Dynamo and Cassandra are PC/EC systems in their default configuration
+  - text: PACELC replaces CAP and says nothing about behaviour during a partition
+    why: PACELC keeps the partition case from CAP and adds the else case for normal operation
+  - text: The E in PACELC stands for eventual consistency
+    why: E stands for Else, meaning when there is no partition
+  - text: Dynamo and Cassandra are PC/EC systems in their default configuration
+    why: They default to availability and low latency with eventual consistency, which is PA/EL
 followUps:
   - Why does Spanner accept higher write latency, and how does TrueTime help it?
   - Which PACELC class does a read replica with async replication put you in?

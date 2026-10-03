@@ -20,9 +20,12 @@ eli5:
   - Think about how many distinct values there are, where the writes land and how it grows, not only how big it is today
   - Assume you will have to move data later, and pick a scheme that makes moving cheap
 distractors:
-  - Choose the column with the fewest distinct values so that each shard stays large and easy to manage
-  - A hashed user id keeps all of a tenant's rows on one shard, so tenant reports stay cheap
-  - The shard key can be changed later at little cost, so optimise only for today's data size
+  - text: Choose the column with the fewest distinct values so that each shard stays large and easy to manage
+    why: Few distinct values means few possible shards and large hot ones. A shard key needs high cardinality
+  - text: A hashed user id keeps all of a tenant's rows on one shard, so tenant reports stay cheap
+    why: Hashing the user id spreads one tenant's users over every shard, so tenant-wide queries must ask all of them
+  - text: The shard key can be changed later at little cost, so optimise only for today's data size
+    why: Changing the key means rewriting and moving almost all the data, one of the most expensive migrations there is
 followUps:
   - How would you handle one tenant that is 30% of all traffic?
   - What changes if the product adds cross-tenant analytics?

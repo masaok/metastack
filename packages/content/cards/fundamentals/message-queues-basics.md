@@ -20,9 +20,12 @@ eli5:
   - The sender no longer learns straight away how things went, so the design has to cope with finishing later
   - It brings new chores such as order, repeats and watching the backlog, and it is one more thing that must not break
 distractors:
-  - The producer still needs the consumer to be up at the moment it sends
-  - A queue guarantees every message is processed exactly once and in order, with no extra design
-  - The caller learns the final outcome immediately, exactly as with a synchronous call
+  - text: The producer still needs the consumer to be up at the moment it sends
+    why: The queue holds the message until the consumer is ready. That decoupling in time is the main reason to use one
+  - text: A queue guarantees every message is processed exactly once and in order, with no extra design
+    why: Most queues deliver at least once and can reorder, so the consumer must handle duplicates and ordering itself
+  - text: The caller learns the final outcome immediately, exactly as with a synchronous call
+    why: The producer learns only that the message was accepted. The result arrives later, if at all
 followUps:
   - How do you let the user know when an async job has finished?
   - What is a dead-letter queue and when does a message go there?

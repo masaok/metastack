@@ -55,6 +55,18 @@ export const stageSchema = z.object({
   keyPoints: z.array(z.string().min(1)).min(1).max(6),
 });
 
+/**
+ * A plausible but wrong statement, with a short reason it is wrong. A bare
+ * string is the form stored before reasons existed and is still accepted.
+ */
+export const distractorSchema = z
+  .union([
+    z.string().min(1),
+    z.object({ text: z.string().min(1), why: z.string().min(1).optional() }),
+  ])
+  .transform((distractor) => (typeof distractor === "string" ? { text: distractor } : distractor));
+export type Distractor = z.infer<typeof distractorSchema>;
+
 export const frontMatterSchema = z
   .object({
     id: z.string().regex(kebab, "id must be kebab-case"),
@@ -67,7 +79,7 @@ export const frontMatterSchema = z
     /** A plain-language restatement of each key point, in the same order. */
     eli5: z.array(z.string().min(1)).optional(),
     /** Plausible but wrong statements about the prompt, for the pick exercise. */
-    distractors: z.array(z.string().min(1)).min(2).max(5).optional(),
+    distractors: z.array(distractorSchema).min(2).max(5).optional(),
     followUps: z.array(z.string().min(1)).max(5).default([]),
     references: z.array(referenceSchema).min(1),
     stages: z.array(stageSchema).min(3).max(8).optional(),
@@ -83,7 +95,7 @@ export const frontMatterSchema = z
       });
     }
     card.distractors?.forEach((distractor, i) => {
-      if (card.keyPoints.includes(distractor)) {
+      if (card.keyPoints.includes(distractor.text)) {
         ctx.addIssue({
           code: "custom",
           path: ["distractors", i],

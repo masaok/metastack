@@ -19,9 +19,12 @@ eli5:
   - It also soaks up sudden crowds and attacks, and sets up the secure connection close to the user
   - It cannot speed up saving data, or anything that must be freshly computed for each request
 distractors:
-  - A CDN speeds up writes to the origin database by committing them at the edge first
-  - Personalised responses cache as easily as static assets, since the edge keys only on the URL
-  - Every request still travels to the origin, the CDN only compresses the response on the way back
+  - text: A CDN speeds up writes to the origin database by committing them at the edge first
+    why: A CDN caches responses on the way out. Writes still travel to the origin and take as long as they did before
+  - text: Personalised responses cache as easily as static assets, since the edge keys only on the URL
+    why: A response cached by URL alone would be served to the wrong user. Personalised content needs careful cache keys or no caching
+  - text: Every request still travels to the origin, the CDN only compresses the response on the way back
+    why: On a cache hit the edge answers by itself, and the origin never sees the request. That is the point of a CDN
 followUps:
   - How does a cache key differ from a URL, and why does it matter for CDN hit rate?
   - What is origin shielding?

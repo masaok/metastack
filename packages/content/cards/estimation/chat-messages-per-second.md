@@ -21,9 +21,12 @@ eli5:
   - Multiply daily messages by a couple of hundred bytes each to get storage per day, then by 365 for the year
   - Pictures and video are so much bigger than text that even a small share of them outweighs all the text
 distractors:
-  - 500M × 40 = 20 billion messages per day, which is about 23,000 per second on average
-  - Assume every daily user is connected at the same moment, so plan for 500 million connections
-  - Text storage exceeds media storage, because messages far outnumber attachments
+  - text: 500M × 40 = 20 billion messages per day, which is about 23,000 per second on average
+    why: 20 billion divided by 86,400 is about 230,000 per second, ten times more
+  - text: Assume every daily user is connected at the same moment, so plan for 500 million connections
+    why: Users are spread across time zones and sessions, so about 10 to 20% are connected at peak
+  - text: Text storage exceeds media storage, because messages far outnumber attachments
+    why: A text message is about 200 bytes and an attachment about 1 MB, so a few percent of messages with media outweigh all the text
 followUps:
   - How do you shard message storage so a conversation's history is a single-partition read?
   - What changes if you add read receipts and typing indicators to the delivery estimate?

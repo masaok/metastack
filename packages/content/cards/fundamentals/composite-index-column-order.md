@@ -20,9 +20,12 @@ eli5:
   - Put the range column too early and the database must wade through many values and sort afterwards
   - The order also decides which other queries can use the same index, since they must start from its first columns
 distractors:
-  - Column order in a composite index does not matter, the planner can use the columns in any order
-  - Put the sort column first so that rows come back ordered, then the equality columns after it
-  - An index on (tenant_id, status, created_at) also serves queries that filter only on created_at
+  - text: Column order in a composite index does not matter, the planner can use the columns in any order
+    why: The index is sorted by its columns in order, so it can only be used for a leftmost prefix of them
+  - text: Put the sort column first so that rows come back ordered, then the equality columns after it
+    why: With the sort column first, the entries for one tenant and status are scattered through the whole index and must be scanned
+  - text: An index on (tenant_id, status, created_at) also serves queries that filter only on created_at
+    why: created_at is the last column, so a filter on it alone cannot use the index's ordering
 followUps:
   - What if status has three values and queries often omit it?
   - How would you include a selected column to make the index covering?

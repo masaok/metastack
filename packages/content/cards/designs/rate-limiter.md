@@ -20,9 +20,12 @@ eli5:
   - Tell a blocked caller they are over the limit and when to try again, so well-behaved clients slow down by themselves
   - Decide what happens if the count store is down, usually let traffic through with a rough local limit, and admit exact counts cost speed
 distractors:
-  - Keep counters only in each server's local memory, which enforces the fleet-wide limit exactly
-  - Read the counter, then write the incremented value in a second call, since the gap between them is harmless
-  - Drop over-limit requests with no response, so that clients cannot learn the limit
+  - text: Keep counters only in each server's local memory, which enforces the fleet-wide limit exactly
+    why: Each server sees only its share of a client's traffic, so the fleet as a whole lets through many times the limit
+  - text: Read the counter, then write the incremented value in a second call, since the gap between them is harmless
+    why: Two servers can read the same value and both write it back plus one, losing a count. The update must be atomic
+  - text: Drop over-limit requests with no response, so that clients cannot learn the limit
+    why: Clients need a 429 with Retry-After to back off properly. Silence just makes them retry blindly
 followUps:
   - How do you support tiered limits (free vs paid) and per-endpoint limits at the same time?
   - How would you rate limit by IP for unauthenticated traffic without punishing users behind one NAT?

@@ -20,9 +20,12 @@ eli5:
   - For spare copies, also store each key on the next few machines round the circle
   - Many well-known databases, caches, content networks and load balancers work this way
 distractors:
-  - Adding a node to the ring remaps almost every key, the same as hash mod N
-  - Virtual nodes are standby machines that take over when a physical node fails
-  - A key is stored on the node whose hash is closest in either direction, so the ring needs no clockwise rule
+  - text: Adding a node to the ring remaps almost every key, the same as hash mod N
+    why: Only the keys between the new node and its predecessor move, about 1/N of them. Avoiding a full remap is the whole purpose
+  - text: Virtual nodes are standby machines that take over when a physical node fails
+    why: Virtual nodes are extra positions on the ring for the same physical machine, used to even out load
+  - text: A key is stored on the node whose hash is closest in either direction, so the ring needs no clockwise rule
+    why: The rule is the next node clockwise. One fixed direction is what keeps the set of moved keys small when nodes change
 followUps:
   - What happens when one node fails and its neighbour inherits its whole range?
   - How does rendezvous (highest random weight) hashing compare?

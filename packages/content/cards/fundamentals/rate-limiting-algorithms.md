@@ -20,9 +20,12 @@ eli5:
   - Remembering every request time is exact but costly, and blending the current and previous counts comes close for far less
   - For a public API the usual pick is a token bucket per caller, with headers that say how much is left and when it refills
 distractors:
-  - A token bucket forbids bursts, requests always leave at a constant rate
-  - Fixed window counters are exact and never admit more than the limit around a window boundary
-  - A sliding window log uses the least memory of the four, because it stores a single counter
+  - text: A token bucket forbids bursts, requests always leave at a constant rate
+    why: A token bucket allows a burst up to its capacity. The constant output rate belongs to the leaky bucket
+  - text: Fixed window counters are exact and never admit more than the limit around a window boundary
+    why: A burst at the end of one window and another at the start of the next lets through twice the limit
+  - text: A sliding window log uses the least memory of the four, because it stores a single counter
+    why: The log stores a timestamp for every request, which makes it the most memory-hungry of the four
 followUps:
   - How do you communicate limits to clients and what status code do you return?
   - How would you implement token bucket with only a counter and a timestamp?

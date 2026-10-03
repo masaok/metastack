@@ -20,9 +20,12 @@ eli5:
   - The server makes the copies for a group, and a huge channel gets its own delivery route
   - Track whether each message was sent, arrived and was read, keep a chat in order, and buzz the phones of people who are offline
 distractors:
-  - Clients poll a REST endpoint every second for new messages, so no connection tier is needed
-  - Store all messages in one relational table ordered by a global auto-increment id
-  - A sender fans a group message out by sending one copy to each member from the client
+  - text: Clients poll a REST endpoint every second for new messages, so no connection tier is needed
+    why: Polling at that rate wastes requests and still adds delay. Chat needs a persistent connection tier
+  - text: Store all messages in one relational table ordered by a global auto-increment id
+    why: One table with a global counter is a single write bottleneck. History should be partitioned by conversation
+  - text: A sender fans a group message out by sending one copy to each member from the client
+    why: Fan-out belongs on the server, so delivery does not depend on the sender staying online or knowing the member list
 followUps:
   - How do you guarantee message ordering within a group when senders are on different gateways?
   - How would you add end-to-end encryption and what server features does it break?

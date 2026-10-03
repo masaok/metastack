@@ -20,9 +20,12 @@ eli5:
   - For a key everyone wants, keep copies closer to callers or split it across machines
   - Say out loud who fills the cache, who clears it on a write, and what happens when a machine joins or leaves
 distractors:
-  - Assign keys with hash mod N so that adding a node moves no keys
-  - Let memory grow without bound and rely on the operating system to swap cold items to disk
-  - On a miss, let every waiting request query the database at once so the entry fills as fast as possible
+  - text: Assign keys with hash mod N so that adding a node moves no keys
+    why: With mod N almost every key maps to a different node when N changes. Consistent hashing moves only about 1/N
+  - text: Let memory grow without bound and rely on the operating system to swap cold items to disk
+    why: Swapping to disk destroys the latency a cache exists for. Memory must be bounded with eviction
+  - text: On a miss, let every waiting request query the database at once so the entry fills as fast as possible
+    why: That is the thundering herd. One request should rebuild the entry while the others wait or serve a stale value
 followUps:
   - How does a client discover the cluster topology and react to a node failure?
   - When would you choose a look-aside cache versus a read-through cache?

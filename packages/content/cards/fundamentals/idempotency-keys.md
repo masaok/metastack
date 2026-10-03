@@ -20,9 +20,12 @@ eli5:
   - If the same ticket arrives with different details, refuse it, because the client has a bug
   - Tickets are thrown away after a while and belong to one account, so two customers never clash
 distractors:
-  - The server generates the idempotency key and returns it in the response for the client to keep
-  - The client should generate a fresh key for each retry so the server can tell attempts apart
-  - Record the key only after the charge succeeds, so that failed attempts leave no trace
+  - text: The server generates the idempotency key and returns it in the response for the client to keep
+    why: The client must create the key before the first attempt, or the server cannot tell a retry from a new request
+  - text: The client should generate a fresh key for each retry so the server can tell attempts apart
+    why: A new key per retry makes every retry look like a new payment, which is the double charge this is meant to prevent
+  - text: Record the key only after the charge succeeds, so that failed attempts leave no trace
+    why: The key must be recorded before the work starts, or two concurrent requests both see nothing and both charge
 followUps:
   - What should happen if the first request is still in flight when the retry arrives?
   - How does this interact with downstream calls to a bank that is itself not idempotent?

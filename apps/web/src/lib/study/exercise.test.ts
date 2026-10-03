@@ -82,7 +82,12 @@ for (const option of pick.options) {
 }
 
 // A card's own distractors replace borrowed points, even with no related card.
-const wrong = ["wrong one", "wrong two", "wrong three", "wrong four"];
+const wrong = [
+  { text: "wrong one", why: "reason one" },
+  { text: "wrong two", why: "reason two" },
+  { text: "wrong three", why: "reason three" },
+  { text: "wrong four" },
+];
 const authored = card("authored", { distractors: wrong, tags: ["search"] });
 assert.deepEqual(eligibleKinds(authored, [authored]), [...EXERCISE_KINDS]);
 const ownPick = buildExercise(authored, [authored, ...bank], () => 0.75);
@@ -90,7 +95,12 @@ assert.ok(ownPick.kind === "pick");
 assert.equal(ownPick.authored, true);
 const ownWrong = ownPick.options.filter((option) => option.point === null);
 assert.equal(ownWrong.length, DISTRACTOR_COUNT);
-for (const option of ownWrong) assert.ok(wrong.includes(option.text));
+// Each wrong answer keeps its reason.
+for (const option of ownWrong) {
+  const source = wrong.find((distractor) => distractor.text === option.text);
+  assert.ok(source);
+  assert.equal(option.why, source.why);
+}
 
 // Scoring credits correct picks and lets each borrowed point cancel one of them.
 const options = [

@@ -20,9 +20,12 @@ eli5:
   - Each payment moves through named steps including waiting and failed, and a later message from the payment company settles it
   - Let the payment company hold the card numbers and give you a stand-in token, so you carry far less security burden
 distractors:
-  - Keep each account's balance in a single mutable column and overwrite it on every payment
-  - Treat a successful response from the payment provider as final, so reconciliation is unnecessary
-  - Store raw card numbers in your own database so you can retry charges without the provider
+  - text: Keep each account's balance in a single mutable column and overwrite it on every payment
+    why: An overwritten balance has no history and loses updates under concurrency. A ledger appends entries and derives balances
+  - text: Treat a successful response from the payment provider as final, so reconciliation is unnecessary
+    why: Responses can be lost, timed out or later reversed, so the platform's records must be reconciled with the provider's
+  - text: Store raw card numbers in your own database so you can retry charges without the provider
+    why: Holding card numbers brings the full PCI burden and breach risk. Tokenising through the provider avoids it
 followUps:
   - What do you do when the PSP times out and you do not know whether the charge succeeded?
   - How do you handle a refund that spans a payout already sent to the merchant?

@@ -20,9 +20,12 @@ eli5:
   - Copies near viewers do the delivering, because no single building has enough outgoing capacity
   - Titles, view counts and comments live in a different service and database from the video files
 distractors:
-  - Upload each video through the application servers in a single request
-  - Serve one MP4 file per video at a single fixed bitrate
-  - Stream to viewers directly from the origin datacenter and keep the CDN for thumbnails only
+  - text: Upload each video through the application servers in a single request
+    why: Large files need resumable multipart uploads sent straight to object storage. One request through app servers fails and blocks them
+  - text: Serve one MP4 file per video at a single fixed bitrate
+    why: A single bitrate cannot adapt to the viewer's connection. Streaming uses short segments at several bitrates
+  - text: Stream to viewers directly from the origin datacenter and keep the CDN for thumbnails only
+    why: The video bytes are the traffic. Egress at that scale has to come from the CDN
 followUps:
   - How do you make a newly uploaded video watchable quickly instead of waiting for all renditions?
   - How would live streaming change the pipeline and the latency expectations?

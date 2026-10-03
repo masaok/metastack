@@ -45,8 +45,16 @@ async function main() {
   // Optional columns come through when stored.
   const plain = ["Look first", "Then fill", "Then clear"];
   assert.deepEqual(rowToCard({ ...row, eli5: plain })?.eli5, plain);
-  const wrong = ["The cache is the source of truth", "A miss returns an error"];
+  const wrong = [
+    { text: "The cache is the source of truth", why: "The store is, the cache is a copy" },
+    { text: "A miss returns an error" },
+  ];
   assert.deepEqual(rowToCard({ ...row, distractors: wrong })?.distractors, wrong);
+  // Statements stored before reasons existed are plain strings.
+  assert.deepEqual(rowToCard({ ...row, distractors: ["One wrong", "Two wrong"] })?.distractors, [
+    { text: "One wrong" },
+    { text: "Two wrong" },
+  ]);
 
   // A row that breaks the schema is skipped, not served.
   const errors: string[] = [];
@@ -90,7 +98,8 @@ async function main() {
   const sent = JSON.parse(calls[0]!.params![0] as string) as Card[];
   assert.deepEqual(sent, [card]);
 
-  // Filling distractors sends only the cards that have them, and only fills empty rows.
+  // Filling distractors sends only the cards that have them. It fills rows that are
+  // empty or hold the same statements without reasons.
   const fills: Array<{ text: string; params?: unknown[] }> = [];
   const filler: CardsSql = {
     query: async (text, params) => {
@@ -101,9 +110,14 @@ async function main() {
   assert.equal(await fillDistractors(filler, [card]), 0);
   assert.equal(fills.length, 0);
   assert.equal(await fillDistractors(filler, [card, { ...card, distractors: wrong }]), 1);
-  assert.match(fills[0]!.text, /cards\.distractors IS NULL/);
+  assert.match(fills[0]!.text, /cards\.distractors IS NULL OR cards\.distractors = seed\.plain/);
   assert.deepEqual(JSON.parse(fills[0]!.params![0] as string), [
-    { id: card.id, distractors: wrong },
+    {
+      id: card.id,
+      distractors: wrong,
+      plain: wrong.map((distractor) => distractor.text),
+      bare: wrong.map((distractor) => ({ text: distractor.text })),
+    },
   ]);
 
   // Drafts are left out unless asked for.

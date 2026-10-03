@@ -20,9 +20,12 @@ eli5:
   - Or carry a marker of how far the write got and only read from a copy that has reached it, waiting or falling back otherwise
   - Keep each person on one copy, and stop sending reads to any copy that falls too far behind
 distractors:
-  - Synchronous commit on the primary guarantees that an asynchronous replica is never behind
-  - Spreading each user's reads randomly across replicas prevents data flipping between old and new
-  - Lag only affects analytics queries, users never notice it
+  - text: Synchronous commit on the primary guarantees that an asynchronous replica is never behind
+    why: Synchronous commit covers only the replicas that are configured as synchronous. Asynchronous ones still lag
+  - text: Spreading each user's reads randomly across replicas prevents data flipping between old and new
+    why: Random routing is what causes the flipping, because consecutive reads hit replicas at different points in time
+  - text: Lag only affects analytics queries, users never notice it
+    why: A user who saves and reloads can be served the old value from a lagging replica, which looks like lost data
 followUps:
   - How would you pass a "last write position" from the client through to the read routing layer?
   - When is reading stale data completely fine?
