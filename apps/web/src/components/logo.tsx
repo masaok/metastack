@@ -3,10 +3,11 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The mark is a flashcard with an M cut out of it, on top of a second card
+ * The mark is a flashcard with a sharp-cornered M cut out of it, on top of a second card
  * that shows only its red top and right edge.
  */
-const MONOGRAM = "M8 25V11l6.5 9 6.5-9v14";
+const MONOGRAM =
+  "M5.5 27.2V8.6H9.7L14.5 17.5L19.3 8.6H23.5V27.2H19.3V15.2L14.5 22.4L9.7 15.2V27.2Z";
 
 export function Logo({ className, title = "MetaStack" }: { className?: string; title?: string }) {
   const id = useId().replace(/:/g, "");
@@ -16,14 +17,7 @@ export function Logo({ className, title = "MetaStack" }: { className?: string; t
       <defs>
         <mask id={`${id}-cut`}>
           <rect x="1" y="5" width="27" height="26" rx="4" fill="#fff" />
-          <path
-            d={MONOGRAM}
-            fill="none"
-            stroke="#000"
-            strokeWidth="3.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d={MONOGRAM} fill="#000" />
         </mask>
       </defs>
       <path
