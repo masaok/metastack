@@ -21,9 +21,12 @@ eli5:
   - If two people changed the same file, keep both copies and label one as conflicted instead of throwing work away
   - The client keeps its own list of local files, notices edits made offline, and can pick up a half-finished transfer
 distractors:
-  - Re-upload the whole file whenever any byte changes, since chunking adds complexity for no bandwidth saving
-  - Keep file metadata and file bytes together in one store, so a single read returns both
-  - When two devices edit the same file offline, the later upload silently overwrites the earlier one
+  - text: Re-upload the whole file whenever any byte changes, since chunking adds complexity for no bandwidth saving
+    why: Chunking exists to save bandwidth. A small edit to a large file uploads only the chunks that changed
+  - text: Keep file metadata and file bytes together in one store, so a single read returns both
+    why: Metadata needs transactions and queries while chunks need cheap bulk storage, so they scale and are stored separately
+  - text: When two devices edit the same file offline, the later upload silently overwrites the earlier one
+    why: Silently overwriting loses a user's work. The service keeps both versions as a conflicted copy
 followUps:
   - How do you handle a file that is being edited simultaneously on two devices?
   - How would you implement shared folders and permission changes efficiently?

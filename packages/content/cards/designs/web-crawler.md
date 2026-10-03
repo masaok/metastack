@@ -20,9 +20,12 @@ eli5:
   - Remember address lookups and spread visits across many sites so no one server gets hammered
   - Guard against endless page mazes, follow redirects, give up on slow pages, and come back sooner to pages that change often
 distractors:
-  - Fetch as many pages in parallel from each host as possible, to finish that host quickly
-  - Keep every URL already seen in one relational table and query it before each fetch
-  - Recrawl every page on the same fixed schedule, however often it changes
+  - text: Fetch as many pages in parallel from each host as possible, to finish that host quickly
+    why: Hammering one host breaks politeness rules and gets the crawler blocked. Requests to a host are spaced out
+  - text: Keep every URL already seen in one relational table and query it before each fetch
+    why: A database lookup per URL is far too slow at billions of URLs. A Bloom filter or hashed set answers in memory
+  - text: Recrawl every page on the same fixed schedule, however often it changes
+    why: Pages change at very different rates. Recrawl frequency should follow how often each page changes
 followUps:
   - How do you prioritise which of 10 billion known URLs to fetch next?
   - How would you crawl JavaScript-heavy pages and what does it cost?

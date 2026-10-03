@@ -20,9 +20,12 @@ eli5:
   - Count reads and writes separately, because there are far more reads and they grow in different ways
   - Say your guesses aloud and round boldly, because the method is what is being judged
 distractors:
-  - There are about 3,600 seconds in a day
-  - Peak traffic equals the average, because requests spread evenly over 24 hours
-  - 100M × 20 = 200 million requests per day
+  - text: There are about 3,600 seconds in a day
+    why: 3,600 is the number of seconds in an hour. A day has 86,400
+  - text: Peak traffic equals the average, because requests spread evenly over 24 hours
+    why: Traffic follows waking hours and events, so the peak is typically 2 to 5 times the average
+  - text: 100M × 20 = 200 million requests per day
+    why: 100 million × 20 is 2 billion
 followUps:
   - How would a global user base versus a single-country user base change the peak multiplier?
   - What is the next number you need to size the database tier?

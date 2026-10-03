@@ -31,7 +31,7 @@ interface Draft {
   prompt: string;
   points: Array<{ text: string; eli5: string }>;
   followUps: string;
-  distractors: string;
+  distractors: Array<{ text: string; why: string }>;
   references: Array<{ title: string; url: string }>;
   stages: Array<{ name: string; points: string }>;
   body: string;
@@ -39,6 +39,7 @@ interface Draft {
 }
 
 const BLANK_POINT = { text: "", eli5: "" };
+const BLANK_DISTRACTOR = { text: "", why: "" };
 const BLANK_REFERENCE = { title: "", url: "" };
 const BLANK_STAGE = { name: "", points: "" };
 
@@ -53,7 +54,7 @@ function draftFrom(card: Card | undefined): Draft {
       prompt: "",
       points: [BLANK_POINT, BLANK_POINT, BLANK_POINT],
       followUps: "",
-      distractors: "",
+      distractors: [],
       references: [BLANK_REFERENCE],
       stages: [BLANK_STAGE, BLANK_STAGE, BLANK_STAGE],
       body: "",
@@ -69,7 +70,7 @@ function draftFrom(card: Card | undefined): Draft {
     prompt: card.prompt.trim(),
     points: card.keyPoints.map((text, i) => ({ text, eli5: card.eli5?.[i] ?? "" })),
     followUps: card.followUps.join("\n"),
-    distractors: (card.distractors ?? []).join("\n"),
+    distractors: (card.distractors ?? []).map(({ text, why }) => ({ text, why: why ?? "" })),
     references: card.references.map((reference) => ({ ...reference })),
     stages: card.stages?.map((stage) => ({
       name: stage.name,
@@ -90,7 +91,11 @@ function lines(text: string): string[] {
 /** What the API validates. Plain-language lines are sent only when any is filled in. */
 function payloadFrom(draft: Draft) {
   const eli5 = draft.points.map((point) => point.eli5.trim());
-  const distractors = lines(draft.distractors);
+  // A row with no statement is dropped, and an empty reason is left out.
+  const distractors = draft.distractors
+    .map(({ text, why }) => ({ text: text.trim(), why: why.trim() }))
+    .filter((distractor) => distractor.text)
+    .map(({ text, why }) => (why ? { text, why } : { text }));
   return {
     id: draft.id.trim(),
     deck: draft.deck,
@@ -146,7 +151,7 @@ export function AdminCardEditor({
     setStatus("idle");
   }
 
-  function changeRow<K extends "points" | "references" | "stages">(
+  function changeRow<K extends "points" | "distractors" | "references" | "stages">(
     key: K,
     index: number,
     patch: Partial<Draft[K][number]>,
@@ -156,7 +161,7 @@ export function AdminCardEditor({
     } as Partial<Draft>);
   }
 
-  function removeRow(key: "points" | "references" | "stages", index: number) {
+  function removeRow(key: "points" | "distractors" | "references" | "stages", index: number) {
     change({ [key]: draft[key].filter((_, i) => i !== index) } as Partial<Draft>);
   }
 
@@ -465,15 +470,46 @@ export function AdminCardEditor({
 
             <Group
               title="Distractors"
-              description="Plausible but wrong statements for the pick exercise, one per line. Leave empty, or give two to five."
+              description="Plausible but wrong statements for the pick exercise, each with a short reason it is wrong. Leave empty, or give two to five."
             >
-              <textarea
-                value={draft.distractors}
-                onChange={(event) => change({ distractors: event.target.value })}
-                rows={3}
-                aria-label="Distractors"
-                className={INPUT}
-              />
+              <ol className="space-y-3">
+                {draft.distractors.map((distractor, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="mt-2 w-4 shrink-0 font-mono text-xs text-ink-3">{i + 1}</span>
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <textarea
+                        value={distractor.text}
+                        onChange={(event) =>
+                          changeRow("distractors", i, { text: event.target.value })
+                        }
+                        rows={2}
+                        aria-label={`Distractor ${i + 1}`}
+                        placeholder="Wrong statement"
+                        className={INPUT}
+                      />
+                      <textarea
+                        value={distractor.why}
+                        onChange={(event) =>
+                          changeRow("distractors", i, { why: event.target.value })
+                        }
+                        rows={2}
+                        aria-label={`Why distractor ${i + 1} is wrong`}
+                        placeholder="Why it is wrong"
+                        className={cn(INPUT, "text-ink-2")}
+                      />
+                    </div>
+                    <RemoveButton
+                      label={`Remove distractor ${i + 1}`}
+                      onClick={() => removeRow("distractors", i)}
+                    />
+                  </li>
+                ))}
+              </ol>
+              <AddButton
+                onClick={() => change({ distractors: [...draft.distractors, BLANK_DISTRACTOR] })}
+              >
+                Add a distractor
+              </AddButton>
             </Group>
 
             <Group title="Follow-ups" description="Likely follow-up questions, one per line.">

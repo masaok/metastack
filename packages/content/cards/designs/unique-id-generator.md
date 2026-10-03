@@ -21,9 +21,12 @@ eli5:
   - If a machine's clock jumps backwards, it waits or refuses instead of risking a repeat
   - Other choices include handing each server a block of numbers or newer time-ordered id formats, and each trades sortability against revealing information
 distractors:
-  - Use one database auto-increment sequence shared by all datacenters
-  - Random UUIDv4 values meet the requirements, since they fit in 64 bits and sort by time
-  - If the clock moves backwards, keep generating, because the sequence bits prevent duplicates
+  - text: Use one database auto-increment sequence shared by all datacenters
+    why: One sequence is a single point of failure and puts a cross-datacenter round trip on every id
+  - text: Random UUIDv4 values meet the requirements, since they fit in 64 bits and sort by time
+    why: UUIDv4 is 128 bits and random, so it neither fits in 64 bits nor sorts by time
+  - text: If the clock moves backwards, keep generating, because the sequence bits prevent duplicates
+    why: The sequence is per millisecond, so a repeated timestamp can reissue an id that was already given out
 followUps:
   - How do you assign machine ids safely when instances autoscale?
   - What information does a Snowflake id leak and when does that matter?

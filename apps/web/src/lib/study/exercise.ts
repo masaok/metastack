@@ -21,6 +21,8 @@ export interface PickOption {
   text: string;
   /** Index of the key point this is, or null for a wrong answer. */
   point: number | null;
+  /** Why a wrong answer is wrong, when the card says. */
+  why?: string;
 }
 
 export type Exercise =
@@ -73,10 +75,10 @@ function distractorPool(card: Card, bank: readonly Card[]): string[] {
 function wrongAnswers(
   card: Card,
   bank: readonly Card[],
-): { texts: readonly string[]; authored: boolean } | null {
-  if (card.distractors) return { texts: card.distractors, authored: true };
-  const borrowed = distractorPool(card, bank);
-  return borrowed.length >= DISTRACTOR_COUNT ? { texts: borrowed, authored: false } : null;
+): { answers: ReadonlyArray<{ text: string; why?: string }>; authored: boolean } | null {
+  if (card.distractors) return { answers: card.distractors, authored: true };
+  const borrowed = distractorPool(card, bank).map((text) => ({ text }));
+  return borrowed.length >= DISTRACTOR_COUNT ? { answers: borrowed, authored: false } : null;
 }
 
 export function eligibleKinds(card: Card, bank: readonly Card[]): ExerciseKind[] {
@@ -112,10 +114,10 @@ export function buildExercise(
       };
     case "pick": {
       const wrong = wrongAnswers(card, bank)!;
-      const distractors = shuffled(wrong.texts, random).slice(0, DISTRACTOR_COUNT);
+      const distractors = shuffled(wrong.answers, random).slice(0, DISTRACTOR_COUNT);
       const options: PickOption[] = [
         ...card.keyPoints.map((text, point) => ({ text, point })),
-        ...distractors.map((text) => ({ text, point: null })),
+        ...distractors.map((distractor) => ({ ...distractor, point: null })),
       ];
       return { kind, options: shuffled(options, random), authored: wrong.authored };
     }

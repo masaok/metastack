@@ -20,9 +20,12 @@ eli5:
   - The bookmark only works if the order never ties, and you cannot jump straight to an arbitrary page
   - Use page numbers for short lists that rarely change, and bookmarks for feeds and endless scrolling
 distractors:
-  - Cursor pagination lets a client jump straight to any page number, which offset pagination cannot do
-  - With an index on the sort column, the database skips the offset rows for free, so deep pages cost the same as the first
-  - A cursor can sort on any column, even one with many duplicate values, with no tie-breaker
+  - text: Cursor pagination lets a client jump straight to any page number, which offset pagination cannot do
+    why: A cursor only knows the item after the last one seen, so it cannot land on an arbitrary page. Jumping to page N is what offset is good at
+  - text: With an index on the sort column, the database skips the offset rows for free, so deep pages cost the same as the first
+    why: An index gives the order, but the database still walks past every skipped row before returning the page
+  - text: A cursor can sort on any column, even one with many duplicate values, with no tie-breaker
+    why: Without a unique tie-breaker, rows that share the sort value can be skipped or repeated at a page boundary
 followUps:
   - How do you encode a cursor so clients cannot tamper with it?
   - How would you paginate a result set sorted by a non-unique column like score?

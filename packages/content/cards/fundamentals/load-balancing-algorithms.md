@@ -20,9 +20,12 @@ eli5:
   - Whatever the rule, keep checking each server and stop sending to any that fail the check
   - The thing sharing out the traffic needs a backup too, or it becomes the one part that takes everything down
 distractors:
-  - Round robin is the best choice when request cost varies widely between requests
-  - Least connections guarantees that the same client always reaches the same server
-  - With consistent hashing in place, health checks are unnecessary
+  - text: Round robin is the best choice when request cost varies widely between requests
+    why: Round robin ignores how busy each server is, so uneven requests pile up on some servers. Least connections handles that
+  - text: Least connections guarantees that the same client always reaches the same server
+    why: Least connections picks whichever server is least busy at that moment, so a client moves between servers
+  - text: With consistent hashing in place, health checks are unnecessary
+    why: Hashing decides where a key goes, not whether the server there is alive. Dead backends still have to be detected
 followUps:
   - How would you handle one server that is twice as powerful as the others?
   - What breaks if you use IP hash behind a corporate NAT?

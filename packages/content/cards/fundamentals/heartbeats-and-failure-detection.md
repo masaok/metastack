@@ -20,9 +20,12 @@ eli5:
   - Smarter detectors learn how late heartbeats usually run and set the suspicion level to match
   - A machine wrongly declared dead may still think it is in charge, so give each leader a numbered pass that goes out of date
 distractors:
-  - A missed heartbeat proves the node has crashed
-  - A sufficiently short timeout removes false positives
-  - Once the cluster declares a leader dead it stops acting at once, so no fencing is needed
+  - text: A missed heartbeat proves the node has crashed
+    why: A slow network or a long pause looks exactly the same as a crash from the outside
+  - text: A sufficiently short timeout removes false positives
+    why: Shorter timeouts raise false positives, because ordinary delays start to look like failures
+  - text: Once the cluster declares a leader dead it stops acting at once, so no fencing is needed
+    why: The old leader may only be paused or cut off and still believe it leads. Fencing tokens stop its late writes
 followUps:
   - What is split brain and how do leases prevent it?
   - How do gossip protocols spread membership information without a central monitor?

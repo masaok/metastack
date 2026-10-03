@@ -20,9 +20,12 @@ eli5:
   - Keep a line open to each phone so offers and the moving car on the map arrive right away
   - One driver must never get two trips at once, so only one decision-maker per area hands out drivers, or it locks the driver first
 distractors:
-  - Write every driver location update as a row in a relational table and query it with a bounding box
-  - Match the rider to the driver nearest in a straight line, with no need for travel-time estimates
-  - Offer the same trip to several drivers and assign all who accept
+  - text: Write every driver location update as a row in a relational table and query it with a bounding box
+    why: Millions of location writes a second with constant nearby queries overwhelm a relational table. This belongs in an in-memory geospatial index
+  - text: Match the rider to the driver nearest in a straight line, with no need for travel-time estimates
+    why: Rivers, one-way streets and traffic make the nearest driver by distance often not the quickest to arrive. Rank by ETA
+  - text: Offer the same trip to several drivers and assign all who accept
+    why: A trip needs exactly one driver. Offers must be exclusive, or the others must be cancelled atomically
 followUps:
   - How do you prevent two riders from being matched to the same driver at the same instant?
   - How would surge pricing be computed and kept consistent with what the rider was quoted?

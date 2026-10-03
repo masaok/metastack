@@ -147,18 +147,31 @@ export async function upsertCards(
 }
 
 const FILL_DISTRACTORS = `UPDATE cards SET distractors = seed.distractors, updated_at = now()
-  FROM jsonb_to_recordset($1::jsonb) AS seed(id TEXT, distractors JSONB)
-  WHERE cards.id = seed.id AND cards.distractors IS NULL AND seed.distractors IS NOT NULL
+  FROM jsonb_to_recordset($1::jsonb) AS seed(id TEXT, distractors JSONB, plain JSONB, bare JSONB)
+  WHERE cards.id = seed.id
+    AND (cards.distractors IS NULL OR cards.distractors = seed.plain OR cards.distractors = seed.bare)
+    AND cards.distractors IS DISTINCT FROM seed.distractors
   RETURNING cards.id`;
 
 /**
- * Give stored cards that have no distractors the ones from `cards`. Nothing else
- * about a stored card changes, and distractors already stored are kept. Returns
- * how many cards were filled.
+ * Give stored cards the distractors from `cards` when they have none, or have
+ * the same statements without their reasons. A stored card whose statements
+ * differ was edited and is left alone, and nothing else about a card changes.
+ * Returns how many cards were filled.
  */
 export async function fillDistractors(sql: CardsSql, cards: readonly Card[]): Promise<number> {
   const seed = cards.flatMap((card) =>
-    card.distractors ? [{ id: card.id, distractors: card.distractors }] : [],
+    card.distractors
+      ? [
+          {
+            id: card.id,
+            distractors: card.distractors,
+            // The two forms a stored card can hold the same statements in, without reasons.
+            plain: card.distractors.map((distractor) => distractor.text),
+            bare: card.distractors.map((distractor) => ({ text: distractor.text })),
+          },
+        ]
+      : [],
   );
   if (seed.length === 0) return 0;
   const rows = (await sql.query(FILL_DISTRACTORS, [JSON.stringify(seed)])) as unknown[];

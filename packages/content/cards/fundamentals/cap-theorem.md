@@ -20,9 +20,12 @@ eli5:
   - Calling a whole database one type is too crude, since agreement comes in degrees and can be set per request
   - For example one kind stops taking writes on the smaller side of a split, and another keeps taking them and sorts it out afterwards
 distractors:
-  - A well-designed system can provide consistency, availability and partition tolerance all at once
-  - CAP forces a choice between consistency and availability at all times, even when the network is healthy
-  - A CA system gives up partition tolerance, which is a practical choice for a database spread over several datacenters
+  - text: A well-designed system can provide consistency, availability and partition tolerance all at once
+    why: During a partition a node must either refuse requests or answer with possibly stale data. It cannot do neither
+  - text: CAP forces a choice between consistency and availability at all times, even when the network is healthy
+    why: CAP only speaks about behaviour during a partition. With a healthy network a system can be both consistent and available
+  - text: A CA system gives up partition tolerance, which is a practical choice for a database spread over several datacenters
+    why: Partitions happen whether or not you plan for them, most of all between datacenters, so giving up partition tolerance is not a real option
 followUps:
   - What does "available" mean in CAP and why is it stricter than "high availability"?
   - Why is a single-node database not a counterexample?

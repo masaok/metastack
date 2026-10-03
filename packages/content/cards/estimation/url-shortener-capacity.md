@@ -21,9 +21,12 @@ eli5:
   - A small share of links get most of the clicks, so keeping those in fast memory answers most requests
   - Numbers this small call for one database with copies and a cache, and nothing fancier
 distractors:
-  - 100 million links a month is about 4,000 writes per second
-  - Four base62 characters give 62^4, about 15 billion codes, which is plenty
-  - These numbers call for a sharded, multi-region database from day one
+  - text: 100 million links a month is about 4,000 writes per second
+    why: 100 million divided by about 2.6 million seconds in a month is about 40 per second. 4,000 is the read rate
+  - text: Four base62 characters give 62^4, about 15 billion codes, which is plenty
+    why: 62^4 is about 15 million, which would run out in days. Seven characters give 3.5 trillion
+  - text: These numbers call for a sharded, multi-region database from day one
+    why: 40 writes and 4,000 reads a second fit one database with replicas and a cache
 followUps:
   - If you used an auto-incrementing id encoded in base62, what would you leak and how would you avoid it?
   - At what scale does this design need sharding?

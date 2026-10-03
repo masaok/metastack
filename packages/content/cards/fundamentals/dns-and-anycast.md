@@ -20,9 +20,12 @@ eli5:
   - When a site stops advertising the address traffic moves almost at once, but a route that wobbles can cut long connections
   - Big systems use both, shared addresses at the edge and name lookups for broad steering and planned maintenance
 distractors:
-  - DNS failover is instant, because resolvers always honour a low TTL
-  - Geo DNS sees the end user's exact address, so it always picks the datacenter nearest to them
-  - Anycast gives every site a different IP address and lets the client choose the nearest
+  - text: DNS failover is instant, because resolvers always honour a low TTL
+    why: Many resolvers and clients cache answers longer than the TTL says, so failover takes seconds to minutes
+  - text: Geo DNS sees the end user's exact address, so it always picks the datacenter nearest to them
+    why: The authoritative server sees the resolver's address, not the user's, and the resolver may be far away
+  - text: Anycast gives every site a different IP address and lets the client choose the nearest
+    why: Anycast announces one shared address from every site, and the network's routing picks the site
 followUps:
   - Why does EDNS Client Subnet exist and what does it leak?
   - How would you drain a datacenter for maintenance under each scheme?

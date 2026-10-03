@@ -21,9 +21,12 @@ eli5:
   - A two-way open line suits chat and shared editing, but each server must remember its callers and pass messages between servers
   - Pick by which way messages flow, how often they come, and what the network in between allows
 distractors:
-  - Server-sent events are bidirectional, so the browser can send messages on the same stream
-  - WebSockets work with stateless servers, with no sticky routing and no shared pub/sub layer
-  - Short polling delivers updates the instant they happen
+  - text: Server-sent events are bidirectional, so the browser can send messages on the same stream
+    why: SSE flows from server to browser only. The browser needs a separate request to send anything
+  - text: WebSockets work with stateless servers, with no sticky routing and no shared pub/sub layer
+    why: Each connection lives on one server, so reaching a user needs sticky routing or a pub/sub layer between servers
+  - text: Short polling delivers updates the instant they happen
+    why: An update waits for the next poll, so the delay is up to the polling interval
 followUps:
   - How do you scale WebSocket servers horizontally and route a message to the right connection?
   - What does a mobile client on a flaky network change about this choice?

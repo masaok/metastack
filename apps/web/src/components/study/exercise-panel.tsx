@@ -298,6 +298,9 @@ function PickExercise({
                           : `${wrongLabel}, left out`}
                     </span>
                   )}
+                  {marked && option.why && (
+                    <span className="mt-1 block text-sm text-ink-2">{option.why}</span>
+                  )}
                 </span>
               </label>
             </li>

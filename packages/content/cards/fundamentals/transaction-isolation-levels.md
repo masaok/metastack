@@ -20,9 +20,12 @@ eli5:
   - Popular databases differ in which level they use unless told otherwise
   - The classic trap is two doctors who each see the other is on call and both sign off, leaving nobody
 distractors:
-  - Read committed prevents non-repeatable reads
-  - Snapshot isolation prevents write skew
-  - Most production databases default to serializable
+  - text: Read committed prevents non-repeatable reads
+    why: At read committed a second read can see another transaction's newly committed change. Repeatable read prevents that
+  - text: Snapshot isolation prevents write skew
+    why: Two transactions can each read the same snapshot and write different rows, breaking a rule neither one sees broken
+  - text: Most production databases default to serializable
+    why: Postgres and Oracle default to read committed, and MySQL InnoDB to repeatable read. Serializable is opt-in
 followUps:
   - How does MVCC implement snapshot isolation without blocking readers?
   - When would you use SELECT ... FOR UPDATE instead of raising the isolation level?

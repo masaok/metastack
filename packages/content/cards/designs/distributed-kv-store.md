@@ -20,9 +20,12 @@ eli5:
   - If a machine is briefly down a neighbour holds its mail, and machines gossip to learn who is alive
   - Writes go to memory and an append-only journal first, then get sorted into files that are merged later, which keeps writes fast
 distractors:
-  - Route every write through a single leader node, which keeps the system available under any failure
-  - Use quorums with W + R ≤ N so that reads always see the latest write
-  - Build the storage engine on a B-tree updated in place, since that gives the best write throughput
+  - text: Route every write through a single leader node, which keeps the system available under any failure
+    why: A single leader is a single point of failure for writes, which contradicts staying available under node failures
+  - text: Use quorums with W + R ≤ N so that reads always see the latest write
+    why: The read and write sets overlap only when W + R is greater than N. Otherwise a read can miss the latest write
+  - text: Build the storage engine on a B-tree updated in place, since that gives the best write throughput
+    why: In-place B-tree updates need random writes. An LSM tree turns writes into sequential appends, which is faster
 followUps:
   - How does a client know which node to talk to, and what happens if it picks the wrong one?
   - How would you add secondary indexes or range queries to a hash-partitioned store?

@@ -63,6 +63,8 @@ test.describe("exercises", () => {
     for (const box of await exercise.getByRole("checkbox").all()) await box.check();
     await exercise.getByRole("button", { name: "Check answers" }).click();
     await expect(exercise.getByText("A common mistake", { exact: true })).toHaveCount(3);
+    // Each distractor says why it is wrong.
+    await expect(exercise.getByText(/A standard JWT is signed, not encrypted/)).toBeVisible();
     await exercise.getByRole("button", { name: "See key points" }).click();
     await expect(page.getByText(/2\/5 covered → suggested Hard/)).toBeVisible();
   });

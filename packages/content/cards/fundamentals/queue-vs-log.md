@@ -20,9 +20,12 @@ eli5:
   - Because it can be reread by many, a log is the base for rebuilding state, copying database changes and processing streams
   - A queue is the simpler pick when each job should be done once and then forgotten
 distractors:
-  - A log deletes each message as soon as one consumer acknowledges it
-  - A traditional queue lets many independent consumer groups replay the full history
-  - Kafka guarantees a global order across all partitions of a topic
+  - text: A log deletes each message as soon as one consumer acknowledges it
+    why: That describes a queue. A log keeps messages for its retention period and each consumer tracks an offset
+  - text: A traditional queue lets many independent consumer groups replay the full history
+    why: A queue removes a message once it is acknowledged, so there is no history to replay. Replay is what a log offers
+  - text: Kafka guarantees a global order across all partitions of a topic
+    why: Order is guaranteed only inside one partition. Across partitions there is no global order
 followUps:
   - How does a Kafka consumer group achieve parallelism, and what limits it?
   - What happens in each system when a consumer is slow for an hour?

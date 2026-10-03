@@ -21,9 +21,12 @@ eli5:
   - Before adding copies, check how far they fall behind, how many connections they need, and whether a cache would remove most reads
   - Past a dozen or so copies, feeding them all gets painful, so cache or split the data instead
 distractors:
-  - Replicas do not apply writes, so each one offers its full 15,000 QPS for reads
-  - 2,000 × 50 = 10,000 reads per second
-  - Adding replicas scales linearly without limit, so 100 replicas is as easy as 10
+  - text: Replicas do not apply writes, so each one offers its full 15,000 QPS for reads
+    why: Each replica must replay every write, which uses 2,000 of its 15,000 QPS
+  - text: 2,000 × 50 = 10,000 reads per second
+    why: 2,000 × 50 is 100,000
+  - text: Adding replicas scales linearly without limit, so 100 replicas is as easy as 10
+    why: Each added replica increases replication fan-out and lag, so the gains flatten beyond about 10 to 15
 followUps:
   - How does adding a cache with a 90% hit rate change the replica count?
   - When do you move from replicas to sharding?

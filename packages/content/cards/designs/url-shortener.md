@@ -20,9 +20,12 @@ eli5:
   - Count clicks on the side through a stream or counter, so the redirect never waits on a write
   - Talk about links that go viral, links that expire, and misuse such as harmful targets or guessing codes that go up in order
 distractors:
-  - Use the first 7 characters of an MD5 hash of the URL and assume collisions cannot happen
-  - Increment the click count with a synchronous database write on every redirect
-  - Always answer with a permanent 301, which gives the most accurate click analytics
+  - text: Use the first 7 characters of an MD5 hash of the URL and assume collisions cannot happen
+    why: A truncated hash collides often at billions of links, and two URLs would then share one code
+  - text: Increment the click count with a synchronous database write on every redirect
+    why: A database write on every redirect puts the slowest operation on the hottest path. Counts go through an async stream
+  - text: Always answer with a permanent 301, which gives the most accurate click analytics
+    why: Browsers cache a 301 and stop asking, so later clicks never reach the server to be counted. Use 302 to count them
 followUps:
   - How would you support custom aliases without breaking uniqueness guarantees?
   - What changes if links must be deleted or edited after creation?

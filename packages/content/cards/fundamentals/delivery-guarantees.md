@@ -20,9 +20,12 @@ eli5:
   - Tag each action with an id, or write in a way that repeating changes nothing, and repeats become harmless
   - Some log systems save the result and the bookmark of how far you read in a single step, so inside them each message counts once
 distractors:
-  - At-least-once delivery never produces duplicates, because the broker tracks acknowledgements
-  - Exactly-once delivery across a network is achieved simply by retrying until an acknowledgement arrives
-  - At-most-once is the safest guarantee when a lost message is unacceptable
+  - text: At-least-once delivery never produces duplicates, because the broker tracks acknowledgements
+    why: If an acknowledgement is lost the sender retries, and the receiver gets the message twice
+  - text: Exactly-once delivery across a network is achieved simply by retrying until an acknowledgement arrives
+    why: Retrying gives at-least-once. Duplicates still have to be made harmless with idempotent processing
+  - text: At-most-once is the safest guarantee when a lost message is unacceptable
+    why: At-most-once never retries, so it is the guarantee that loses messages
 followUps:
   - Where would you store processed message ids and for how long?
   - Why does acknowledging before processing give you at-most-once?

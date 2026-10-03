@@ -52,14 +52,20 @@ describe("frontMatterSchema", () => {
 
   it("accepts two to five distractors that differ from the key points", () => {
     expect(frontMatterSchema.parse(valid).distractors).toBeUndefined();
-    const wrong = ["Caches never go stale", "A cache makes writes durable"];
+    const wrong = [
+      { text: "Caches never go stale", why: "Data can change after it is cached" },
+      { text: "A cache makes writes durable" },
+    ];
     expect(frontMatterSchema.parse({ ...valid, distractors: wrong }).distractors).toEqual(wrong);
-    expect(frontMatterSchema.safeParse({ ...valid, distractors: ["only one"] }).success).toBe(
-      false,
-    );
+    // A bare string, the form stored before reasons existed, becomes a distractor with no reason.
+    expect(
+      frontMatterSchema.parse({ ...valid, distractors: ["Caches never go stale", wrong[1]] })
+        .distractors,
+    ).toEqual([{ text: "Caches never go stale" }, wrong[1]]);
+    expect(frontMatterSchema.safeParse({ ...valid, distractors: [wrong[0]] }).success).toBe(false);
     const repeat = frontMatterSchema.safeParse({
       ...valid,
-      distractors: ["Caches never go stale", valid.keyPoints[0]],
+      distractors: [wrong[0], { text: valid.keyPoints[0] }],
     });
     expect(repeat.success).toBe(false);
     expect(repeat.error?.issues[0]?.path).toEqual(["distractors", 1]);
