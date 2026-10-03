@@ -20,6 +20,10 @@ eli5:
   - Seven characters drawn from sixty-two symbols give trillions of codes, while six characters would run short
   - A small share of links get most of the clicks, so keeping those in fast memory answers most requests
   - Numbers this small call for one database with copies and a cache, and nothing fancier
+distractors:
+  - 100 million links a month is about 4,000 writes per second
+  - Four base62 characters give 62^4, about 15 billion codes, which is plenty
+  - These numbers call for a sharded, multi-region database from day one
 followUps:
   - If you used an auto-incrementing id encoded in base62, what would you leak and how would you avoid it?
   - At what scale does this design need sharding?

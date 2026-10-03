@@ -19,6 +19,10 @@ eli5:
   - Combined, each recorded happening flows out to update the question-answering copies a moment later
   - You gain a complete history, the ability to ask what things looked like in the past, and new views built by replaying
   - You pay with answers that lag slightly, old event formats to keep supporting, checkpoints for long histories, and more to learn
+distractors:
+  - CQRS requires event sourcing, the two cannot be used separately
+  - With event sourcing, read models are updated in the same transaction as the write, so they are never stale
+  - Events can be edited in place when a schema changes, since they are ordinary rows
 followUps:
   - How do you handle a bug in a projection that has been running for a year?
   - When is plain CRUD with a few denormalised tables the better answer?

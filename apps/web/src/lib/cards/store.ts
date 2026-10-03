@@ -23,6 +23,9 @@ export const CARDS_TABLE = `CREATE TABLE IF NOT EXISTS cards (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`;
 
+/** Changes to the table's shape since it was first created, in order. */
+export const CARDS_MIGRATIONS = [`ALTER TABLE cards ADD COLUMN IF NOT EXISTS distractors JSONB`];
+
 export interface CardRow {
   id: string;
   deck: string;
@@ -32,6 +35,7 @@ export interface CardRow {
   prompt: string;
   key_points: unknown;
   eli5: unknown;
+  distractors: unknown;
   follow_ups: unknown;
   reference_links: unknown;
   stages: unknown;
@@ -40,20 +44,20 @@ export interface CardRow {
   reviewed: boolean;
 }
 
-const SELECT_COLUMNS = `SELECT id, deck, type, difficulty, tags, prompt, key_points, eli5, follow_ups,
-    reference_links, stages, body, to_char(updated, 'YYYY-MM-DD') AS updated, reviewed
+const SELECT_COLUMNS = `SELECT id, deck, type, difficulty, tags, prompt, key_points, eli5, distractors,
+    follow_ups, reference_links, stages, body, to_char(updated, 'YYYY-MM-DD') AS updated, reviewed
   FROM cards`;
 
 // Byte order, so the database returns cards in the order the compiler emits them.
 const CONTENT_ORDER = `ORDER BY deck COLLATE "C", id COLLATE "C"`;
 
 const INSERT_CARDS = `INSERT INTO cards (id, deck, type, difficulty, tags, prompt, key_points, eli5,
-    follow_ups, reference_links, stages, body, updated, reviewed)
+    distractors, follow_ups, reference_links, stages, body, updated, reviewed)
   SELECT id, deck, type, difficulty, tags, prompt, "keyPoints", eli5,
-    "followUps", "references", stages, body, updated, reviewed
+    distractors, "followUps", "references", stages, body, updated, reviewed
   FROM jsonb_to_recordset($1::jsonb) AS card(
     id TEXT, deck TEXT, type TEXT, difficulty SMALLINT, tags JSONB, prompt TEXT,
-    "keyPoints" JSONB, eli5 JSONB, "followUps" JSONB, "references" JSONB, stages JSONB,
+    "keyPoints" JSONB, eli5 JSONB, distractors JSONB, "followUps" JSONB, "references" JSONB, stages JSONB,
     body TEXT, updated DATE, reviewed BOOLEAN
   )`;
 
@@ -65,6 +69,7 @@ const REPLACE_STORED = `ON CONFLICT (id) DO UPDATE SET
     prompt = EXCLUDED.prompt,
     key_points = EXCLUDED.key_points,
     eli5 = EXCLUDED.eli5,
+    distractors = EXCLUDED.distractors,
     follow_ups = EXCLUDED.follow_ups,
     reference_links = EXCLUDED.reference_links,
     stages = EXCLUDED.stages,
@@ -88,6 +93,7 @@ export function rowToCard(row: CardRow): Card | null {
     updated: row.updated,
     reviewed: row.reviewed,
     ...(row.eli5 === null ? {} : { eli5: row.eli5 }),
+    ...(row.distractors === null ? {} : { distractors: row.distractors }),
     ...(row.stages === null ? {} : { stages: row.stages }),
   });
   if (!parsed.success) {
@@ -138,4 +144,23 @@ export async function upsertCards(
   if (cards.length === 0) return;
   const onConflict = options.overwrite ? REPLACE_STORED : "ON CONFLICT (id) DO NOTHING";
   await sql.query(`${INSERT_CARDS} ${onConflict}`, [JSON.stringify(cards)]);
+}
+
+const FILL_DISTRACTORS = `UPDATE cards SET distractors = seed.distractors, updated_at = now()
+  FROM jsonb_to_recordset($1::jsonb) AS seed(id TEXT, distractors JSONB)
+  WHERE cards.id = seed.id AND cards.distractors IS NULL AND seed.distractors IS NOT NULL
+  RETURNING cards.id`;
+
+/**
+ * Give stored cards that have no distractors the ones from `cards`. Nothing else
+ * about a stored card changes, and distractors already stored are kept. Returns
+ * how many cards were filled.
+ */
+export async function fillDistractors(sql: CardsSql, cards: readonly Card[]): Promise<number> {
+  const seed = cards.flatMap((card) =>
+    card.distractors ? [{ id: card.id, distractors: card.distractors }] : [],
+  );
+  if (seed.length === 0) return 0;
+  const rows = (await sql.query(FILL_DISTRACTORS, [JSON.stringify(seed)])) as unknown[];
+  return rows.length;
 }

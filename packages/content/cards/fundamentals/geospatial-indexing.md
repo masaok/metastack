@@ -19,6 +19,10 @@ eli5:
   - Keep cutting a square into four wherever it is crowded, so busy areas get small squares
   - Newer grid systems tile the globe with evenly sized cells that nest, which avoids odd behaviour at the edges of code squares
   - To search, list the cells that cover your circle, fetch what is in them, and then measure the real distance to each result
+distractors:
+  - Two B-tree indexes, one on latitude and one on longitude, answer radius queries efficiently at any scale
+  - Two points that are close together always share a long geohash prefix
+  - Rows returned from the covering cells are all inside the radius, so no distance filter is needed
 followUps:
   - Why can two points very close together have completely different geohashes, and how do you handle it?
   - How would you keep this index updated when drivers move every few seconds?

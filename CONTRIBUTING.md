@@ -31,6 +31,9 @@ eli5: # optional; one plain-language line per key point, same order
   - Whatever you bring back from the shop goes in the fridge for next time
   - When the shop changes a product, throw out your old one instead of patching it
   - Restock at the wrong moment and you put the old product back in the fridge
+distractors: # optional; two to five wrong answers for the pick exercise
+  - The cache is updated in place on every write, so it can never hold a stale value
+  - A miss returns an error to the caller until the next write fills the cache
 followUps:
   - How would you shorten the stale window?
 references:
@@ -50,6 +53,7 @@ Rules the validator enforces (`pnpm validate`):
 - `deck` matches the folder: `fundamentals`, `estimation`, or `designs`.
 - `keyPoints` has 3 to 6 entries. `followUps` has at most 5.
 - `eli5` is optional. When present it has exactly one entry per key point.
+- `distractors` is optional. When present it has 2 to 5 entries, each a statement about the prompt that sounds right and is wrong, and none repeats a key point.
 - At least one reference with a public URL.
 - Tags come from the closed vocabulary in `packages/content/src/schema.ts`. Add a tag there in the same PR if you really need one.
 - `type: design` cards must include `stages` (3 to 8), each with a name and its own key points. Non-design cards must not.

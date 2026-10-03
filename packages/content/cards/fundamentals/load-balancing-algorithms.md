@@ -19,6 +19,10 @@ eli5:
   - Use a rule based on the caller when the same caller should keep landing on the same server
   - Whatever the rule, keep checking each server and stop sending to any that fail the check
   - The thing sharing out the traffic needs a backup too, or it becomes the one part that takes everything down
+distractors:
+  - Round robin is the best choice when request cost varies widely between requests
+  - Least connections guarantees that the same client always reaches the same server
+  - With consistent hashing in place, health checks are unnecessary
 followUps:
   - How would you handle one server that is twice as powerful as the others?
   - What breaks if you use IP hash behind a corporate NAT?

@@ -19,6 +19,10 @@ eli5:
   - When two writes collide, use version tags or the latest timestamp to pick a winner, and quietly fix copies that drifted apart
   - If a machine is briefly down a neighbour holds its mail, and machines gossip to learn who is alive
   - Writes go to memory and an append-only journal first, then get sorted into files that are merged later, which keeps writes fast
+distractors:
+  - Route every write through a single leader node, which keeps the system available under any failure
+  - Use quorums with W + R ≤ N so that reads always see the latest write
+  - Build the storage engine on a B-tree updated in place, since that gives the best write throughput
 followUps:
   - How does a client know which node to talk to, and what happens if it picks the wrong one?
   - How would you add secondary indexes or range queries to a hash-partitioned store?

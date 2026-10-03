@@ -19,6 +19,10 @@ eli5:
   - With anycast many sites share one address, and the internet's routers carry you to whichever is closest in network terms
   - When a site stops advertising the address traffic moves almost at once, but a route that wobbles can cut long connections
   - Big systems use both, shared addresses at the edge and name lookups for broad steering and planned maintenance
+distractors:
+  - DNS failover is instant, because resolvers always honour a low TTL
+  - Geo DNS sees the end user's exact address, so it always picks the datacenter nearest to them
+  - Anycast gives every site a different IP address and lets the client choose the nearest
 followUps:
   - Why does EDNS Client Subnet exist and what does it leak?
   - How would you drain a datacenter for maintenance under each scheme?

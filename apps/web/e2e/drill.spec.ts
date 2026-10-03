@@ -13,6 +13,7 @@ test.describe("exercises", () => {
   test("recall slots credit each point marked as got", async ({ page }) => {
     await pinRandom(page, 0);
     await page.goto(card);
+    await expect(page.getByTitle("How this card is testing you")).toHaveText("recall");
     await expect(page.getByText("Recall the 5 key points, one at a time")).toBeVisible();
     await page.getByLabel("Your answer for point 1").fill("opaque id, server state");
     for (let i = 0; i < 5; i++) {
@@ -28,6 +29,7 @@ test.describe("exercises", () => {
   test("cues show the plain-language hints, and space skips the exercise", async ({ page }) => {
     await pinRandom(page, 0.25);
     await page.goto(card);
+    await expect(page.getByTitle("How this card is testing you")).toHaveText("hints");
     await expect(page.getByText("Turn each plain-language hint into the key point")).toBeVisible();
     await expect(page.getByText(/A session is a coat check ticket/)).toBeVisible();
     await page.keyboard.press("Space");
@@ -38,6 +40,7 @@ test.describe("exercises", () => {
     await pinRandom(page, 0.5);
     await page.goto(card);
     const exercise = page.locator("[data-exercise]");
+    await expect(page.getByTitle("How this card is testing you")).toHaveText("match");
     let matched = 0;
     for (let i = 0; i < 5; i++) {
       await expect(exercise.getByText(`Line ${i + 1} of 5`)).toBeVisible();
@@ -49,14 +52,17 @@ test.describe("exercises", () => {
     await expect(page.getByText(/1\/5 covered → suggested Again/)).toBeVisible();
   });
 
-  test("pick cancels a correct point for each point from another card", async ({ page }) => {
+  test("pick cancels a correct point for each distractor picked", async ({ page }) => {
     await pinRandom(page, 0.75);
     await page.goto(card);
     const exercise = page.locator("[data-exercise]");
+    await expect(page.getByTitle("How this card is testing you")).toHaveText("pick");
     await expect(exercise.getByRole("checkbox")).toHaveCount(8);
+    // The wrong answers are the card's own distractors, not points from other cards.
+    await expect(exercise.getByText(/A JWT payload is encrypted by default/)).toBeVisible();
     for (const box of await exercise.getByRole("checkbox").all()) await box.check();
     await exercise.getByRole("button", { name: "Check answers" }).click();
-    await expect(exercise.getByText("From another card", { exact: true })).toHaveCount(3);
+    await expect(exercise.getByText("A common mistake", { exact: true })).toHaveCount(3);
     await exercise.getByRole("button", { name: "See key points" }).click();
     await expect(page.getByText(/2\/5 covered → suggested Hard/)).toBeVisible();
   });

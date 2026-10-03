@@ -19,6 +19,10 @@ eli5:
   - Looser again, cause always comes before effect for everyone, while unrelated events may appear in different orders
   - Loosest, the copies agree once the writing stops, with no promises before then
   - Most apps just need you to see your own changes and never see time go backwards
+distractors:
+  - Eventual consistency guarantees that a client reads its own write straight away
+  - Sequential consistency requires the agreed order to match real-time order, exactly as linearizability does
+  - Causal consistency puts every operation, concurrent ones included, into one total order that all clients see
 followUps:
   - How would you implement read-your-writes with async read replicas?
   - Why is causal consistency the strongest model that stays available under partition?

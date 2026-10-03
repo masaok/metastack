@@ -19,6 +19,10 @@ eli5:
   - Wait only briefly and you raise false alarms when things are busy, wait long and real failures go unnoticed
   - Smarter detectors learn how late heartbeats usually run and set the suspicion level to match
   - A machine wrongly declared dead may still think it is in charge, so give each leader a numbered pass that goes out of date
+distractors:
+  - A missed heartbeat proves the node has crashed
+  - A sufficiently short timeout removes false positives
+  - Once the cluster declares a leader dead it stops acting at once, so no fencing is needed
 followUps:
   - What is split brain and how do leases prevent it?
   - How do gossip protocols spread membership information without a central monitor?

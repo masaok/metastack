@@ -19,6 +19,10 @@ eli5:
   - Splitting by hash spreads things evenly but scatters neighbours, so a range query must ask every machine
   - Splitting by a lookup table is flexible and easy to rearrange, but adds a lookup step and a table that must never go down
   - Anything spanning several machines is costly, so split along the lines of your most common query
+distractors:
+  - Hash sharding keeps adjacent keys together, so range scans read a single shard
+  - Range sharding spreads writes evenly even when keys only ever increase, such as timestamps
+  - Joins and transactions across shards cost about the same as on one node
 followUps:
   - How do you resplit a shard that has grown too large without downtime?
   - Where would you put a secondary index in a sharded system?

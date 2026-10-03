@@ -39,7 +39,7 @@ import {
   type StudyMode,
 } from "@/lib/db";
 import { studyCardPath } from "@/lib/study-url";
-import { buildExercise, type Exercise } from "@/lib/study/exercise";
+import { buildExercise, EXERCISE_LABEL, type Exercise } from "@/lib/study/exercise";
 import { pushReview, savePreference } from "@/lib/sync";
 import { cn } from "@/lib/utils";
 
@@ -575,6 +575,14 @@ export function StudySession({
             <span>{current.type}</span>
             <span aria-hidden>·</span>
             <span className={cn(isNew && "text-blue")}>{isNew ? "new" : "review"}</span>
+            {exercise && (
+              <>
+                <span aria-hidden>·</span>
+                <span title="How this card is testing you">
+                  {EXERCISE_LABEL[exercise.exercise.kind]}
+                </span>
+              </>
+            )}
             <span className="ml-auto hidden font-mono font-normal normal-case sm:inline">
               #{current.id}
             </span>

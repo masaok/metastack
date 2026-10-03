@@ -31,6 +31,7 @@ interface Draft {
   prompt: string;
   points: Array<{ text: string; eli5: string }>;
   followUps: string;
+  distractors: string;
   references: Array<{ title: string; url: string }>;
   stages: Array<{ name: string; points: string }>;
   body: string;
@@ -52,6 +53,7 @@ function draftFrom(card: Card | undefined): Draft {
       prompt: "",
       points: [BLANK_POINT, BLANK_POINT, BLANK_POINT],
       followUps: "",
+      distractors: "",
       references: [BLANK_REFERENCE],
       stages: [BLANK_STAGE, BLANK_STAGE, BLANK_STAGE],
       body: "",
@@ -67,6 +69,7 @@ function draftFrom(card: Card | undefined): Draft {
     prompt: card.prompt.trim(),
     points: card.keyPoints.map((text, i) => ({ text, eli5: card.eli5?.[i] ?? "" })),
     followUps: card.followUps.join("\n"),
+    distractors: (card.distractors ?? []).join("\n"),
     references: card.references.map((reference) => ({ ...reference })),
     stages: card.stages?.map((stage) => ({
       name: stage.name,
@@ -87,6 +90,7 @@ function lines(text: string): string[] {
 /** What the API validates. Plain-language lines are sent only when any is filled in. */
 function payloadFrom(draft: Draft) {
   const eli5 = draft.points.map((point) => point.eli5.trim());
+  const distractors = lines(draft.distractors);
   return {
     id: draft.id.trim(),
     deck: draft.deck,
@@ -96,6 +100,7 @@ function payloadFrom(draft: Draft) {
     prompt: draft.prompt.trim(),
     keyPoints: draft.points.map((point) => point.text.trim()),
     ...(eli5.some(Boolean) ? { eli5 } : {}),
+    ...(distractors.length > 0 ? { distractors } : {}),
     followUps: lines(draft.followUps),
     references: draft.references.map((reference) => ({
       title: reference.title.trim(),
@@ -456,6 +461,19 @@ export function AdminCardEditor({
               ) : (
                 <p className="text-sm text-ink-3">Nothing to preview yet.</p>
               )}
+            </Group>
+
+            <Group
+              title="Distractors"
+              description="Plausible but wrong statements for the pick exercise, one per line. Leave empty, or give two to five."
+            >
+              <textarea
+                value={draft.distractors}
+                onChange={(event) => change({ distractors: event.target.value })}
+                rows={3}
+                aria-label="Distractors"
+                className={INPUT}
+              />
             </Group>
 
             <Group title="Follow-ups" description="Likely follow-up questions, one per line.">

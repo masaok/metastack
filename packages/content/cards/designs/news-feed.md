@@ -19,6 +19,10 @@ eli5:
   - Each person's feed is a short list of post numbers kept in fast memory, and the post text is looked up separately
   - First collect a pile of possible posts, then sort them by interest, and fall back to newest first if sorting breaks
   - You must see your own post straight away, but it is fine if other people's posts show up a few seconds late
+distractors:
+  - Fan out on write for every account, including those with tens of millions of followers
+  - Store the full post content inside every follower's feed list
+  - Rank all posts from everyone the user follows from scratch on every request, with no candidate step
 followUps:
   - How do you handle a user who follows 5,000 accounts and opens the app after a week away?
   - How would you add "likes" and comment counts to the feed without hammering the counters?

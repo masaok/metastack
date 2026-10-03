@@ -19,6 +19,10 @@ eli5:
   - Queues are good at routing, priorities and sharing jobs among workers, and logs are good at strict order within a lane and sheer volume
   - Because it can be reread by many, a log is the base for rebuilding state, copying database changes and processing streams
   - A queue is the simpler pick when each job should be done once and then forgotten
+distractors:
+  - A log deletes each message as soon as one consumer acknowledges it
+  - A traditional queue lets many independent consumer groups replay the full history
+  - Kafka guarantees a global order across all partitions of a topic
 followUps:
   - How does a Kafka consumer group achieve parallelism, and what limits it?
   - What happens in each system when a consumer is slow for an hour?

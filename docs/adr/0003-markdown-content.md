@@ -25,6 +25,7 @@ Enforced in `packages/content/src/schema.ts` and `compile.ts`:
 - `type` in `concept | tradeoff | estimation | design | failure`
 - 3–6 `keyPoints`; at most 5 `followUps`; at least one `reference` with a URL
 - optional `eli5`, one plain-language entry per key point
+- optional `distractors`, two to five plausible but wrong statements, none equal to a key point
 - tags from a closed vocabulary
 - `design` cards have 3–8 `stages`, each with its own key points; other types must not
 - `estimation` cards carry the `estimation` tag

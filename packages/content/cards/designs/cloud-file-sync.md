@@ -20,6 +20,10 @@ eli5:
   - The server taps the client on the shoulder when something changed, and the client then fetches what it is missing
   - If two people changed the same file, keep both copies and label one as conflicted instead of throwing work away
   - The client keeps its own list of local files, notices edits made offline, and can pick up a half-finished transfer
+distractors:
+  - Re-upload the whole file whenever any byte changes, since chunking adds complexity for no bandwidth saving
+  - Keep file metadata and file bytes together in one store, so a single read returns both
+  - When two devices edit the same file offline, the later upload silently overwrites the earlier one
 followUps:
   - How do you handle a file that is being edited simultaneously on two devices?
   - How would you implement shared folders and permission changes efficiently?

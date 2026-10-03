@@ -19,6 +19,10 @@ eli5:
   - If the index already holds every column the query wants, the table itself is never opened
   - An index is not worth it when most rows match, when the table is tiny, or when the table is written constantly and rarely read
   - A hash index finds exact matches in one step but cannot do ranges or sorted output
+distractors:
+  - Indexes speed up writes as well as reads, because the database finds the row to change faster
+  - A B-tree lookup is O(1) regardless of table size
+  - A hash index is the right choice for range scans and ORDER BY
 followUps:
   - Why can a query planner choose a full scan even when an index exists?
   - How does an LSM tree differ from a B-tree for write-heavy workloads?

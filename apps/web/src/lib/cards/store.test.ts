@@ -5,6 +5,7 @@ import type { Card } from "@metastack/content";
 import {
   cardExists,
   deleteCard,
+  fillDistractors,
   rowToCard,
   selectCards,
   upsertCards,
@@ -21,6 +22,7 @@ const row: CardRow = {
   prompt: "What is the cache-aside pattern?",
   key_points: ["Read the cache first", "Fill it on a miss", "Invalidate on write"],
   eli5: null,
+  distractors: null,
   follow_ups: [],
   reference_links: [{ title: "Docs", url: "https://example.com/" }],
   stages: null,
@@ -37,11 +39,14 @@ async function main() {
   assert.equal(card.body, row.body);
   assert.deepEqual(card.keyPoints, row.key_points);
   assert.equal("eli5" in card, false);
+  assert.equal("distractors" in card, false);
   assert.equal("stages" in card, false);
 
   // Optional columns come through when stored.
   const plain = ["Look first", "Then fill", "Then clear"];
   assert.deepEqual(rowToCard({ ...row, eli5: plain })?.eli5, plain);
+  const wrong = ["The cache is the source of truth", "A miss returns an error"];
+  assert.deepEqual(rowToCard({ ...row, distractors: wrong })?.distractors, wrong);
 
   // A row that breaks the schema is skipped, not served.
   const errors: string[] = [];
@@ -84,6 +89,22 @@ async function main() {
   assert.match(calls[1]!.text, /ON CONFLICT \(id\) DO UPDATE/);
   const sent = JSON.parse(calls[0]!.params![0] as string) as Card[];
   assert.deepEqual(sent, [card]);
+
+  // Filling distractors sends only the cards that have them, and only fills empty rows.
+  const fills: Array<{ text: string; params?: unknown[] }> = [];
+  const filler: CardsSql = {
+    query: async (text, params) => {
+      fills.push({ text, params });
+      return [{ id: row.id }];
+    },
+  };
+  assert.equal(await fillDistractors(filler, [card]), 0);
+  assert.equal(fills.length, 0);
+  assert.equal(await fillDistractors(filler, [card, { ...card, distractors: wrong }]), 1);
+  assert.match(fills[0]!.text, /cards\.distractors IS NULL/);
+  assert.deepEqual(JSON.parse(fills[0]!.params![0] as string), [
+    { id: card.id, distractors: wrong },
+  ]);
 
   // Drafts are left out unless asked for.
   const texts: string[] = [];

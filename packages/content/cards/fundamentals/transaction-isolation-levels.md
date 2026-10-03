@@ -19,6 +19,10 @@ eli5:
   - The strongest level acts as though transactions ran one after another, at the price of waiting or being told to retry
   - Popular databases differ in which level they use unless told otherwise
   - The classic trap is two doctors who each see the other is on call and both sign off, leaving nobody
+distractors:
+  - Read committed prevents non-repeatable reads
+  - Snapshot isolation prevents write skew
+  - Most production databases default to serializable
 followUps:
   - How does MVCC implement snapshot isolation without blocking readers?
   - When would you use SELECT ... FOR UPDATE instead of raising the isolation level?

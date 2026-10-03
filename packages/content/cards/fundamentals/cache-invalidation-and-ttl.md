@@ -19,6 +19,10 @@ eli5:
   - Put a version in the name, so a change makes a new name and the old one is simply never asked for again
   - When a read and a write overlap, the old value can slip back into the cache whichever order you delete and write in
   - Vary expiry times a little and let one request refill while the others wait, so the store is not rushed all at once
+distractors:
+  - A short enough TTL guarantees that readers never see stale data
+  - Deleting the cache key before writing the database rules out stale entries under concurrency
+  - Giving every key the same TTL spreads expirations evenly and so prevents stampedes
 followUps:
   - Walk through the race where a reader repopulates stale data after an invalidation.
   - How would you invalidate across a multi-region CDN?

@@ -20,6 +20,10 @@ eli5:
   - A one-way stream from server to browser over plain web requests reconnects without help and suits live feeds
   - A two-way open line suits chat and shared editing, but each server must remember its callers and pass messages between servers
   - Pick by which way messages flow, how often they come, and what the network in between allows
+distractors:
+  - Server-sent events are bidirectional, so the browser can send messages on the same stream
+  - WebSockets work with stateless servers, with no sticky routing and no shared pub/sub layer
+  - Short polling delivers updates the instant they happen
 followUps:
   - How do you scale WebSocket servers horizontally and route a message to the right connection?
   - What does a mobile client on a flaky network change about this choice?

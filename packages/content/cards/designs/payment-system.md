@@ -19,6 +19,10 @@ eli5:
   - The outside payment company may fail or go quiet, so compare your book with theirs every day
   - Each payment moves through named steps including waiting and failed, and a later message from the payment company settles it
   - Let the payment company hold the card numbers and give you a stand-in token, so you carry far less security burden
+distractors:
+  - Keep each account's balance in a single mutable column and overwrite it on every payment
+  - Treat a successful response from the payment provider as final, so reconciliation is unnecessary
+  - Store raw card numbers in your own database so you can retry charges without the provider
 followUps:
   - What do you do when the PSP times out and you do not know whether the charge succeeded?
   - How do you handle a refund that spans a payout already sent to the merchant?

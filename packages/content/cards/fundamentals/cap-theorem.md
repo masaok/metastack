@@ -19,6 +19,10 @@ eli5:
   - The rule is silent about normal times, when the tradeoff is speed against agreement
   - Calling a whole database one type is too crude, since agreement comes in degrees and can be set per request
   - For example one kind stops taking writes on the smaller side of a split, and another keeps taking them and sorts it out afterwards
+distractors:
+  - A well-designed system can provide consistency, availability and partition tolerance all at once
+  - CAP forces a choice between consistency and availability at all times, even when the network is healthy
+  - A CA system gives up partition tolerance, which is a practical choice for a database spread over several datacenters
 followUps:
   - What does "available" mean in CAP and why is it stricter than "high availability"?
   - Why is a single-node database not a counterexample?

@@ -18,6 +18,10 @@ eli5:
   - Files that are the same for everyone cache easily, while pages that differ per person need careful handling
   - It also soaks up sudden crowds and attacks, and sets up the secure connection close to the user
   - It cannot speed up saving data, or anything that must be freshly computed for each request
+distractors:
+  - A CDN speeds up writes to the origin database by committing them at the edge first
+  - Personalised responses cache as easily as static assets, since the edge keys only on the URL
+  - Every request still travels to the origin, the CDN only compresses the response on the way back
 followUps:
   - How does a cache key differ from a URL, and why does it matter for CDN hit rate?
   - What is origin shielding?

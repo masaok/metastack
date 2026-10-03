@@ -19,6 +19,10 @@ eli5:
   - A trip moves through fixed steps from requested to completed, and repeating a step changes nothing
   - Keep a line open to each phone so offers and the moving car on the map arrive right away
   - One driver must never get two trips at once, so only one decision-maker per area hands out drivers, or it locks the driver first
+distractors:
+  - Write every driver location update as a row in a relational table and query it with a bounding box
+  - Match the rider to the driver nearest in a straight line, with no need for travel-time estimates
+  - Offer the same trip to several drivers and assign all who accept
 followUps:
   - How do you prevent two riders from being matched to the same driver at the same instant?
   - How would surge pricing be computed and kept consistent with what the rider was quoted?

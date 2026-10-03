@@ -19,6 +19,10 @@ eli5:
   - Draw the lines around business jobs that each own their data, not around technical layers
   - One program with strict internal walls gives teams most of the same independence without the network between parts
   - Split when teams keep blocking each other's releases, or one part needs very different scaling, or something must be kept apart
+distractors:
+  - Split by technical layer, one service each for the UI, the business logic and the data access
+  - Services make debugging easier because each one is small
+  - Let services share one database schema so that joins stay simple
 followUps:
   - How do you handle a workflow that used to be one database transaction and now spans three services?
   - What platform capabilities do you need before microservices stop being a liability?

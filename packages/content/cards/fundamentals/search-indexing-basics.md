@@ -19,6 +19,10 @@ eli5:
   - Text is first cut into words, lowercased, stripped of filler words and trimmed to word roots, so different forms of a word match
   - Results are ranked higher when the matching words are rare overall and frequent in that document, adjusted for document length
   - The search index is a copy fed from the main database a moment later, so it can be slightly behind
+distractors:
+  - LIKE with a leading wildcard is served efficiently by an ordinary B-tree index
+  - An inverted index maps each document to the list of terms it contains
+  - The search index is updated in the same transaction as the primary database, so it is never stale
 followUps:
   - How do you keep the search index in sync with the database, and what happens when the indexer falls behind?
   - How would you support typo tolerance or prefix matching?

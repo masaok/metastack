@@ -19,6 +19,10 @@ eli5:
   - Give each machine many spots on the circle so the shares even out, and give bigger machines more spots
   - For spare copies, also store each key on the next few machines round the circle
   - Many well-known databases, caches, content networks and load balancers work this way
+distractors:
+  - Adding a node to the ring remaps almost every key, the same as hash mod N
+  - Virtual nodes are standby machines that take over when a physical node fails
+  - A key is stored on the node whose hash is closest in either direction, so the ring needs no clockwise rule
 followUps:
   - What happens when one node fails and its neighbour inherits its whole range?
   - How does rendezvous (highest random weight) hashing compare?

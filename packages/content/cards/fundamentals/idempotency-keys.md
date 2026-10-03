@@ -19,6 +19,10 @@ eli5:
   - The server keeps the answer next to the ticket and hands back the same answer on any later retry
   - If the same ticket arrives with different details, refuse it, because the client has a bug
   - Tickets are thrown away after a while and belong to one account, so two customers never clash
+distractors:
+  - The server generates the idempotency key and returns it in the response for the client to keep
+  - The client should generate a fresh key for each retry so the server can tell attempts apart
+  - Record the key only after the charge succeeds, so that failed attempts leave no trace
 followUps:
   - What should happen if the first request is still in flight when the retry arrives?
   - How does this interact with downstream calls to a bank that is itself not idempotent?

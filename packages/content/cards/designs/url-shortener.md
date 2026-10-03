@@ -19,6 +19,10 @@ eli5:
   - Answer clicks from fast memory in front of a simple store, and pick a permanent or temporary redirect based on whether you need to count clicks
   - Count clicks on the side through a stream or counter, so the redirect never waits on a write
   - Talk about links that go viral, links that expire, and misuse such as harmful targets or guessing codes that go up in order
+distractors:
+  - Use the first 7 characters of an MD5 hash of the URL and assume collisions cannot happen
+  - Increment the click count with a synchronous database write on every redirect
+  - Always answer with a permanent 301, which gives the most accurate click analytics
 followUps:
   - How would you support custom aliases without breaking uniqueness guarantees?
   - What changes if links must be deleted or edited after creation?

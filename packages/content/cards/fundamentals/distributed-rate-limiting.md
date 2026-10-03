@@ -19,6 +19,10 @@ eli5:
   - In between, each server takes a small allowance and checks in with the shared counter now and then, giving up some exactness for speed
   - Always sending a customer to the same server makes its local counter correct, but busy customers overload that server
   - Decide ahead of time whether to let everyone in or block everyone when the counter cannot be reached
+distractors:
+  - Per-instance in-memory limits enforce the global limit exactly, however requests are spread
+  - A central Redis counter adds no latency or failure mode, because it is in memory
+  - When the limiter store is down the only safe behaviour is to reject every request
 followUps:
   - How do you make the Redis check-and-decrement atomic?
   - What happens to your limits during a Redis failover?
