@@ -192,7 +192,10 @@ export interface SessionOptions {
   newLimit?: number;
   /** How many new cards were already introduced today (across all decks). */
   newIntroducedToday?: number;
-  /** Deterministic ordering for new cards; defaults to content order. */
+  /**
+   * Reorders the due reviews and the new cards, each group on its own. Without
+   * it, reviews run most overdue first and new cards run in content order.
+   */
   shuffle?: (ids: string[]) => string[];
 }
 
@@ -206,13 +209,17 @@ export interface Session {
 /**
  * Build a study queue: every due review for the given cards, followed by up to
  * `newLimit - newIntroducedToday` cards that have never been studied.
+ *
+ * FSRS decides which cards are due, not the order they are shown in. Every due
+ * card is in the queue, so shuffling the reviews changes no schedule.
  */
 export function buildSession(options: SessionOptions): Session {
   const { cardIds, states, now = new Date(), newLimit = 10, newIntroducedToday = 0 } = options;
   const eligible = new Set(cardIds);
   const byId = new Map(states.filter((s) => eligible.has(s.cardId)).map((s) => [s.cardId, s]));
 
-  const due = getDueCards([...byId.values()], now).map((s) => s.cardId);
+  const overdueFirst = getDueCards([...byId.values()], now).map((s) => s.cardId);
+  const due = options.shuffle ? options.shuffle(overdueFirst) : overdueFirst;
 
   const newIds = cardIds.filter((id) => {
     const s = byId.get(id);

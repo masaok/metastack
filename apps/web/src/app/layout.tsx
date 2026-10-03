@@ -4,6 +4,7 @@ import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/goo
 import "./globals.css";
 
 import { AppFrame } from "@/components/app-frame";
+import { PreferencesSync } from "@/components/preferences-sync";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <PreferencesSync />
         <AppFrame>{children}</AppFrame>
       </body>
     </html>

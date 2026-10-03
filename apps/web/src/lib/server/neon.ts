@@ -54,6 +54,9 @@ const STATEMENTS = [
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
   `ALTER TABLE settings ADD COLUMN IF NOT EXISTS theme TEXT`,
+  // A key the user never set is NULL, so it cannot overwrite another device.
+  `ALTER TABLE settings ALTER COLUMN new_limit DROP NOT NULL, ALTER COLUMN new_limit DROP DEFAULT,
+    ALTER COLUMN mode DROP NOT NULL, ALTER COLUMN mode DROP DEFAULT`,
 ];
 
 export function getSql(): Sql {
