@@ -9,7 +9,7 @@ import { basename, dirname, join, relative } from "node:path";
 
 import matter from "gray-matter";
 
-import { DECK_SLUGS, frontMatterSchema, toCard, type Card } from "./schema";
+import { DECK_SLUGS, frontMatterSchema, MIN_BODY_LENGTH, toCard, type Card } from "./schema";
 
 export interface CompileIssue {
   file: string;
@@ -78,8 +78,11 @@ export function compileSource(
     }
 
     const body = parsed.content.trim();
-    if (body.length < 40) {
-      issues.push({ file, message: "model answer body is too short (min 40 characters)" });
+    if (body.length < MIN_BODY_LENGTH) {
+      issues.push({
+        file,
+        message: `model answer body is too short (min ${MIN_BODY_LENGTH} characters)`,
+      });
     }
 
     cards.push(toCard(fm, body));

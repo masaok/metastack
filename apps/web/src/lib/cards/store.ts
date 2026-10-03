@@ -40,14 +40,14 @@ export interface CardRow {
   reviewed: boolean;
 }
 
-// Byte order, so the database returns cards in the order the compiler emits them.
-const SELECT_CARDS = `SELECT id, deck, type, difficulty, tags, prompt, key_points, eli5, follow_ups,
+const SELECT_COLUMNS = `SELECT id, deck, type, difficulty, tags, prompt, key_points, eli5, follow_ups,
     reference_links, stages, body, to_char(updated, 'YYYY-MM-DD') AS updated, reviewed
-  FROM cards
-  WHERE reviewed
-  ORDER BY deck COLLATE "C", id COLLATE "C"`;
+  FROM cards`;
 
-const UPSERT_CARDS = `INSERT INTO cards (id, deck, type, difficulty, tags, prompt, key_points, eli5,
+// Byte order, so the database returns cards in the order the compiler emits them.
+const CONTENT_ORDER = `ORDER BY deck COLLATE "C", id COLLATE "C"`;
+
+const INSERT_CARDS = `INSERT INTO cards (id, deck, type, difficulty, tags, prompt, key_points, eli5,
     follow_ups, reference_links, stages, body, updated, reviewed)
   SELECT id, deck, type, difficulty, tags, prompt, "keyPoints", eli5,
     "followUps", "references", stages, body, updated, reviewed
@@ -55,8 +55,9 @@ const UPSERT_CARDS = `INSERT INTO cards (id, deck, type, difficulty, tags, promp
     id TEXT, deck TEXT, type TEXT, difficulty SMALLINT, tags JSONB, prompt TEXT,
     "keyPoints" JSONB, eli5 JSONB, "followUps" JSONB, "references" JSONB, stages JSONB,
     body TEXT, updated DATE, reviewed BOOLEAN
-  )
-  ON CONFLICT (id) DO UPDATE SET
+  )`;
+
+const REPLACE_STORED = `ON CONFLICT (id) DO UPDATE SET
     deck = EXCLUDED.deck,
     type = EXCLUDED.type,
     difficulty = EXCLUDED.difficulty,
@@ -101,14 +102,34 @@ export function rowToCard(row: CardRow): Card | null {
   return toCard(parsed.data, row.body);
 }
 
-/** Every reviewed card, in content order. Rows that fail the schema are left out. */
-export async function selectCards(sql: CardsSql): Promise<Card[]> {
-  const rows = (await sql.query(SELECT_CARDS)) as CardRow[];
+/**
+ * Cards in content order. Rows that fail the schema are left out. Only reviewed
+ * cards are returned unless `drafts` is set, which the admin editor uses.
+ */
+export async function selectCards(
+  sql: CardsSql,
+  options: { drafts?: boolean } = {},
+): Promise<Card[]> {
+  const filter = options.drafts ? "" : "WHERE reviewed";
+  const rows = (await sql.query(`${SELECT_COLUMNS} ${filter} ${CONTENT_ORDER}`)) as CardRow[];
   return rows.map(rowToCard).filter((card): card is Card => card !== null);
 }
 
-/** Insert the cards, replacing any stored card with the same id. Other rows are left alone. */
-export async function upsertCards(sql: CardsSql, cards: readonly Card[]): Promise<void> {
+export async function cardExists(sql: CardsSql, id: string): Promise<boolean> {
+  const rows = (await sql.query(`SELECT 1 FROM cards WHERE id = $1`, [id])) as unknown[];
+  return rows.length > 0;
+}
+
+/**
+ * Insert the cards. A stored card with the same id is kept, or replaced when
+ * `overwrite` is set. Rows for other ids are left alone.
+ */
+export async function upsertCards(
+  sql: CardsSql,
+  cards: readonly Card[],
+  options: { overwrite?: boolean } = {},
+): Promise<void> {
   if (cards.length === 0) return;
-  await sql.query(UPSERT_CARDS, [JSON.stringify(cards)]);
+  const onConflict = options.overwrite ? REPLACE_STORED : "ON CONFLICT (id) DO NOTHING";
+  await sql.query(`${INSERT_CARDS} ${onConflict}`, [JSON.stringify(cards)]);
 }

@@ -31,6 +31,7 @@ const NAV = [
 const ADMIN_NAV = [
   { href: "/admin", label: "Overview", icon: Gauge },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/cards", label: "Cards", icon: GalleryVerticalEnd },
 ] as const;
 
 export function DashboardShell({
@@ -41,7 +42,7 @@ export function DashboardShell({
 }: {
   user: SessionUser | null;
   deckOptions: Array<{ slug: string; title: string }>;
-  active: "/dashboard" | "/admin" | "/admin/users";
+  active: "/dashboard" | "/admin" | "/admin/users" | "/admin/cards";
   children: React.ReactNode;
 }) {
   const onAdmin = active.startsWith("/admin");

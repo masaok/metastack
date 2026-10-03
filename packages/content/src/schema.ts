@@ -114,6 +114,9 @@ export interface Card extends Omit<FrontMatter, "updated"> {
   body: string;
 }
 
+/** Shortest model answer a card may have, in characters. */
+export const MIN_BODY_LENGTH = 40;
+
 /** The compiled form of validated front matter plus its Markdown body. */
 export function toCard(frontMatter: FrontMatter, body: string): Card {
   return { ...frontMatter, updated: frontMatter.updated.toISOString().slice(0, 10), body };

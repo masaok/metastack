@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 
 import type { Card } from "@metastack/content";
 
-import { rowToCard, selectCards, upsertCards, type CardRow, type CardsSql } from "./store";
+import {
+  cardExists,
+  rowToCard,
+  selectCards,
+  upsertCards,
+  type CardRow,
+  type CardsSql,
+} from "./store";
 
 const row: CardRow = {
   id: "cache-aside-pattern",
@@ -70,9 +77,28 @@ async function main() {
   assert.equal(calls.length, 0);
   await upsertCards(writes, [card]);
   assert.equal(calls.length, 1);
-  assert.match(calls[0]!.text, /ON CONFLICT \(id\) DO UPDATE/);
+  // A stored card is kept unless the caller asks to replace it.
+  assert.match(calls[0]!.text, /ON CONFLICT \(id\) DO NOTHING/);
+  await upsertCards(writes, [card], { overwrite: true });
+  assert.match(calls[1]!.text, /ON CONFLICT \(id\) DO UPDATE/);
   const sent = JSON.parse(calls[0]!.params![0] as string) as Card[];
   assert.deepEqual(sent, [card]);
+
+  // Drafts are left out unless asked for.
+  const texts: string[] = [];
+  const spy: CardsSql = {
+    query: async (text) => {
+      texts.push(text);
+      return [row];
+    },
+  };
+  await selectCards(spy);
+  await selectCards(spy, { drafts: true });
+  assert.match(texts[0]!, /WHERE reviewed/);
+  assert.doesNotMatch(texts[1]!, /WHERE reviewed/);
+
+  assert.equal(await cardExists(spy, row.id), true);
+  assert.equal(await cardExists({ query: async () => [] }, row.id), false);
 
   console.log("card store ok");
 }

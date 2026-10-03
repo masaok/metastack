@@ -49,7 +49,7 @@ pnpm test          # unit tests for the scheduler and content pipeline
 pnpm test:coverage # same, enforcing 100% on packages/srs
 pnpm e2e           # Playwright drill-flow tests
 pnpm build         # production build
-pnpm db:seed       # write the repository's cards into the configured database
+pnpm db:seed       # add the repository's cards to the configured database
 ```
 
 ## How it works

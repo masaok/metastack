@@ -56,7 +56,7 @@ Rules the validator enforces (`pnpm validate`):
 - `type: estimation` cards must carry the `estimation` tag.
 - Body is at least 40 characters.
 - Only cards with `reviewed: true` are compiled into the seed. Open your PR with `reviewed: false`; a maintainer flips it after review.
-- The live site reads cards from its database. A merged card appears there once a maintainer runs `pnpm db:seed`.
+- The live site reads cards from its database. A merged new card appears there once a maintainer runs `pnpm db:seed`. A change to a card that is already live is applied by the maintainer in the admin editor.
 
 Rules a human enforces:
 
