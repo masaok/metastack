@@ -13,6 +13,12 @@ keyPoints:
   - Abstracts third-party providers (APNs, FCM, Twilio, SES) behind channel workers with retries and failover
   - Uses templates rendered at send time and stores a notification log for status and auditing
   - Discusses idempotency, priority lanes for transactional vs marketing, and provider rate limits
+eli5:
+  - Senders drop messages in a line for each channel and walk away, so a slow delivery company holds nobody up
+  - Before a message joins the line, check the person's wishes, quiet hours, repeats and how many they already got
+  - Each channel has workers who know how to talk to the outside delivery company, try again on failure and switch to a backup
+  - Fill in the message wording at the moment of sending, and keep a record of what was sent and what happened
+  - Sending twice must do no harm, urgent messages get a fast lane ahead of adverts, and outside companies cap how fast you can send
 followUps:
   - How do you prevent the same event from notifying a user twice across push and email?
   - How would you implement "digest" notifications that batch low-priority events hourly?

@@ -14,6 +14,12 @@ keyPoints:
   - 100,000 / 13,000 ≈ 8 replicas average, ~15 at peak, so plan around 10-16 plus failure headroom
   - Check write amplification, replication lag, connection counts and whether a cache in front would remove most reads first
   - Beyond ~10-15 replicas, replication fan-out and consistency pain argue for caching or sharding instead
+eli5:
+  - Multiply writes per second by the reads per write to get reads per second, then double it for busy times
+  - Every copy has to replay all the writes too, so only what is left of its capacity can serve reads
+  - Divide the reads by what one copy can serve to count copies, then add spares for failures
+  - Before adding copies, check how far they fall behind, how many connections they need, and whether a cache would remove most reads
+  - Past a dozen or so copies, feeding them all gets painful, so cache or split the data instead
 followUps:
   - How does adding a cache with a 90% hit rate change the replica count?
   - When do you move from replicas to sharding?

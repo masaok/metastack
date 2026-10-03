@@ -13,6 +13,12 @@ keyPoints:
   - Same-datacenter round trip ~0.5 ms, cross-continent round trip ~100-150 ms
   - Reading 1 MB sequentially, memory ~10 µs, SSD ~1 ms, over a 1 Gbps network ~10 ms
   - Design consequences, keep hot data in memory, batch disk and network calls, and never put a cross-region hop on a synchronous path
+eli5:
+  - The chip's own tiny cache answers in about a billionth of a second, and main memory takes about a hundred times longer
+  - A solid-state disk is about a thousand times slower than memory, and a spinning disk about a hundred times slower again
+  - A trip to a machine in the same building takes half a thousandth of a second, and a trip across an ocean takes over a tenth
+  - Reading a megabyte in a row takes microseconds from memory, about a millisecond from fast disk and about ten from the network
+  - So keep busy data in memory, group slow trips together, and never make a user wait on a trip across the world
 followUps:
   - Why is a single cross-region call often worse than ten in-region calls?
   - How does compression change the network row of this table?

@@ -13,6 +13,12 @@ keyPoints:
   - Here (tenant_id, status, created_at) lets the engine seek to one tenant and status and read in time order with no sort step
   - Putting the range column before an equality column forces a scan across many values and a separate sort
   - Column order also decides which other queries can reuse the index via its prefix
+eli5:
+  - A multi-column index is like a phone book sorted by surname then first name, so it only helps if you start with the surname
+  - Put the columns you match exactly first and the one you sort or range over last, so rows come out already in order
+  - In this case the database jumps to one tenant and one status and reads straight down in time order with no sorting
+  - Put the range column too early and the database must wade through many values and sort afterwards
+  - The order also decides which other queries can use the same index, since they must start from its first columns
 followUps:
   - What if status has three values and queries often omit it?
   - How would you include a selected column to make the index covering?

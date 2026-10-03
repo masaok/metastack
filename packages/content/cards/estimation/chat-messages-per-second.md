@@ -14,6 +14,12 @@ keyPoints:
   - Concurrent connections, assume 10-20% of DAU online at peak, 50-100 million persistent connections, so on the order of 1,000 gateway servers at ~100k connections each
   - Storage, 20B × ~200 bytes ≈ 4 TB per day of text, ~1.5 PB per year before media
   - Media dwarfs text if even a few percent of messages carry a 1 MB attachment
+eli5:
+  - Multiply users by messages each, divide by the seconds in a day, and then allow two or three times that for the busy hour
+  - Each message goes to a few people, so deliveries outnumber sends by that factor
+  - Guess what share of users are online at once, then divide by how many open lines one server can hold to count servers
+  - Multiply daily messages by a couple of hundred bytes each to get storage per day, then by 365 for the year
+  - Pictures and video are so much bigger than text that even a small share of them outweighs all the text
 followUps:
   - How do you shard message storage so a conversation's history is a single-partition read?
   - What changes if you add read receipts and typing indicators to the delivery estimate?

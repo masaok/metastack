@@ -13,6 +13,12 @@ keyPoints:
   - Serializable makes transactions behave as if run one at a time, preventing write skew at the cost of aborts or locking
   - Postgres and Oracle default to read committed, MySQL InnoDB to repeatable read
   - Write skew example, two doctors both checking "at least one on call" and both going off call
+eli5:
+  - The weakest level lets you see changes others have not finished, and the next hides those but a value can still change between two looks
+  - The next level gives you a frozen picture for your whole transaction, yet two transactions can still each make a choice that is wrong when combined
+  - The strongest level acts as though transactions ran one after another, at the price of waiting or being told to retry
+  - Popular databases differ in which level they use unless told otherwise
+  - The classic trap is two doctors who each see the other is on call and both sign off, leaving nobody
 followUps:
   - How does MVCC implement snapshot isolation without blocking readers?
   - When would you use SELECT ... FOR UPDATE instead of raising the isolation level?

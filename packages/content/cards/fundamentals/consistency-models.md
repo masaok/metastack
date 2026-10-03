@@ -13,6 +13,12 @@ keyPoints:
   - Causal, operations that are causally related are seen in order by everyone, concurrent ones may be seen in different orders
   - Eventual, with no new writes all replicas converge, no ordering guarantees in the meantime
   - Session guarantees (read-your-writes, monotonic reads) are the practical middle ground most apps need
+eli5:
+  - Strictest of all, everything looks as if it happened on one machine, one step at a time, in real-time order
+  - One step looser, everyone sees the same order of events, but that order may not match the clock
+  - Looser again, cause always comes before effect for everyone, while unrelated events may appear in different orders
+  - Loosest, the copies agree once the writing stops, with no promises before then
+  - Most apps just need you to see your own changes and never see time go backwards
 followUps:
   - How would you implement read-your-writes with async read replicas?
   - Why is causal consistency the strongest model that stays available under partition?

@@ -13,6 +13,12 @@ keyPoints:
   - Hybrid, each instance takes a local allowance and periodically syncs with the central store, trading exactness for latency
   - Sticky routing by customer key makes a local limiter accurate but creates hot instances
   - Decide fail-open or fail-closed when the limiter store is unreachable
+eli5:
+  - One shared counter is exact, but every request has to make a trip to it and depends on it being up
+  - A counter on each server is fast, but a caller spread over ten servers gets ten times the limit
+  - In between, each server takes a small allowance and checks in with the shared counter now and then, giving up some exactness for speed
+  - Always sending a customer to the same server makes its local counter correct, but busy customers overload that server
+  - Decide ahead of time whether to let everyone in or block everyone when the counter cannot be reached
 followUps:
   - How do you make the Redis check-and-decrement atomic?
   - What happens to your limits during a Redis failover?

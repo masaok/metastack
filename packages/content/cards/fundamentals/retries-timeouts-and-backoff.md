@@ -13,6 +13,12 @@ keyPoints:
   - Use exponential backoff with full jitter so retries from many clients do not synchronise into waves
   - Cap retries with a budget (e.g. retries at most 10% of requests) so a struggling dependency is not hammered into collapse
   - Retry at one layer only, stacked retries multiply load exponentially
+eli5:
+  - Never wait forever, so give each call a time limit that fits inside your own and pass the remaining time along
+  - Only try again when repeating is harmless and the failure looks temporary, never when the request itself was wrong
+  - Wait longer after each failure and add randomness, so a crowd of clients does not all come back at the same instant
+  - Limit retries to a small share of traffic, so a struggling service is not pushed over the edge
+  - Retry in one place only, because retries stacked at every layer multiply each other
 followUps:
   - Why does a retry storm often make an outage longer, and what is a circuit breaker's role?
   - How do you choose the initial timeout for a new dependency?

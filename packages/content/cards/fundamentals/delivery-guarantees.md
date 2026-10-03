@@ -13,6 +13,12 @@ keyPoints:
   - True exactly-once delivery is impossible across unreliable networks, you get exactly-once processing via idempotent consumers or transactional dedup
   - Idempotency keys, upserts and conditional writes make duplicate processing harmless
   - Kafka-style transactions provide exactly-once within the system by committing output and offsets atomically
+eli5:
+  - Send once and never retry, so a message might vanish but never arrives twice
+  - Keep sending until you hear it arrived, so nothing vanishes but a message may arrive twice
+  - Nobody can promise exactly one arrival over a flaky network, so make the receiver ignore repeats and the effect happens once
+  - Tag each action with an id, or write in a way that repeating changes nothing, and repeats become harmless
+  - Some log systems save the result and the bookmark of how far you read in a single step, so inside them each message counts once
 followUps:
   - Where would you store processed message ids and for how long?
   - Why does acknowledging before processing give you at-most-once?

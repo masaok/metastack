@@ -13,6 +13,12 @@ keyPoints:
   - Route reads to the primary for a short window after a user's write, or when the request carries a recent write token
   - Compare replica LSN or a version with the one returned by the write and wait or fall back if the replica is behind
   - Pin a session to one replica and monitor lag so lagging replicas drop out of the read pool
+eli5:
+  - You save a change, reload, and see the old value, because the copy you read from has not caught up
+  - You refresh and the data flips between new and old, because each request reached a different copy
+  - Right after someone writes, send that person's reads to the main database for a short while
+  - Or carry a marker of how far the write got and only read from a copy that has reached it, waiting or falling back otherwise
+  - Keep each person on one copy, and stop sending reads to any copy that falls too far behind
 followUps:
   - How would you pass a "last write position" from the client through to the read routing layer?
   - When is reading stale data completely fine?

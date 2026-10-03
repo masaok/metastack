@@ -13,6 +13,12 @@ keyPoints:
   - Serves redirects from a cache in front of a key-value or relational store, with 301 vs 302 decided by analytics needs
   - Uses a counter service or async event stream for click analytics rather than a synchronous write on every redirect
   - Discusses hot links, expiry and abuse (malicious URLs, enumeration of sequential ids)
+eli5:
+  - Ask first how busy it is, how long links live and whether people choose their own names, noting far more people click links than create them
+  - Use a seven-character code of letters and digits, made from a unique number or picked at random and checked for clashes
+  - Answer clicks from fast memory in front of a simple store, and pick a permanent or temporary redirect based on whether you need to count clicks
+  - Count clicks on the side through a stream or counter, so the redirect never waits on a write
+  - Talk about links that go viral, links that expire, and misuse such as harmful targets or guessing codes that go up in order
 followUps:
   - How would you support custom aliases without breaking uniqueness guarantees?
   - What changes if links must be deleted or edited after creation?

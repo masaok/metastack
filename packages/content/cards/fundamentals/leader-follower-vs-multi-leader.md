@@ -13,6 +13,12 @@ keyPoints:
   - Leaderless (Dynamo-style) writes to a quorum of replicas and reconciles on read with vector clocks or last-writer-wins
   - Conflict handling options, last-writer-wins, application merge, CRDTs
   - Choose by write locality, tolerance for conflicts, and whether clients can retry against another leader
+eli5:
+  - One machine takes every write, so order is never in doubt, but writes stop if that machine is cut off
+  - Several machines in different regions take writes, which is quicker for nearby users and survives a region failing, but two edits can clash
+  - With no leader at all, a write goes to most of the copies and differences are settled when someone reads
+  - Clashes are settled by keeping the latest, by letting the app merge them, or by data types built to merge themselves
+  - Choose by where the writes come from, how much clashing you can live with, and whether a client can try another leader
 followUps:
   - Why is last-writer-wins dangerous and when is it acceptable?
   - How does a quorum (W + R > N) give you read-your-writes?

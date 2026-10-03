@@ -13,6 +13,12 @@ keyPoints:
   - Protects the database from thundering herds on misses with request coalescing, locks or stale-while-revalidate
   - Addresses hot keys with client-side caching, replication of hot shards or key splitting
   - Defines the consistency contract (cache-aside, invalidation on write) and what happens when a node dies or is added
+eli5:
+  - Spread keys over many machines using a ring, and keep a spare copy of each slice in case a machine dies
+  - Each machine has a fixed amount of room, so it throws out unpopular items and items past their expiry
+  - When a popular item is missing, let one request fetch it while the rest wait or get the old value, so the database is not trampled
+  - For a key everyone wants, keep copies closer to callers or split it across machines
+  - Say out loud who fills the cache, who clears it on a write, and what happens when a machine joins or leaves
 followUps:
   - How does a client discover the cluster topology and react to a node failure?
   - When would you choose a look-aside cache versus a read-through cache?

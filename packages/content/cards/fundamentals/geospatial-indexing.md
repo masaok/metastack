@@ -13,6 +13,12 @@ keyPoints:
   - Quadtrees subdivide space adaptively so dense areas get smaller cells, good for in-memory indexes
   - S2 and H3 cover the sphere with hierarchical cells with uniform area and good neighbour properties, avoiding geohash edge effects
   - Search by computing the covering cells for the radius, querying them, then filtering by exact distance
+eli5:
+  - Asking for everything inside a box of latitude and longitude does not fit an ordinary index, which sorts on one thing at a time
+  - Turn each location into a short code where nearby places start with the same characters, and an ordinary text index can find neighbours
+  - Keep cutting a square into four wherever it is crowded, so busy areas get small squares
+  - Newer grid systems tile the globe with evenly sized cells that nest, which avoids odd behaviour at the edges of code squares
+  - To search, list the cells that cover your circle, fetch what is in them, and then measure the real distance to each result
 followUps:
   - Why can two points very close together have completely different geohashes, and how do you handle it?
   - How would you keep this index updated when drivers move every few seconds?

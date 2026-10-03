@@ -13,6 +13,12 @@ keyPoints:
   - Clients upload directly with presigned URLs so the bytes never pass through application servers
   - Serve downloads through a CDN in front of the bucket, with signed URLs for private content
   - Process derivatives (thumbnails, transcodes) asynchronously via events from the bucket
+eli5:
+  - Put the big file in a warehouse built for files, and keep only its label and location in the database
+  - The file warehouse is cheap, almost never loses anything, and grows without slowing your database
+  - Hand the user a temporary permission slip so they upload straight to the warehouse and skip your servers
+  - Hand out downloads through copies near the user, with expiring passes for private files
+  - Make thumbnails and conversions afterwards in the background, triggered when a file arrives
 followUps:
   - How do you prevent an orphaned object when the database write fails after upload?
   - How would you support resumable uploads for multi-gigabyte files?

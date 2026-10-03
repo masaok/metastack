@@ -13,6 +13,12 @@ keyPoints:
   - Write-around writes to the store only and lets the cache fill on read, avoiding pollution from write-once data
   - Ties the choice to the read/write ratio and the durability the data needs
   - Mentions the usual pairing of write-around with cache-aside reads
+eli5:
+  - Write to the cache and the database together, so reads are always right but each write takes longer
+  - Write to the cache now and the database later, which is fast but loses data if the cache dies first
+  - Write only to the database and let the cache fill when someone reads, so data nobody reads never takes up cache room
+  - Choose by how often data is read compared with written, and by how bad it would be to lose a write
+  - Writing only to the database usually pairs with reads that check the cache and fill it on a miss
 followUps:
   - How would you make write-back safe against a cache node crash?
   - What happens to a write-through cache under a burst of writes to the same key?

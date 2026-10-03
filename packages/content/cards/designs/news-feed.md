@@ -13,6 +13,12 @@ keyPoints:
   - Stores feeds as per-user lists of post ids in a cache, hydrating post content from a separate post store
   - Separates ranking from retrieval, fetch candidates then rank, with a chronological fallback
   - Handles consistency expectations, your own post appears immediately while others' can lag seconds
+eli5:
+  - The main choice is whether to drop each post into every follower's inbox when it is written, or to gather posts when someone opens the app
+  - Deliver to inboxes for ordinary people, and gather on demand for celebrities whose posts would need millions of deliveries
+  - Each person's feed is a short list of post numbers kept in fast memory, and the post text is looked up separately
+  - First collect a pile of possible posts, then sort them by interest, and fall back to newest first if sorting breaks
+  - You must see your own post straight away, but it is fine if other people's posts show up a few seconds late
 followUps:
   - How do you handle a user who follows 5,000 accounts and opens the app after a week away?
   - How would you add "likes" and comment counts to the feed without hammering the counters?

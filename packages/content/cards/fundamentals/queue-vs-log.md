@@ -13,6 +13,12 @@ keyPoints:
   - Queues offer per-message routing, priorities and simple competing consumers, logs offer ordering within a partition and very high throughput
   - Replay and multiple readers make logs the backbone for event sourcing, CDC and stream processing
   - Queues are simpler for task distribution where each job should be done once and forgotten
+eli5:
+  - A queue throws a message away once someone has handled it, while a log keeps everything and each reader remembers its own place
+  - With a log, many separate readers can go through the same stream and go back to reread
+  - Queues are good at routing, priorities and sharing jobs among workers, and logs are good at strict order within a lane and sheer volume
+  - Because it can be reread by many, a log is the base for rebuilding state, copying database changes and processing streams
+  - A queue is the simpler pick when each job should be done once and then forgotten
 followUps:
   - How does a Kafka consumer group achieve parallelism, and what limits it?
   - What happens in each system when a consumer is slow for an hour?

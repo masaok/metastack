@@ -13,6 +13,12 @@ keyPoints:
   - Downsamples and tiers data (raw for days, 1-minute for weeks, 1-hour for years) to control storage
   - Separates the query path (dashboards, ad hoc) from the alerting path, which evaluates rules continuously on recent data
   - Controls label cardinality, since unbounded labels (user ids) explode the series count
+eli5:
+  - Every measurement is a named line on a chart plus some labels, and it arrives either by being sent or by being collected
+  - Measurements wait in a buffer and then land in a database built for adding points in time order and squeezing them small
+  - Keep fine detail for a few days and only summaries for older data, so storage stays affordable
+  - Drawing charts and checking alarms are separate jobs, and the alarm job keeps watching the latest data
+  - Every distinct label value creates another line, so a label like user id creates millions of lines
 followUps:
   - Why is high cardinality the main scaling problem, and how do you protect against it?
   - How do you keep alerting working when the metrics pipeline itself is degraded?

@@ -13,6 +13,12 @@ keyPoints:
   - Standard Bloom filters cannot delete, counting Bloom filters or cuckoo filters can
   - Used to skip disk reads in LSM stores, avoid caching one-hit-wonders in CDNs, and check username or URL seen-before at scale
   - Size estimate, about 10 bits per element gives roughly 1% false positives
+eli5:
+  - A row of switches that several stamps flip on for each item, which can tell you definitely not here or possibly here
+  - It never says no for something that was added, and more switches per item make wrong maybes rarer
+  - The basic version cannot forget an item, though variants that count or store small tags can
+  - It saves pointless disk lookups, stops caching things asked for only once, and checks whether a name or address was seen before
+  - As a rule of thumb, ten switches per item gets about one wrong maybe in a hundred
 followUps:
   - How does RocksDB use Bloom filters per SSTable and what does it save?
   - How would you size a filter for 1 billion URLs at 0.1% false positives?

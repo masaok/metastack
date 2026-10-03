@@ -13,6 +13,12 @@ keyPoints:
   - CAP says nothing about behaviour when there is no partition, that is where latency tradeoffs live (see PACELC)
   - Labels like "CP database" are oversimplifications, consistency is a spectrum and configurable per operation
   - Gives examples, a CP system refuses writes on the minority side, an AP system accepts them and reconciles later
+eli5:
+  - When the network splits a system in two, each side must either refuse some requests or risk giving answers that disagree
+  - Networks will split whether you like it or not, so the only real choice is what to do while it is split
+  - The rule is silent about normal times, when the tradeoff is speed against agreement
+  - Calling a whole database one type is too crude, since agreement comes in degrees and can be set per request
+  - For example one kind stops taking writes on the smaller side of a split, and another keeps taking them and sorts it out afterwards
 followUps:
   - What does "available" mean in CAP and why is it stricter than "high availability"?
   - Why is a single-node database not a counterexample?

@@ -13,6 +13,12 @@ keyPoints:
   - Covering indexes include all needed columns so the query never touches the table
   - Low-selectivity columns, tiny tables and write-heavy tables with rare reads often do not justify an index
   - Hash indexes give O(1) equality lookups but no range or ordering support
+eli5:
+  - An index is a sorted lookup tree, like the index of a book, so finding rows takes a few hops instead of reading every page
+  - Every change to the table must also update each index, so writes get slower and more space is used
+  - If the index already holds every column the query wants, the table itself is never opened
+  - An index is not worth it when most rows match, when the table is tiny, or when the table is written constantly and rarely read
+  - A hash index finds exact matches in one step but cannot do ranges or sorted output
 followUps:
   - Why can a query planner choose a full scan even when an index exists?
   - How does an LSM tree differ from a B-tree for write-heavy workloads?

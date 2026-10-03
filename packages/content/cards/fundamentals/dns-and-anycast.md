@@ -13,6 +13,12 @@ keyPoints:
   - Anycast announces the same IP from many sites via BGP, so routers deliver packets to the topologically nearest site
   - Anycast failover is near instant when a site withdraws its route, but route flaps can break long-lived TCP connections
   - Most large systems use both, anycast for the edge and DNS for coarse steering and maintenance drains
+eli5:
+  - The name lookup can hand back a different address depending on where you seem to be and which sites are healthy
+  - But it sees your lookup service and not you, and old answers linger for a while, so switching away from a dead site is slow
+  - With anycast many sites share one address, and the internet's routers carry you to whichever is closest in network terms
+  - When a site stops advertising the address traffic moves almost at once, but a route that wobbles can cut long connections
+  - Big systems use both, shared addresses at the edge and name lookups for broad steering and planned maintenance
 followUps:
   - Why does EDNS Client Subnet exist and what does it leak?
   - How would you drain a datacenter for maintenance under each scheme?

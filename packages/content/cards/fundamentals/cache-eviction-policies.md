@@ -13,6 +13,12 @@ keyPoints:
   - TTL expires items after a fixed time regardless of use and bounds staleness rather than memory
   - Mentions scan resistance, a one-time bulk read can flush an LRU cache
   - Production caches often combine policies or use approximations such as sampled LRU
+eli5:
+  - Throw out whatever has gone longest without being touched, which works when recent things get asked for again
+  - Throw out whatever is asked for least often, which suits steady favourites but must let old fame fade
+  - Throw things out once they reach a set age no matter how popular, which limits how old data gets and not how much room it takes
+  - Reading through everything once can push all the useful items out of a recency-based cache
+  - Real caches mix these rules or use cheap approximations of them
 followUps:
   - Why does Redis use approximated LRU instead of exact LRU?
   - What is the problem with a naive LFU under a changing workload?

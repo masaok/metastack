@@ -14,6 +14,12 @@ keyPoints:
   - That fits in a few large Redis or Memcached nodes, or one node with replicas for availability
   - Reads per second, 10B / 86,400 ≈ 115,000 per second, 20% miss rate leaves ~23,000 per second for the database, ~60,000 at peak
   - Daily-churn posts dominate reads, so caching the last 24-48 hours of posts may hit even higher than 80%
+eli5:
+  - A fifth of the posts get most of the reads, so only that fifth needs to be kept in fast memory
+  - A hundred million small posts take about a hundred gigabytes, and bookkeeping pushes that to around one hundred fifty
+  - That amount fits on a handful of big cache machines, with spare copies in case one fails
+  - Spread ten billion daily reads over a day to get the per-second rate, and the share the cache misses is what the database must handle
+  - Most reading is of posts from the last day or two, so caching just those may catch even more
 followUps:
   - How do you keep the cache from being flushed by a bulk backfill job?
   - What TTL would you choose and why?

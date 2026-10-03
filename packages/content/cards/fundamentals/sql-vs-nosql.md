@@ -13,6 +13,12 @@ keyPoints:
   - Wide-column and key-value stores fit huge write volume with known access patterns and simple lookups by key
   - Horizontal scaling is possible for both now, so the real differences are query flexibility versus access-pattern-driven modeling
   - Start relational by default and introduce a specialised store for a specific, measured pain
+eli5:
+  - Relational tables win when data is richly linked, questions are unpredictable, and several rows must change together or not at all
+  - Document stores suit a bundle of data that is always read and saved as one piece and whose shape keeps changing
+  - Key-value and wide-column stores suit a flood of writes where you already know exactly how you will look things up
+  - Both kinds can now spread over many machines, so the real difference is free-form questions versus designing around known lookups
+  - Begin with a relational database, and add a specialised store only for a problem you have measured
 followUps:
   - How does designing a DynamoDB table differ from designing a Postgres schema?
   - When does a graph database earn its place?

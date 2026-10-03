@@ -13,6 +13,12 @@ keyPoints:
   - Split along business capabilities with low coupling and their own data, not along technical layers
   - A modular monolith with enforced module boundaries gets most of the organisational benefit with none of the network cost
   - Signals to split, teams blocking each other on deploys, a component with very different scaling or runtime needs, or a hard isolation requirement
+eli5:
+  - Separate services let each team ship, grow and own its part without waiting for the others
+  - The price is that a simple in-program call becomes a network call, and transactions, versions and debugging all get harder
+  - Draw the lines around business jobs that each own their data, not around technical layers
+  - One program with strict internal walls gives teams most of the same independence without the network between parts
+  - Split when teams keep blocking each other's releases, or one part needs very different scaling, or something must be kept apart
 followUps:
   - How do you handle a workflow that used to be one database transaction and now spans three services?
   - What platform capabilities do you need before microservices stop being a liability?

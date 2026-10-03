@@ -13,6 +13,12 @@ keyPoints:
   - Store the final response against the key and replay it for later retries with the same key
   - Reject a reused key with a different request body, it indicates a client bug
   - Keys expire after a window (hours to days) and are scoped per account to avoid collisions
+eli5:
+  - The client makes up a unique ticket number for each action and sends the same number every time it retries
+  - The server writes the ticket number down before doing anything, so a twin request arriving at the same moment sees the work is under way
+  - The server keeps the answer next to the ticket and hands back the same answer on any later retry
+  - If the same ticket arrives with different details, refuse it, because the client has a bug
+  - Tickets are thrown away after a while and belong to one account, so two customers never clash
 followUps:
   - What should happen if the first request is still in flight when the retry arrives?
   - How does this interact with downstream calls to a bank that is itself not idempotent?

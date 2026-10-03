@@ -13,6 +13,12 @@ keyPoints:
   - Short timeouts detect quickly but trigger false failovers under load, long ones hurt availability
   - Phi accrual detectors adapt the threshold to observed heartbeat latency distribution
   - Fencing tokens or leases are needed so a wrongly declared dead node cannot keep acting as leader
+eli5:
+  - Each machine keeps saying it is still here, and after several missed turns the others grow suspicious
+  - A machine that is slow to answer looks exactly like one that died, so any waiting time can be wrong
+  - Wait only briefly and you raise false alarms when things are busy, wait long and real failures go unnoticed
+  - Smarter detectors learn how late heartbeats usually run and set the suspicion level to match
+  - A machine wrongly declared dead may still think it is in charge, so give each leader a numbered pass that goes out of date
 followUps:
   - What is split brain and how do leases prevent it?
   - How do gossip protocols spread membership information without a central monitor?

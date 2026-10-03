@@ -14,6 +14,12 @@ keyPoints:
   - Derivatives add ~10-20% (a few thumbnails at 20-200 KB each)
   - Replication factor of 3 (or erasure coding ~1.5x) multiplies the total, so plan roughly 25-60 PB over five years
   - Metadata is negligible by comparison, 10M × ~500 bytes ≈ 5 GB per day
+eli5:
+  - Multiply users by the share who upload by photos each to get photos per day
+  - Multiply photos by their size for a day's storage, then by 365 for a year
+  - Small preview versions of each photo add a little on top
+  - Keeping several copies for safety multiplies everything, so the five-year total runs to tens of petabytes
+  - The facts about each photo take almost no room next to the photos themselves
 followUps:
   - How would lifecycle tiering to cold storage change the cost estimate?
   - What does the per-day write bandwidth come to, and does it stress the network?

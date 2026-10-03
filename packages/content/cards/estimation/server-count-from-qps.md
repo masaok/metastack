@@ -13,6 +13,12 @@ keyPoints:
   - Never plan for 100% utilisation, target 50-70% so queueing delay stays low, giving ~4,500-6,000 cores
   - With 32-core servers that is ~150-200 servers, plus N+1 or N+2 per availability zone for failure headroom
   - Verify by load testing, the 50 ms figure hides I/O waits that let one core overlap many requests
+eli5:
+  - Requests in progress at any moment equal how many arrive per second times how long each one takes
+  - One processor core that is never idle finishes twenty of these a second, so the peak needs three thousand cores
+  - Aim to keep machines about half to two-thirds busy, or requests start queueing, which raises the core count
+  - Divide the cores by cores per server, then add one or two spare servers in each location
+  - Test under real load, because a request that mostly waits on other things does not occupy a core the whole time
 followUps:
   - How does the estimate change if 40 of the 50 ms are spent waiting on a database call?
   - Why does p99 latency explode as utilisation approaches 100%?

@@ -14,6 +14,12 @@ keyPoints:
   - Explains how uniqueness holds without coordination because each generator owns its machine id
   - Handles clock skew and clocks moving backwards by waiting or refusing to generate
   - Discusses alternatives, database ticket servers with ranges, ULID/UUIDv7, and the tradeoffs on sortability and leakage
+eli5:
+  - One shared counter is a single thing that can break, and random ids are long and carry no order, so neither meets the brief
+  - Build each id from the current time, a number for the machine, and a small counter that restarts every millisecond
+  - No two machines share a machine number, so they can never produce the same id and never need to ask each other
+  - If a machine's clock jumps backwards, it waits or refuses instead of risking a repeat
+  - Other choices include handing each server a block of numbers or newer time-ordered id formats, and each trades sortability against revealing information
 followUps:
   - How do you assign machine ids safely when instances autoscale?
   - What information does a Snowflake id leak and when does that matter?

@@ -13,6 +13,12 @@ keyPoints:
   - Consistent hashing or IP hash when you need the same client to hit the same server
   - Health checks remove unhealthy backends from rotation regardless of algorithm
   - Mentions that the balancer itself must be redundant to avoid a single point of failure
+eli5:
+  - Take turns, giving stronger servers extra turns, when servers are alike and remember nothing between requests
+  - Send the next request to whichever server is least busy when some requests take much longer than others
+  - Use a rule based on the caller when the same caller should keep landing on the same server
+  - Whatever the rule, keep checking each server and stop sending to any that fail the check
+  - The thing sharing out the traffic needs a backup too, or it becomes the one part that takes everything down
 followUps:
   - How would you handle one server that is twice as powerful as the others?
   - What breaks if you use IP hash behind a corporate NAT?

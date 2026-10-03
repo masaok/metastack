@@ -13,6 +13,12 @@ keyPoints:
   - Resolves concurrent writes with vector clocks or last-writer-wins and repairs divergence with read repair and anti-entropy (Merkle trees)
   - Handles temporary failures with hinted handoff and detects membership changes with gossip
   - Builds the storage engine on an LSM tree (memtable, commit log, SSTables, compaction) for write throughput
+eli5:
+  - Place keys on a ring of machines and copy each key to the next few machines along
+  - Ask several copies and trust the answer once enough agree, with the caller choosing how many is enough
+  - When two writes collide, use version tags or the latest timestamp to pick a winner, and quietly fix copies that drifted apart
+  - If a machine is briefly down a neighbour holds its mail, and machines gossip to learn who is alive
+  - Writes go to memory and an append-only journal first, then get sorted into files that are merged later, which keeps writes fast
 followUps:
   - How does a client know which node to talk to, and what happens if it picks the wrong one?
   - How would you add secondary indexes or range queries to a hash-partitioned store?

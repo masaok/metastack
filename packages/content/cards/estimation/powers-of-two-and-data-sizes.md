@@ -14,6 +14,12 @@ keyPoints:
   - Small objects, char 1 byte, int 4 bytes, long and timestamp 8 bytes, UUID 16 bytes
   - Medium objects, a short text post ~300 bytes, a JSON API response ~1-10 KB, a web page ~2 MB with assets
   - Media, a compressed photo ~200 KB to 3 MB, a minute of 1080p video ~50-100 MB
+eli5:
+  - Every ten doublings is roughly a thousand times more, which gives thousand, million, billion and trillion at 10, 20, 30 and 40
+  - Four bytes can count to about four billion, and eight bytes can count higher than you will ever need
+  - A letter takes one byte, a whole number four, a big number or a timestamp eight, and a random id sixteen
+  - A short post is a few hundred bytes, an API reply is a few thousand, and a full web page is a couple of million
+  - A photo is from a fifth of a megabyte to a few megabytes, and a minute of sharp video is fifty to a hundred
 followUps:
   - Why do ids often use 8 bytes even when 4 would do today?
   - How does the 2 MB web page figure affect CDN and bandwidth estimates?

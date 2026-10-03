@@ -13,6 +13,12 @@ keyPoints:
   - Together, events from the write side feed projections that build the read models asynchronously
   - Benefits, full audit history, temporal queries, replay to build new views, and read models shaped exactly for each screen
   - Costs, eventual consistency between write and read, event schema evolution, snapshotting for long streams, and higher conceptual load
+eli5:
+  - Use one model for making changes and separate ones shaped for answering questions
+  - Keep the full list of things that happened as the truth, and work out the current state by replaying it
+  - Combined, each recorded happening flows out to update the question-answering copies a moment later
+  - You gain a complete history, the ability to ask what things looked like in the past, and new views built by replaying
+  - You pay with answers that lag slightly, old event formats to keep supporting, checkpoints for long histories, and more to learn
 followUps:
   - How do you handle a bug in a projection that has been running for a year?
   - When is plain CRUD with a few denormalised tables the better answer?

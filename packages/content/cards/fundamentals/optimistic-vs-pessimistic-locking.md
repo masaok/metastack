@@ -13,6 +13,12 @@ keyPoints:
   - Pessimistic risks deadlocks and held locks across slow operations or user think time
   - Optimistic wastes work under high contention because many attempts fail and retry
   - Seat booking, pessimistic or an atomic conditional decrement, wiki editing, optimistic with version numbers and merge on conflict
+eli5:
+  - Lock the item before you look at it, so others wait their turn, which suits a crowd fighting over the same thing
+  - Or take no lock, note the version you read, and save only if the version is unchanged, trying again if not, which suits rare clashes
+  - Locking first can leave two parties stuck waiting on each other, or keep a lock held while someone thinks
+  - Checking the version at the end throws away a lot of work when clashes are common
+  - Lock up front for booking seats, and check versions for editing a shared page
 followUps:
   - How would you implement optimistic locking in a REST API using ETags?
   - What happens to a pessimistic lock if the application crashes mid-transaction?

@@ -13,6 +13,12 @@ keyPoints:
   - Shards by prefix and replicates heavily since the workload is read-only and extremely hot
   - Caches aggressively at the edge and in the browser, and debounces client requests
   - Handles freshness with periodic rebuilds plus a small real-time layer for trending terms, and filters offensive content
+eli5:
+  - Work out the best completions for every beginning of a word ahead of time, so answering is a lookup and not a calculation
+  - A background job counts past searches and builds the lookup, and the live service only reads it
+  - Split the lookup by starting letters and keep many copies, because it is read constantly and never written by users
+  - Keep answers near the user and in the browser, and wait until typing pauses before asking
+  - Rebuild the lookup on a schedule, add a small fast layer for what is suddenly popular, and remove offensive suggestions
 followUps:
   - How do you personalise suggestions without destroying cache hit rates?
   - How would you support typo tolerance or mid-word matching?

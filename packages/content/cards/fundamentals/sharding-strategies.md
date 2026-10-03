@@ -13,6 +13,12 @@ keyPoints:
   - Hash sharding spreads load evenly but destroys key ordering and makes range queries scatter-gather
   - Directory (lookup table) sharding is flexible and supports rebalancing but adds a lookup hop and a component that must be highly available
   - Cross-shard joins and transactions are expensive, so the shard key should match your main access pattern
+eli5:
+  - Split one big dataset over many machines so it can hold more and take more writes than one machine could
+  - Splitting by ranges keeps neighbours together, which helps range queries, but keys that always grow pile onto the last machine
+  - Splitting by hash spreads things evenly but scatters neighbours, so a range query must ask every machine
+  - Splitting by a lookup table is flexible and easy to rearrange, but adds a lookup step and a table that must never go down
+  - Anything spanning several machines is costly, so split along the lines of your most common query
 followUps:
   - How do you resplit a shard that has grown too large without downtime?
   - Where would you put a secondary index in a sharded system?

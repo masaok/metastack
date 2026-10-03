@@ -13,6 +13,12 @@ keyPoints:
   - Pull suits large, long-tail catalogs and frequently changing content, push suits a small set of large, predictable assets
   - Pull adds first-request latency and origin load on cold keys, push wastes storage for items nobody requests
   - Hybrid, pre-warming hot items into a pull CDN before a launch
+eli5:
+  - With pull, the nearby copy fetches a file from your server the first time someone asks and keeps it for a while, so it fills up by use
+  - With push, you upload files to the nearby copies beforehand, so you decide what is there and when
+  - Pull fits big catalogues where most items are rarely wanted, and push fits a few large files you know will be needed
+  - Pull makes the first visitor wait and hits your server for cold items, and push stores things nobody may ever ask for
+  - A blend is to pre-load the items you expect to be popular before a launch and let the rest fill in on demand
 followUps:
   - How would you pre-warm a pull CDN for a global product launch?
   - What happens to a pull CDN if the origin is down?

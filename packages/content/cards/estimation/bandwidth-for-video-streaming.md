@@ -14,6 +14,12 @@ keyPoints:
   - Daily transfer, assume 2 hours average viewing per DAU, e.g. 50M DAU × 2 h × 3 Mbps ≈ 135 PB per day
   - Adaptive bitrate (multiple renditions per title) multiplies storage, not egress, each viewer pulls one rendition
   - Egress cost dominates, so caching hit rate at the edge is the key business metric
+eli5:
+  - Five million people each pulling three megabits at once adds up to fifteen million megabits every second
+  - No single building has a pipe that wide, so the video has to be served from many places near the viewers
+  - Multiply viewers by hours watched by the stream rate to get a day's total, which here lands above a hundred petabytes
+  - Keeping several quality levels means more files to store, but each viewer still downloads only one of them
+  - Sending data out is the biggest bill, so the share of requests answered by nearby copies matters most
 followUps:
   - How much origin bandwidth do you need if the CDN hit rate is 98%?
   - How do live streams change the caching story compared with on-demand?

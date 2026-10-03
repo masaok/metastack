@@ -13,6 +13,12 @@ keyPoints:
   - Versioned or content-hashed keys sidestep invalidation entirely, old versions simply stop being requested
   - Delete-then-write and write-then-delete races can leave stale data in the cache under concurrency
   - Jittered TTLs and request coalescing prevent stampedes when many keys expire together
+eli5:
+  - An expiry time limits how old data gets with no extra work, but you serve old data until then and many entries can run out together
+  - Deleting the cached copy on every change keeps data fresh, but every piece of code that changes data has to remember to do it
+  - Put a version in the name, so a change makes a new name and the old one is simply never asked for again
+  - When a read and a write overlap, the old value can slip back into the cache whichever order you delete and write in
+  - Vary expiry times a little and let one request refill while the others wait, so the store is not rushed all at once
 followUps:
   - Walk through the race where a reader repopulates stale data after an invalidation.
   - How would you invalidate across a multi-region CDN?

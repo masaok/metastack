@@ -13,6 +13,12 @@ keyPoints:
   - Stores messages in a wide-column or partitioned store keyed by conversation id and time so history is one partition read
   - Handles group fan-out server side, with limits on group size or a different path for very large channels
   - Covers delivery states (sent, delivered, read), ordering within a conversation, and push notifications for offline users
+eli5:
+  - Keep phone lines open on dedicated switchboards, and let the workers who handle messages hang up between jobs
+  - A directory says which switchboard each person is plugged into, and a mailbox holds messages for anyone who is away
+  - File each conversation in its own folder in date order, so reading history means opening one folder
+  - The server makes the copies for a group, and a huge channel gets its own delivery route
+  - Track whether each message was sent, arrived and was read, keep a chat in order, and buzz the phones of people who are offline
 followUps:
   - How do you guarantee message ordering within a group when senders are on different gateways?
   - How would you add end-to-end encryption and what server features does it break?

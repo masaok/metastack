@@ -13,6 +13,12 @@ keyPoints:
   - Enables fan-out, retries and dead-letter handling without changing the producer
   - Introduces asynchrony, the caller no longer knows the outcome immediately and must design for eventual completion
   - Adds operational concerns, ordering, duplicates, backlog monitoring and the queue as a new critical dependency
+eli5:
+  - The sender drops a message in a box and leaves, so the receiver does not need to be awake at that moment
+  - The box soaks up a sudden rush, and the receiver works through it at its own pace
+  - You can add more receivers, retries and a pile for messages that keep failing without touching the sender
+  - The sender no longer learns straight away how things went, so the design has to cope with finishing later
+  - It brings new chores such as order, repeats and watching the backlog, and it is one more thing that must not break
 followUps:
   - How do you let the user know when an async job has finished?
   - What is a dead-letter queue and when does a message go there?

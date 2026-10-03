@@ -13,6 +13,12 @@ keyPoints:
   - Synchronous write latency is bounded by the slowest replica and availability drops if a replica is down
   - Semi-synchronous (one sync follower, rest async) is the common compromise
   - Replication lag causes stale reads from async followers and complicates failover
+eli5:
+  - Wait for the copies to confirm before saying saved, so a saved write is still there if the main machine dies
+  - Say saved straight away and copy afterwards, which is quick but can lose the last few writes
+  - Waiting for copies makes every write as slow as the slowest copy, and a copy that is down can stall writes
+  - A common middle path waits for one copy and lets the others catch up later
+  - Copies that lag behind give out old answers and make it harder to promote one safely
 followUps:
   - How do you pick a new leader after a crash under async replication without losing acknowledged writes?
   - What is the relationship to quorum writes in Dynamo-style systems?

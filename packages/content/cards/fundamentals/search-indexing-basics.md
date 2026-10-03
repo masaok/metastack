@@ -13,6 +13,12 @@ keyPoints:
   - Analysis tokenises, lowercases, strips stop words and stems so "Running" matches "run"
   - Relevance scoring (TF-IDF, BM25) ranks documents by how rare and how frequent matching terms are, with length normalisation
   - The search index is a derived store fed asynchronously from the primary database, so it is eventually consistent
+eli5:
+  - Hunting for a word in the middle of text makes the database read every row, and it has no idea about word forms or which results are best
+  - A search index works like the index at the back of a book, listing for each word the documents that contain it
+  - Text is first cut into words, lowercased, stripped of filler words and trimmed to word roots, so different forms of a word match
+  - Results are ranked higher when the matching words are rare overall and frequent in that document, adjusted for document length
+  - The search index is a copy fed from the main database a moment later, so it can be slightly behind
 followUps:
   - How do you keep the search index in sync with the database, and what happens when the indexer falls behind?
   - How would you support typo tolerance or prefix matching?

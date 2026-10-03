@@ -13,6 +13,12 @@ keyPoints:
   - Stores counters in a shared in-memory store (Redis) with atomic Lua scripts, sharded by client key
   - Returns 429 with Retry-After and RateLimit headers so clients can self-regulate
   - Handles store failure explicitly (fail open with a local backstop) and discusses the accuracy versus latency tradeoff
+eli5:
+  - First ask where the gatekeeper stands and who is being counted, such as a key, a person or an address
+  - Choose a counting rule, usually a bucket of tokens or a moving window, and explain how it treats sudden bursts
+  - Keep the counts in one fast shared store that updates each count in a single step, split up by caller
+  - Tell a blocked caller they are over the limit and when to try again, so well-behaved clients slow down by themselves
+  - Decide what happens if the count store is down, usually let traffic through with a rough local limit, and admit exact counts cost speed
 followUps:
   - How do you support tiered limits (free vs paid) and per-endpoint limits at the same time?
   - How would you rate limit by IP for unauthenticated traffic without punishing users behind one NAT?

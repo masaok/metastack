@@ -13,6 +13,12 @@ keyPoints:
   - Models the trip as a state machine (requested, matched, en route, in progress, completed) with idempotent transitions
   - Uses a persistent connection or push channel to drivers and riders for offers and live tracking
   - Addresses consistency for concurrent matches (a driver must not be assigned two trips) with locks or a single-writer per region
+eli5:
+  - Drivers report where they are every few seconds, so keep those positions in memory on a map grid instead of in ordinary database rows
+  - To match a rider, look in the nearby grid squares, drop busy drivers, sort by arrival time and give the best one a few seconds to accept
+  - A trip moves through fixed steps from requested to completed, and repeating a step changes nothing
+  - Keep a line open to each phone so offers and the moving car on the map arrive right away
+  - One driver must never get two trips at once, so only one decision-maker per area hands out drivers, or it locks the driver first
 followUps:
   - How do you prevent two riders from being matched to the same driver at the same instant?
   - How would surge pricing be computed and kept consistent with what the rider was quoted?

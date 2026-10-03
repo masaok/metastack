@@ -13,6 +13,12 @@ keyPoints:
   - Deduplicates URLs with a Bloom filter or hashed set and deduplicates content with fingerprints (SimHash, MinHash)
   - Resolves DNS through a cache and spreads requests across hosts to avoid hammering one server
   - Handles traps (infinite calendars, session ids), redirects, timeouts and recrawl scheduling based on change rate
+eli5:
+  - Keep a to-do list of pages ordered by how important and how stale they are, and visit each site slowly and by its stated rules
+  - Downloading, reading and saving are separate stations joined by lines, so each can grow as needed
+  - Remember which addresses you have seen with a compact filter, and spot near-identical pages by comparing fingerprints
+  - Remember address lookups and spread visits across many sites so no one server gets hammered
+  - Guard against endless page mazes, follow redirects, give up on slow pages, and come back sooner to pages that change often
 followUps:
   - How do you prioritise which of 10 billion known URLs to fetch next?
   - How would you crawl JavaScript-heavy pages and what does it cost?

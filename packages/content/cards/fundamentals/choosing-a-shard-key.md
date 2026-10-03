@@ -13,6 +13,12 @@ keyPoints:
   - User id or hashed id spreads load but scatters per-tenant reports across every shard
   - Cardinality, write distribution and growth over time all matter, not just today's data size
   - Plan for rebalancing from day one, virtual shards or consistent hashing make moves cheap
+eli5:
+  - Look at the question asked most often, and split the data so one machine can answer it alone
+  - Grouping by customer keeps each customer together, but one giant customer overloads its machine and cannot be divided
+  - Splitting by user spreads the work evenly, but a report for one customer then has to ask every machine
+  - Think about how many distinct values there are, where the writes land and how it grows, not only how big it is today
+  - Assume you will have to move data later, and pick a scheme that makes moving cheap
 followUps:
   - How would you handle one tenant that is 30% of all traffic?
   - What changes if the product adds cross-tenant analytics?

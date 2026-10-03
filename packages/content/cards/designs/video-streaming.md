@@ -13,6 +13,12 @@ keyPoints:
   - Streaming uses HLS or DASH, short segments plus a manifest, so clients switch bitrates per segment
   - Delivery is CDN-first with origin shield, since egress at Tbps scale cannot come from a datacenter
   - Metadata (titles, views, comments) lives in a separate service and database from the bytes
+eli5:
+  - The uploader sends the file straight to bulk storage in parts that can resume, and its arrival kicks off processing
+  - Cut the video into pieces, convert every piece into each quality level on many workers at once, then join them and make thumbnails
+  - The video is served as short clips plus a list of them, so the player can change quality from one clip to the next
+  - Copies near viewers do the delivering, because no single building has enough outgoing capacity
+  - Titles, view counts and comments live in a different service and database from the video files
 followUps:
   - How do you make a newly uploaded video watchable quickly instead of waiting for all renditions?
   - How would live streaming change the pipeline and the latency expectations?

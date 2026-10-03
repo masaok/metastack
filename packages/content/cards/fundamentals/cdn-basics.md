@@ -12,6 +12,12 @@ keyPoints:
   - Caches static assets well, dynamic or personalised responses only with care (short TTL, cache keys, edge compute)
   - Also absorbs traffic spikes and DDoS and terminates TLS near the user
   - Cannot fix origin write latency or data that must be fresh per request
+eli5:
+  - Copies of your content sit in many cities, so users get it from nearby and your own servers do less
+  - The network steers each user to the closest copy automatically
+  - Files that are the same for everyone cache easily, while pages that differ per person need careful handling
+  - It also soaks up sudden crowds and attacks, and sets up the secure connection close to the user
+  - It cannot speed up saving data, or anything that must be freshly computed for each request
 followUps:
   - How does a cache key differ from a URL, and why does it matter for CDN hit rate?
   - What is origin shielding?

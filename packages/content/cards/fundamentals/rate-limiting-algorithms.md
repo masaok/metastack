@@ -13,6 +13,12 @@ keyPoints:
   - Fixed window counters are cheap but allow double the limit at window boundaries
   - Sliding window log is exact but memory-heavy, sliding window counter approximates it with two buckets
   - For a public API, token bucket per client key with clear headers (limit, remaining, reset) is the usual choice
+eli5:
+  - A bucket slowly fills with tokens and each request spends one, so short bursts are fine but the long-run pace is capped
+  - A bucket that drips at a fixed pace lets requests out evenly and makes extras wait or drops them
+  - Counting per clock minute is cheap, but a caller can spend a full quota just before the minute turns and another just after
+  - Remembering every request time is exact but costly, and blending the current and previous counts comes close for far less
+  - For a public API the usual pick is a token bucket per caller, with headers that say how much is left and when it refills
 followUps:
   - How do you communicate limits to clients and what status code do you return?
   - How would you implement token bucket with only a counter and a timestamp?

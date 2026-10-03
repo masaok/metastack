@@ -12,6 +12,12 @@ keyPoints:
   - L7 enables content-based routing, TLS termination, compression and request-level observability
   - L4 wins for raw throughput, non-HTTP protocols and when end-to-end encryption must be preserved
   - Many real systems chain them, an L4 tier in front of L7 proxies
+eli5:
+  - The lower kind forwards by address and port without opening the message, so it is quick and works for any protocol
+  - The higher kind opens the request and decides using the web address, the site name or cookies
+  - Because it reads requests it can route by content, handle encryption, compress replies and report on every request
+  - The lower kind wins on raw speed, for traffic that is not web traffic, and when encryption must stay intact end to end
+  - Many setups use both, the lower kind at the front feeding a row of the higher kind
 followUps:
   - Where does WebSocket traffic fit, and what does an L7 balancer need to support it?
   - How does TLS termination at L7 affect your security story?

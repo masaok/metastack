@@ -13,6 +13,12 @@ keyPoints:
   - Virtual nodes (many points per physical node) smooth out uneven gaps and let heterogeneous machines take proportional load
   - Replication is natural, store a key on the next R distinct nodes around the ring
   - Used in Dynamo, Cassandra, memcached clients, CDNs and load balancers
+eli5:
+  - If you place keys by dividing by the number of machines, changing that number reshuffles nearly everything
+  - Put machines and keys around a circle and give each key to the next machine along, so a change only moves that machine's share
+  - Give each machine many spots on the circle so the shares even out, and give bigger machines more spots
+  - For spare copies, also store each key on the next few machines round the circle
+  - Many well-known databases, caches, content networks and load balancers work this way
 followUps:
   - What happens when one node fails and its neighbour inherits its whole range?
   - How does rendezvous (highest random weight) hashing compare?

@@ -14,6 +14,12 @@ keyPoints:
   - SSE is a one-way, HTTP-native stream with automatic reconnect, ideal for server-to-client feeds
   - WebSockets give a persistent bidirectional channel, best for chat and collaborative editing, but need stateful servers and sticky routing or a pub/sub backbone
   - Match the choice to direction, message frequency and infrastructure constraints such as proxies and HTTP/2
+eli5:
+  - Asking again every few seconds is simple, but most asks come back empty and news can be as late as the gap between asks
+  - Asking and having the server hold the line until there is news wastes less, but you redial after every message
+  - A one-way stream from server to browser over plain web requests reconnects without help and suits live feeds
+  - A two-way open line suits chat and shared editing, but each server must remember its callers and pass messages between servers
+  - Pick by which way messages flow, how often they come, and what the network in between allows
 followUps:
   - How do you scale WebSocket servers horizontally and route a message to the right connection?
   - What does a mobile client on a flaky network change about this choice?

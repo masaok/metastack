@@ -13,6 +13,12 @@ keyPoints:
   - PA/EL systems (Dynamo, Cassandra, DynamoDB default) favour availability and low latency with eventual consistency
   - PC/EC systems (Spanner, ZooKeeper, single-leader with sync replication) pay latency for strong consistency always
   - Mixed classes exist, e.g. PA/EC or PC/EL, and the class can vary per operation
+eli5:
+  - During a network split you choose between staying up and staying in agreement, and the rest of the time between speed and agreement
+  - Even when nothing is broken, making copies agree before answering takes extra time
+  - Some systems pick staying up and answering fast, and accept that copies agree a little later
+  - Others always wait for agreement and accept slower answers
+  - Mixtures exist too, and one system can choose differently for different requests
 followUps:
   - Why does Spanner accept higher write latency, and how does TrueTime help it?
   - Which PACELC class does a read replica with async replication put you in?

@@ -13,6 +13,12 @@ keyPoints:
   - Peak is typically 2-5x average because traffic concentrates in waking hours and events, so plan for ~50,000-100,000 QPS
   - Separate reads from writes, often 10:1 or higher, since they scale differently
   - State assumptions out loud and round aggressively, the interviewer wants the method not the digits
+eli5:
+  - Multiply the number of daily users by how many requests each one makes
+  - Divide by the seconds in a day, rounded to a hundred thousand to make the sum easy
+  - Busy hours run at several times the average, so size for the busy hours
+  - Count reads and writes separately, because there are far more reads and they grow in different ways
+  - Say your guesses aloud and round boldly, because the method is what is being judged
 followUps:
   - How would a global user base versus a single-country user base change the peak multiplier?
   - What is the next number you need to size the database tier?

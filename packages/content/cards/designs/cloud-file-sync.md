@@ -14,6 +14,12 @@ keyPoints:
   - Uses a notification channel (long polling or WebSocket) to tell clients about changes, then clients pull metadata and missing chunks
   - Detects conflicts with version vectors or parent-version checks and resolves by creating a "conflicted copy" rather than losing data
   - Handles offline edits, resumable transfers and client-side change detection via a local index and filesystem watchers
+eli5:
+  - Cut each file into pieces named after their contents, so you only send pieces that changed and never store the same piece twice
+  - One service keeps the catalogue of which pieces make each file, and a separate warehouse holds the pieces
+  - The server taps the client on the shoulder when something changed, and the client then fetches what it is missing
+  - If two people changed the same file, keep both copies and label one as conflicted instead of throwing work away
+  - The client keeps its own list of local files, notices edits made offline, and can pick up a half-finished transfer
 followUps:
   - How do you handle a file that is being edited simultaneously on two devices?
   - How would you implement shared folders and permission changes efficiently?

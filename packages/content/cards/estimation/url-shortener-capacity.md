@@ -14,6 +14,12 @@ keyPoints:
   - Short code, base62 with 7 characters gives 62^7 ≈ 3.5 trillion codes, enough for centuries, 6 characters gives 57 billion which is tight
   - Read path is cache-friendly, a cache of the hottest 20% of links (a few hundred GB) covers most reads
   - The numbers argue for a simple design, one database with replicas and a cache, not a distributed system
+eli5:
+  - Spread a month's new links over the seconds in a month and you get a few dozen a second, with clicks a hundred times that, and neither is much
+  - Ten years of links at half a kilobyte each comes to a few terabytes
+  - Seven characters drawn from sixty-two symbols give trillions of codes, while six characters would run short
+  - A small share of links get most of the clicks, so keeping those in fast memory answers most requests
+  - Numbers this small call for one database with copies and a cache, and nothing fancier
 followUps:
   - If you used an auto-incrementing id encoded in base62, what would you leak and how would you avoid it?
   - At what scale does this design need sharding?

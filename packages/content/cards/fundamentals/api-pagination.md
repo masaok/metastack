@@ -13,6 +13,12 @@ keyPoints:
   - Cursor pagination encodes the last seen sort key and uses an indexed WHERE clause, giving constant cost per page and stability under writes
   - Cursors need a unique, stable sort order (tie-break on id) and make arbitrary page jumps hard
   - Offset is fine for small, slowly changing lists and admin tables, cursors for feeds and anything infinite-scroll
+eli5:
+  - Skipping to page fifty is easy to ask for, but the database still walks past every earlier row, so far pages are slow
+  - If rows are added or removed while you page, everything shifts and you see an item twice or miss one
+  - A cursor is a bookmark that says continue after this item, so every page costs the same and new rows do not shift it
+  - The bookmark only works if the order never ties, and you cannot jump straight to an arbitrary page
+  - Use page numbers for short lists that rarely change, and bookmarks for feeds and endless scrolling
 followUps:
   - How do you encode a cursor so clients cannot tamper with it?
   - How would you paginate a result set sorted by a non-unique column like score?

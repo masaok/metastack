@@ -13,6 +13,12 @@ keyPoints:
   - Treats the payment service provider (PSP) call as an unreliable external step and reconciles against the PSP's records daily
   - Uses a state machine per payment with explicit pending and failed states, and asynchronous webhooks to finalise
   - Avoids storing card data by tokenising through the PSP, keeping the platform out of most PCI scope
+eli5:
+  - Every request carries a receipt number, so asking twice never charges twice
+  - Write money moves in a book where every entry has a matching opposite entry and nothing is erased, then add up the book to get a balance
+  - The outside payment company may fail or go quiet, so compare your book with theirs every day
+  - Each payment moves through named steps including waiting and failed, and a later message from the payment company settles it
+  - Let the payment company hold the card numbers and give you a stand-in token, so you carry far less security burden
 followUps:
   - What do you do when the PSP times out and you do not know whether the charge succeeded?
   - How do you handle a refund that spans a payout already sent to the merchant?
