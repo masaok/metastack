@@ -47,7 +47,9 @@ test.describe("drill flow", () => {
     await page.goto("/dashboard");
     await page.getByRole("link", { name: "Study url-shortener", exact: true }).click();
     await expect(page).toHaveURL(/\/study\/card\/url-shortener$/);
-    await expect(page.getByRole("heading", { level: 2 })).toContainText("URL shortener");
+    await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toContainText(
+      "URL shortener",
+    );
     await page.goBack();
     await expect(page).toHaveURL(/\/dashboard$/);
 
