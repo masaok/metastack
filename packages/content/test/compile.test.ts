@@ -1,3 +1,5 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -110,6 +112,24 @@ describe("compileSource", () => {
       expect.arrayContaining(["cards/estimation", "cards/designs"]),
     );
     expect(compileSource([]).issues).toEqual([]);
+  });
+});
+
+describe("compileDirectory", () => {
+  it("reads Markdown cards and skips every other file", () => {
+    const root = mkdtempSync(join(tmpdir(), "metastack-cards-"));
+    try {
+      const deck = join(root, "cards", "fundamentals");
+      mkdirSync(deck, { recursive: true });
+      writeFileSync(join(deck, "sample-card.md"), card());
+      writeFileSync(join(deck, "notes.txt"), "not a card");
+
+      const { cards, issues } = compileDirectory(join(root, "cards"));
+      expect(cards.map((c) => c.id)).toEqual(["sample-card"]);
+      expect(issues.map((i) => i.file)).toEqual(["cards/estimation", "cards/designs"]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 
