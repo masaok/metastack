@@ -64,6 +64,29 @@ test.describe("drill flow", () => {
     await expect(page.getByRole("button", { name: "Reveal key points" })).toBeVisible();
   });
 
+  test("skip forward and back without rating", async ({ page }) => {
+    await page.goto("/study/fundamentals");
+    await expect(page.getByText(/^1\/\d+/)).toBeVisible();
+    const first = page.url();
+    await expect(page.getByRole("button", { name: "Previous card" })).toBeDisabled();
+
+    await page.keyboard.press("ArrowRight");
+    await expect(page.getByText(/^2\/\d+/)).toBeVisible();
+    await expect(page).not.toHaveURL(first);
+
+    await page.getByRole("button", { name: "Previous card" }).click();
+    await expect(page.getByText(/^1\/\d+/)).toBeVisible();
+    await expect(page).toHaveURL(first);
+    // Nothing was rated, so the card is still new.
+    await expect(page.getByText("new", { exact: true })).toBeVisible();
+
+    // A card opened by its own URL walks the deck in content order.
+    await page.goto("/study/card/read-replicas-and-lag");
+    await expect(page.getByText(/^1\/1/)).toBeVisible();
+    await page.getByRole("button", { name: "Next card" }).click();
+    await expect(page).toHaveURL(/\/study\/card\/(?!read-replicas-and-lag)[a-z0-9-]+$/);
+  });
+
   test("quick mode rates with number keys", async ({ page }) => {
     await page.goto("/study/estimation");
     await page.getByRole("button", { name: "Quick" }).click();

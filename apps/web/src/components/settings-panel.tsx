@@ -153,7 +153,7 @@ export function SettingsPanel() {
   }
 
   if (!settings) {
-    return <div className="index-card plain h-64 animate-pulse" />;
+    return <div className="index-card h-64 animate-pulse" />;
   }
 
   return (

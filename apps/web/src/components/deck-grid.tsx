@@ -20,7 +20,6 @@ export function DeckGrid({ decks }: { decks: Array<Deck & { cardIds: string[] }>
           <article
             key={deck.slug}
             className="index-card flex min-h-[260px] flex-col px-6 pt-5 pb-5"
-            style={{ ["--rule-top" as string]: "60px" }}
           >
             <div className="flex items-baseline justify-between gap-3">
               <h2 className="font-display text-xl font-bold text-ink">{deck.title}</h2>

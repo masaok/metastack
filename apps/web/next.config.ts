@@ -11,6 +11,8 @@ loadRepoEnv(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."))
 const nextConfig: NextConfig = {
   transpilePackages: ["@metastack/content", "@metastack/srs"],
   reactStrictMode: true,
+  // Hide the floating Next.js dev-tools bubble. Compile and runtime errors still surface.
+  devIndicators: false,
 };
 
 export default nextConfig;

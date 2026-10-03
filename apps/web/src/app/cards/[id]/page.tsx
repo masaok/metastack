@@ -44,10 +44,7 @@ export default async function CardPage({ params }: Props) {
         <ArrowLeft className="h-4 w-4" /> All cards
       </Link>
 
-      <article
-        className="index-card header-only mt-5 px-6 pt-5 pb-8 sm:px-9"
-        style={{ ["--rule-top" as string]: "68px" }}
-      >
+      <article className="index-card mt-5 px-6 pt-5 pb-8 sm:px-9">
         <header className="flex flex-wrap items-center gap-2">
           <Badge tone="red">{deck.title}</Badge>
           <Badge>{card.type}</Badge>

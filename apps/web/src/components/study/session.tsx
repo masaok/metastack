@@ -1,11 +1,18 @@
 "use client";
 
-import { ArrowRight, ExternalLink, PenLine, RotateCcw } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  PenLine,
+  RotateCcw,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type { Card } from "@metastack/content";
+import { cardsForDeck, type Card } from "@metastack/content";
 import {
   buildSession,
   createCardState,
@@ -19,7 +26,6 @@ import {
 } from "@metastack/srs";
 
 import { Markdown } from "@/components/markdown";
-import { Badge } from "@/components/ui/badge";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import {
@@ -47,11 +53,12 @@ const RATING_LABEL: Record<Rating, string> = {
 const RATING_KEY: Record<Rating, string> = { again: "1", hard: "2", good: "3", easy: "4" };
 const RATING_LETTER: Record<string, Rating> = { a: "again", h: "hard", g: "good", e: "easy" };
 
+/** Label colour only. Borders stay the shared hairline; translucent borders paint badly in Chromium. */
 const RATING_TONE: Record<Rating, string> = {
-  again: "border-red/40 text-red-ink",
-  hard: "border-amber/50 text-amber",
-  good: "border-blue/40 text-blue",
-  easy: "border-green/40 text-green",
+  again: "text-red-ink",
+  hard: "text-amber",
+  good: "text-blue",
+  easy: "text-green",
 };
 
 function shuffle<T>(xs: T[]): T[] {
@@ -241,6 +248,27 @@ export function StudySession({
       ? ratingFromRubric(checked.size, current.keyPoints.length)
       : null;
 
+  // Where Skip goes. A queue session steps through its own queue. A card opened
+  // by its own URL is a one-card session, so Skip walks the deck in content
+  // order instead; the new URL mounts a fresh one-card session for that card.
+  const neighbors = useMemo(() => {
+    if (!currentId || !current) return { prev: undefined, next: undefined };
+    if (scope !== "card") return { prev: queue[index - 1], next: queue[index + 1] };
+    const siblings = cardsForDeck(current.deck).map((card) => card.id);
+    const at = siblings.indexOf(currentId);
+    return { prev: siblings[at - 1], next: siblings[at + 1] };
+  }, [current, currentId, index, queue, scope]);
+
+  // Move without rating. Nothing is saved, so the card stays due.
+  const skipTo = useCallback(
+    (id: string | undefined) => {
+      if (!id || pendingUrl.current) return;
+      pendingUrl.current = id;
+      router.push(studyCardPath(id));
+    },
+    [router],
+  );
+
   const applyRating = useCallback(
     async (rating: Rating) => {
       if (!current || !currentState || pendingUrl.current) return;
@@ -306,6 +334,12 @@ export function StudySession({
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        skipTo(e.key === "ArrowLeft" ? neighbors.prev : neighbors.next);
+        return;
+      }
+
       if (phase === "prompt") {
         if (e.code === "Space" || e.key === "Enter") {
           e.preventDefault();
@@ -350,14 +384,25 @@ export function StudySession({
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [status, activeId, phase, settings.mode, current, suggested, applyRating, reveal]);
+  }, [
+    status,
+    activeId,
+    phase,
+    settings.mode,
+    current,
+    suggested,
+    applyRating,
+    reveal,
+    skipTo,
+    neighbors,
+  ]);
 
   // ---- Render states ----
 
   if (status === "loading") {
     return (
       <SessionFrame title={title}>
-        <div className="index-card plain h-[360px] animate-pulse" />
+        <div className="index-card h-[360px] animate-pulse" />
       </SessionFrame>
     );
   }
@@ -365,7 +410,7 @@ export function StudySession({
   if (status === "empty") {
     return (
       <SessionFrame title={title}>
-        <div className="index-card plain px-8 py-10 text-center">
+        <div className="index-card px-8 py-10 text-center">
           <h2 className="font-display text-2xl font-bold text-ink">
             {nextDueLabel ? "Nothing due right now" : "Daily new-card limit reached"}
           </h2>
@@ -390,14 +435,17 @@ export function StudySession({
     const mins = Math.max(1, Math.round((timing.finishedAt - timing.startedAt) / 60000));
     return (
       <SessionFrame title={title}>
-        <div className="index-card plain px-8 py-10">
+        <div className="index-card px-8 py-10">
           <h2 className="font-display text-3xl font-bold tracking-tight text-ink">
             {total} {total === 1 ? "card" : "cards"} in about {mins}{" "}
             {mins === 1 ? "minute" : "minutes"}
           </h2>
           <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {RATINGS.map((r) => (
-              <div key={r} className={cn("rounded-xl border bg-paper-2 px-4 py-3", RATING_TONE[r])}>
+              <div
+                key={r}
+                className={cn("rounded-xl border border-rule bg-paper-2 px-4 py-3", RATING_TONE[r])}
+              >
                 <dt className="text-xs font-medium tracking-wide uppercase opacity-80">
                   {RATING_LABEL[r]}
                 </dt>
@@ -428,7 +476,7 @@ export function StudySession({
   if (status === "ready" && !activeId) {
     return (
       <SessionFrame title={title}>
-        <div className="index-card plain h-[360px] animate-pulse" />
+        <div className="index-card h-[360px] animate-pulse" />
       </SessionFrame>
     );
   }
@@ -442,13 +490,31 @@ export function StudySession({
       title={title}
       right={
         <div className="flex items-center gap-3">
-          <span className="font-mono text-xs text-ink-3">
-            {index + 1}/{queue.length}
-            <span className="hidden sm:inline">
-              {" "}
-              · {counts.due} due · {counts.fresh} new
+          <div className="flex items-center gap-1">
+            <SkipButton
+              label="Previous card"
+              hint="←"
+              onClick={() => skipTo(neighbors.prev)}
+              disabled={!neighbors.prev}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </SkipButton>
+            <span className="font-mono text-xs text-ink-3">
+              {index + 1}/{queue.length}
+              <span className="hidden sm:inline">
+                {" "}
+                · {counts.due} due · {counts.fresh} new
+              </span>
             </span>
-          </span>
+            <SkipButton
+              label="Next card"
+              hint="→"
+              onClick={() => skipTo(neighbors.next)}
+              disabled={!neighbors.next}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </SkipButton>
+          </div>
           <div
             role="group"
             aria-label="Study mode"
@@ -472,210 +538,233 @@ export function StudySession({
         </div>
       }
     >
-      <div className="mb-3 h-1 w-full overflow-hidden rounded-full bg-rule">
+      <div className="mb-4 h-0.5 w-full overflow-hidden rounded-full bg-rule/70">
         <div
           className="h-full bg-red transition-[width] duration-300"
           style={{ width: `${(index / queue.length) * 100}%` }}
         />
       </div>
 
-      <article
-        className={cn("index-card px-6 pt-5 pb-6 sm:px-9", phase === "revealed" && "header-only")}
-        style={{ ["--rule-top" as string]: "68px" }}
-      >
-        <header className="flex flex-wrap items-center gap-2">
-          <Badge tone="red">{current.deck}</Badge>
-          <Badge>{current.type}</Badge>
-          <Badge tone={isNew ? "blue" : "neutral"}>{isNew ? "new" : "review"}</Badge>
-          <span className="ml-auto hidden font-mono text-xs text-ink-3 sm:inline">
-            #{current.id}
-          </span>
-        </header>
+      <article className="index-card overflow-hidden">
+        <div className="px-6 pt-6 pb-7 sm:px-10 sm:pt-8 sm:pb-9">
+          <header className="flex items-center gap-2 text-xs font-medium tracking-wide text-ink-3 uppercase">
+            <span className="text-red-ink">{current.deck}</span>
+            <span aria-hidden>·</span>
+            <span>{current.type}</span>
+            <span aria-hidden>·</span>
+            <span className={cn(isNew && "text-blue")}>{isNew ? "new" : "review"}</span>
+            <span className="ml-auto hidden font-mono font-normal normal-case sm:inline">
+              #{current.id}
+            </span>
+          </header>
 
-        <h2 className="card-prompt mt-6">{current.prompt.trim()}</h2>
+          <h2 className="card-prompt mt-5 max-w-2xl text-balance">{current.prompt.trim()}</h2>
 
-        {phase === "prompt" && (
-          <div className="mt-8">
-            {scratchOpen ? (
-              <textarea
-                ref={scratchRef}
-                value={scratch}
-                onChange={(e) => setScratch(e.target.value)}
-                placeholder="Sketch your answer. Cmd/Ctrl+Enter to reveal."
-                rows={5}
-                className="w-full resize-y rounded-xl border border-rule bg-paper-2 px-4 py-3 font-mono text-sm text-ink placeholder:text-ink-3"
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setScratchOpen(true);
-                  setTimeout(() => scratchRef.current?.focus(), 0);
-                }}
-                className="inline-flex items-center gap-2 text-sm text-ink-2 hover:text-ink"
-              >
-                <PenLine className="h-4 w-4" /> Add a scratchpad
-              </button>
-            )}
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button size="lg" onClick={reveal}>
-                Reveal key points
-              </Button>
-              <span className="text-sm text-ink-3">
-                or press <Kbd>space</Kbd>
-              </span>
+          {phase === "prompt" && (
+            <div className="mt-7">
+              {scratchOpen ? (
+                <textarea
+                  ref={scratchRef}
+                  value={scratch}
+                  onChange={(e) => setScratch(e.target.value)}
+                  placeholder="Sketch your answer. Cmd/Ctrl+Enter to reveal."
+                  rows={5}
+                  className="w-full resize-y rounded-xl border border-rule bg-paper-2 px-4 py-3 font-mono text-sm text-ink placeholder:text-ink-3"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScratchOpen(true);
+                    setTimeout(() => scratchRef.current?.focus(), 0);
+                  }}
+                  className="inline-flex items-center gap-2 text-sm text-ink-2 hover:text-ink"
+                >
+                  <PenLine className="h-4 w-4" /> Add a scratchpad
+                </button>
+              )}
             </div>
-          </div>
-        )}
+          )}
 
-        {phase === "revealed" && (
-          <div className="mt-7">
-            <h3 className="text-sm font-medium text-ink-2">
-              {settings.mode === "rubric" ? "Tick the points you covered" : "Key points"}
-            </h3>
-            <ol className="mt-3 space-y-2">
-              {current.keyPoints.map((kp, i) => {
-                const on = checked.has(i);
-                const Row = settings.mode === "rubric" ? "label" : "div";
-                return (
-                  <li key={kp}>
-                    <Row
+          {phase === "revealed" && (
+            <div className="mt-7">
+              <h3 className="text-sm font-medium text-ink-2">
+                {settings.mode === "rubric" ? "Tick the points you covered" : "Key points"}
+              </h3>
+              <ol className="mt-3 space-y-2">
+                {current.keyPoints.map((kp, i) => {
+                  const on = checked.has(i);
+                  const Row = settings.mode === "rubric" ? "label" : "div";
+                  return (
+                    <li key={kp}>
+                      <Row
+                        className={cn(
+                          "-mx-2 flex items-start gap-3 rounded-lg px-2 py-1.5",
+                          settings.mode === "rubric" && "cursor-pointer hover:bg-paper-2",
+                        )}
+                      >
+                        {settings.mode === "rubric" ? (
+                          <input
+                            type="checkbox"
+                            checked={on}
+                            onChange={() =>
+                              setChecked((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(i)) next.delete(i);
+                                else next.add(i);
+                                return next;
+                              })
+                            }
+                            className="mt-1 h-4 w-4 shrink-0 accent-[var(--red)]"
+                          />
+                        ) : (
+                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
+                        )}
+                        <span className={cn("leading-snug", on && "text-ink-2")}>{kp}</span>
+                        {settings.mode === "rubric" && i < 9 && (
+                          <Kbd className="mt-0.5 ml-auto hidden sm:inline-flex">{i + 1}</Kbd>
+                        )}
+                      </Row>
+                    </li>
+                  );
+                })}
+              </ol>
+
+              {scratch.trim() && (
+                <div className="mt-5 rounded-xl border border-rule bg-paper-2 px-4 py-3">
+                  <p className="text-xs font-medium text-ink-3">Your scratchpad</p>
+                  <pre className="mt-1 font-mono text-sm whitespace-pre-wrap text-ink-2">
+                    {scratch}
+                  </pre>
+                </div>
+              )}
+
+              <div className="mt-8 border-t border-rule pt-6">
+                {settings.mode === "rubric" && suggested && (
+                  <p className="mb-3 text-sm text-ink-2">
+                    {checked.size}/{current.keyPoints.length} covered → suggested{" "}
+                    <strong className="text-ink">{RATING_LABEL[suggested]}</strong>. Press{" "}
+                    <Kbd>enter</Kbd> to accept or pick another.
+                  </p>
+                )}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {RATINGS.map((r) => (
+                    <Button
+                      key={r}
+                      variant="rate"
+                      size="lg"
+                      onClick={() => void applyRating(r)}
                       className={cn(
-                        "-mx-2 flex items-start gap-3 rounded-lg px-2 py-1.5",
-                        settings.mode === "rubric" && "cursor-pointer hover:bg-paper-2",
+                        "h-auto flex-col gap-0.5 rounded-xl py-2.5",
+                        RATING_TONE[r],
+                        suggested === r && "ring-2 ring-ink/70 ring-offset-2 ring-offset-paper",
                       )}
                     >
-                      {settings.mode === "rubric" ? (
-                        <input
-                          type="checkbox"
-                          checked={on}
-                          onChange={() =>
-                            setChecked((prev) => {
-                              const next = new Set(prev);
-                              if (next.has(i)) next.delete(i);
-                              else next.add(i);
-                              return next;
-                            })
-                          }
-                          className="mt-1 h-4 w-4 shrink-0 accent-[var(--red)]"
-                        />
-                      ) : (
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
-                      )}
-                      <span className={cn("leading-snug", on && "text-ink-2")}>{kp}</span>
-                      {settings.mode === "rubric" && i < 9 && (
-                        <Kbd className="mt-0.5 ml-auto hidden sm:inline-flex">{i + 1}</Kbd>
-                      )}
-                    </Row>
-                  </li>
-                );
-              })}
-            </ol>
-
-            {scratch.trim() && (
-              <div className="mt-5 rounded-xl border border-rule bg-paper-2 px-4 py-3">
-                <p className="text-xs font-medium text-ink-3">Your scratchpad</p>
-                <pre className="mt-1 font-mono text-sm whitespace-pre-wrap text-ink-2">
-                  {scratch}
-                </pre>
-              </div>
-            )}
-
-            <div className="mt-8 border-t border-rule pt-6">
-              {settings.mode === "rubric" && suggested && (
-                <p className="mb-3 text-sm text-ink-2">
-                  {checked.size}/{current.keyPoints.length} covered → suggested{" "}
-                  <strong className="text-ink">{RATING_LABEL[suggested]}</strong>. Press{" "}
-                  <Kbd>enter</Kbd> to accept or pick another.
+                      <span className="font-medium">{RATING_LABEL[r]}</span>
+                      <span className="font-mono text-xs text-ink-3">
+                        {previews ? formatInterval(new Date(), previews[r]) : ""}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-ink-3">
+                  {settings.mode === "quick" ? (
+                    <>
+                      Rate with <Kbd>1</Kbd>–<Kbd>4</Kbd>.
+                    </>
+                  ) : (
+                    <>
+                      Override with <Kbd>A</Kbd> <Kbd>H</Kbd> <Kbd>G</Kbd> <Kbd>E</Kbd>.
+                    </>
+                  )}
                 </p>
-              )}
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {RATINGS.map((r) => (
-                  <Button
-                    key={r}
-                    variant="rate"
-                    size="lg"
-                    onClick={() => void applyRating(r)}
-                    className={cn(
-                      "h-auto flex-col gap-0.5 py-2.5",
-                      RATING_TONE[r],
-                      suggested === r && "ring-2 ring-ink/70 ring-offset-2 ring-offset-paper",
-                    )}
-                  >
-                    <span className="font-medium">{RATING_LABEL[r]}</span>
-                    <span className="font-mono text-xs text-ink-3">
-                      {previews ? formatInterval(new Date(), previews[r]) : ""}
-                    </span>
-                  </Button>
-                ))}
               </div>
-              <p className="mt-3 text-xs text-ink-3">
-                {settings.mode === "quick" ? (
-                  <>
-                    Rate with <Kbd>1</Kbd>–<Kbd>4</Kbd>.
-                  </>
-                ) : (
-                  <>
-                    Override with <Kbd>A</Kbd> <Kbd>H</Kbd> <Kbd>G</Kbd> <Kbd>E</Kbd>.
-                  </>
-                )}
-              </p>
-            </div>
 
-            <details className="group mt-8">
-              <summary className="cursor-pointer list-none text-sm font-medium text-ink-2 hover:text-ink">
-                <span className="inline-flex items-center gap-2">
-                  <RotateCcw className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
-                  Model answer
-                  {current.stages && ` · ${current.stages.length} stages`}
-                </span>
-              </summary>
-              <div className="mt-4">
-                {current.stages && (
-                  <ol className="mb-6 space-y-3">
-                    {current.stages.map((stage, i) => (
-                      <li
-                        key={stage.name}
-                        className="rounded-xl border border-rule bg-paper-2 px-4 py-3"
-                      >
-                        <p className="text-sm font-medium text-ink">
-                          <span className="mr-2 font-mono text-ink-3">{i + 1}</span>
-                          {stage.name}
-                        </p>
-                        <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm text-ink-2">
-                          {stage.keyPoints.map((p) => (
-                            <li key={p}>{p}</li>
-                          ))}
-                        </ul>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-                <Markdown source={current.body} />
-                {current.followUps.length > 0 && (
-                  <div className="mt-6">
-                    <p className="text-sm font-medium text-ink-2">Likely follow-ups</p>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-2">
-                      {current.followUps.map((f) => (
-                        <li key={f}>{f}</li>
+              <details className="group mt-8">
+                <summary className="cursor-pointer list-none text-sm font-medium text-ink-2 hover:text-ink">
+                  <span className="inline-flex items-center gap-2">
+                    <RotateCcw className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                    Model answer
+                    {current.stages && ` · ${current.stages.length} stages`}
+                  </span>
+                </summary>
+                <div className="mt-4">
+                  {current.stages && (
+                    <ol className="mb-6 space-y-3">
+                      {current.stages.map((stage, i) => (
+                        <li
+                          key={stage.name}
+                          className="rounded-xl border border-rule bg-paper-2 px-4 py-3"
+                        >
+                          <p className="text-sm font-medium text-ink">
+                            <span className="mr-2 font-mono text-ink-3">{i + 1}</span>
+                            {stage.name}
+                          </p>
+                          <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm text-ink-2">
+                            {stage.keyPoints.map((p) => (
+                              <li key={p}>{p}</li>
+                            ))}
+                          </ul>
+                        </li>
                       ))}
-                    </ul>
-                  </div>
-                )}
-                <p className="mt-6 text-sm">
-                  <Link
-                    href={`/cards/${current.id}`}
-                    className="inline-flex items-center gap-1 text-ink-2 underline underline-offset-4 hover:text-ink"
-                  >
-                    Open this card <ExternalLink className="h-3.5 w-3.5" />
-                  </Link>
-                </p>
-              </div>
-            </details>
-          </div>
+                    </ol>
+                  )}
+                  <Markdown source={current.body} />
+                  {current.followUps.length > 0 && (
+                    <div className="mt-6">
+                      <p className="text-sm font-medium text-ink-2">Likely follow-ups</p>
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-2">
+                        {current.followUps.map((f) => (
+                          <li key={f}>{f}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <p className="mt-6 text-sm">
+                    <Link
+                      href={`/cards/${current.id}`}
+                      className="inline-flex items-center gap-1 text-ink-2 underline underline-offset-4 hover:text-ink"
+                    >
+                      Open this card <ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
+                  </p>
+                </div>
+              </details>
+            </div>
+          )}
+        </div>
+
+        {phase === "prompt" && (
+          <footer className="flex flex-wrap items-center gap-4 border-t border-rule/60 bg-paper-2/70 px-6 py-4 sm:px-10">
+            <Button size="lg" onClick={reveal}>
+              Reveal key points
+            </Button>
+            <span className="text-sm text-ink-3">
+              or press <Kbd>space</Kbd>
+            </span>
+          </footer>
         )}
       </article>
     </SessionFrame>
+  );
+}
+
+function SkipButton({
+  label,
+  hint,
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { label: string; hint: string }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={`${label} (${hint})`}
+      className="rounded-full p-1 text-ink-2 hover:bg-paper-2 hover:text-ink disabled:pointer-events-none disabled:opacity-30"
+      {...props}
+    >
+      {children}
+    </button>
   );
 }
 

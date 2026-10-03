@@ -44,7 +44,6 @@ export function HeroCard({ card }: { card: Card }) {
             aria-pressed={flipped}
             aria-label="Flip the card to see the key points"
             className="index-card flip-face flex min-h-[340px] w-full flex-col px-7 pt-5 pb-6 text-left sm:min-h-[380px] sm:px-9"
-            style={{ ["--rule-top" as string]: "72px" }}
           >
             <div className="flex items-center gap-2">
               <Badge tone="red">{card.deck}</Badge>
@@ -62,7 +61,6 @@ export function HeroCard({ card }: { card: Card }) {
           {/* back */}
           <div
             className="index-card flip-face flip-back flex flex-col px-7 pt-5 pb-6 sm:px-9"
-            style={{ ["--rule-top" as string]: "72px" }}
             aria-hidden={!flipped}
           >
             <div className="flex items-center gap-2">

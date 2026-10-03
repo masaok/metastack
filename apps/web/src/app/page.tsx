@@ -109,7 +109,6 @@ export default function HomePage() {
                 href={`/study/${deck.slug}`}
                 className="index-card group flex min-h-[220px] flex-col px-6 pt-5 pb-5 transition-shadow hover:shadow-[var(--shadow-lift)]"
                 style={{
-                  ["--rule-top" as string]: "60px",
                   transform: `rotate(${[-0.6, 0.4, -0.3][i]}deg)`,
                 }}
               >
