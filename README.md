@@ -24,7 +24,7 @@
 Most interview prep tells you to "practise out loud". MetaStack is the deck you practise against.
 
 - **64 original cards** in three decks: Fundamentals (39), Estimation (10), Classic designs (15).
-- **Rubric grading.** Every card has three to six key points. You reveal, tick what you actually said, and your coverage sets the rating. Design prompts are broken into interview stages (requirements, estimates, API, data model, high-level design, deep dives, failure modes), each with its own rubric.
+- **Rubric grading.** Every card has three to six key points. Before the reveal, a short exercise drawn at random (recall the points one by one, recall them from plain-language hints, match hints to points, or pick the points out of a mixed list) makes you produce the answer; the points you got are ticked for you, and your coverage sets the rating. Design prompts are broken into interview stages (requirements, estimates, API, data model, high-level design, deep dives, failure modes), each with its own rubric.
 - **FSRS scheduling** via a small, pure, 100%-tested wrapper around [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs). Cards you fumble return tomorrow; cards you nail wait weeks.
 - **Works without an account.** Progress is stored in your browser (IndexedDB) and can be exported or imported as JSON. Sign in with GitHub if you want a server copy on Neon.
 - **Keyboard first.** `Space` reveals, `1`–`9` tick key points, `Enter` accepts the suggested rating. Quick mode: `1`–`4` rate directly.
