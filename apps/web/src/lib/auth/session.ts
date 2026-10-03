@@ -3,6 +3,7 @@ import "server-only";
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 
+import { isAdminAccount } from "./admin";
 import { authSecret } from "./env";
 
 export const SESSION_COOKIE = "ms_session";
@@ -14,6 +15,8 @@ export interface SessionUser {
   login: string;
   name: string | null;
   avatarUrl: string | null;
+  email: string | null;
+  admin: boolean;
 }
 
 function secretKey() {
@@ -25,6 +28,7 @@ export async function signSession(user: SessionUser): Promise<string> {
     login: user.login,
     name: user.name,
     avatarUrl: user.avatarUrl,
+    email: user.email,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
@@ -37,11 +41,14 @@ export async function readSession(token: string): Promise<SessionUser | null> {
   try {
     const { payload } = await jwtVerify(token, secretKey(), { algorithms: ["HS256"] });
     if (!payload.sub || typeof payload.login !== "string") return null;
+    const email = typeof payload.email === "string" ? payload.email : null;
     return {
       id: payload.sub,
       login: payload.login,
       name: typeof payload.name === "string" ? payload.name : null,
       avatarUrl: typeof payload.avatarUrl === "string" ? payload.avatarUrl : null,
+      email,
+      admin: isAdminAccount({ email, login: payload.login }),
     };
   } catch {
     return null;

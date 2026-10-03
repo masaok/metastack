@@ -77,10 +77,7 @@ export default async function BlogPostPage({ params }: Props) {
       </Link>
 
       <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-10">
-        <article
-          className="index-card header-only min-w-0 px-6 pt-5 pb-8 sm:px-9"
-          style={{ ["--rule-top" as string]: "68px" }}
-        >
+        <article className="index-card min-w-0 px-6 pt-5 pb-8 sm:px-9">
           <header className="flex flex-wrap items-center gap-2 text-xs text-ink-3">
             <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
             <span>·</span>
@@ -111,7 +108,8 @@ export default async function BlogPostPage({ params }: Props) {
                 Reading is the easy part.
               </p>
               <p className="mt-1 text-sm text-ink-2">
-                Drill the cards behind this post. Progress stays in your browser, no account.
+                Drill the cards behind this post. Progress stays in your browser. Sign in if you
+                want a copy that follows you.
               </p>
             </div>
             <ButtonLink href="/study" className="mt-4 sm:mt-0">

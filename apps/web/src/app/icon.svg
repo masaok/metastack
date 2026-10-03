@@ -1,22 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <rect width="128" height="128" rx="28" fill="#15203a"/>
-  <g transform="translate(16 62) rotate(-6)">
-    <rect width="96" height="58" rx="10" fill="#f1f4f9" stroke="#9fb3d3" stroke-width="3"/>
-  </g>
-  <g transform="translate(18 48) rotate(3)">
-    <rect width="96" height="58" rx="10" fill="#f7f9fc" stroke="#9fb3d3" stroke-width="3"/>
-  </g>
-  <g transform="translate(16 30) rotate(-2)">
-    <rect width="96" height="58" rx="10" fill="#ffffff" stroke="#15203a" stroke-width="3.5"/>
-    <line x1="4" y1="15" x2="92" y2="15" stroke="#e2505c" stroke-width="3" stroke-linecap="round"/>
-    <line x1="10" y1="30" x2="86" y2="30" stroke="#c5d3e8" stroke-width="2" stroke-linecap="round"/>
-    <line x1="10" y1="44" x2="86" y2="44" stroke="#c5d3e8" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="35" cy="37" r="4.6" fill="#15203a"/>
-    <circle cx="61" cy="37" r="4.6" fill="#15203a"/>
-    <circle cx="36.5" cy="35.5" r="1.4" fill="#fff"/>
-    <circle cx="62.5" cy="35.5" r="1.4" fill="#fff"/>
-    <ellipse cx="26" cy="45" rx="5" ry="2.6" fill="#e2505c" opacity="0.4"/>
-    <ellipse cx="70" cy="45" rx="5" ry="2.6" fill="#e2505c" opacity="0.4"/>
-    <path d="M41 47c3.4 4 10.2 4 13.6 0" stroke="#15203a" stroke-width="3" stroke-linecap="round"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#15203a"/>
+  <mask id="peek">
+    <rect x="6" y="2" width="24" height="22" rx="3.5" fill="#ffffff"/>
+    <rect x="2" y="6" width="26" height="24" rx="3.5" fill="#000000"/>
+  </mask>
+  <rect x="6" y="2" width="24" height="22" rx="3.5" fill="#ffffff" opacity="0.55" mask="url(#peek)"/>
+  <mask id="cut">
+    <rect x="2" y="6" width="26" height="24" rx="3.5" fill="#ffffff"/>
+    <path d="M8 27.2V8.6H12.2L17 17.5L21.8 8.6H26V27.2H21.8V15.2L17 22.4L12.2 15.2V27.2Z" fill="#000000"/>
+  </mask>
+  <rect x="2" y="6" width="26" height="24" rx="3.5" fill="#ffffff" mask="url(#cut)"/>
+  <clipPath id="card">
+    <rect x="2" y="6" width="26" height="24" rx="3.5"/>
+  </clipPath>
+  <rect x="2" y="6" width="4.2" height="24" fill="#e2505c" clip-path="url(#card)"/>
 </svg>

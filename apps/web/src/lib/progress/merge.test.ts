@@ -60,4 +60,8 @@ const empty = mergeProgress(a, file([], []));
 assert.equal(empty.cardStates.length, 1);
 assert.equal(empty.reviews.length, 1);
 
-console.log("merge.test: last-write-wins and review union hold");
+const local = { ...file([], []), settings: { theme: "light" as const, newLimit: 25 } };
+const remote = { ...file([], []), settings: { theme: "dark" as const } };
+assert.deepEqual(mergeProgress(local, remote).settings, { theme: "dark", newLimit: 25 });
+
+console.log("merge.test: last-write-wins, review union and account settings hold");

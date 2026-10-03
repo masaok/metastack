@@ -93,7 +93,7 @@ Fuzz is off. Many FSRS setups add a small random jitter to intervals so that car
 
 The weights are the library defaults. Per-user optimisation needs more review history than a new user has, so the ADR leaves it as a possible later phase.
 
-Ratings reach FSRS through a rubric. You tick the key points you said, and coverage maps to a grade. Under 40 percent is Again. From 40 to 69 is Hard. From 70 to 94 is Good. From 95 up is Easy. You can override on any card, and a quick mode skips the rubric. Each day's queue is built by a function called `buildSession`. It takes every card that is due, most overdue first, then adds new cards up to a daily limit, ten by default, minus however many new cards you have already met today. You can change that limit on the [settings page](/settings). The card state FSRS produces, with its stability, difficulty, lapse count and due date, is stored in your browser and goes out in the JSON export unchanged.
+Ratings reach FSRS through a rubric. You tick the key points you said, and coverage maps to a grade. Under 40 percent is Again. From 40 to 69 is Hard. From 70 to 94 is Good. From 95 up is Easy. You can override on any card, and a quick mode skips the rubric. Each day's queue is built by a function called `buildSession`. It takes every card that is due, in a shuffled order, then adds new cards up to a daily limit, ten by default, minus however many new cards you have already met today. You can change that limit on the [settings page](/settings). The card state FSRS produces, with its stability, difficulty, lapse count and due date, is stored in your browser and goes out in the JSON export unchanged.
 
 ## Mistakes people make when comparing schedulers
 

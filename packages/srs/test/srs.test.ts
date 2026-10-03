@@ -177,7 +177,19 @@ describe("buildSession", () => {
     expect(session.dueCount).toBe(0);
   });
 
-  it("applies a shuffle to new cards only and uses default limits", () => {
+  it("shuffles due reviews among themselves and keeps them ahead of new cards", () => {
+    const a = rate(createCardState("a", T0), "good", T0).state;
+    const b = rate(createCardState("b", T0), "good", new Date(T0.getTime() + DAY)).state;
+    const later = new Date(T0.getTime() + 30 * DAY);
+    const options = { cardIds: ids, states: [a, b], now: later, newLimit: 2 };
+    expect(buildSession(options).queue).toEqual(["a", "b", "c", "d"]);
+    const session = buildSession({ ...options, shuffle: (xs) => [...xs].reverse() });
+    expect(session.queue).toEqual(["b", "a", "e", "d"]);
+    expect(session.dueCount).toBe(2);
+    expect(session.newCount).toBe(2);
+  });
+
+  it("applies a shuffle to new cards and uses default limits", () => {
     const session = buildSession({
       cardIds: ids,
       states: [],

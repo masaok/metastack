@@ -6,7 +6,8 @@ test.describe("drill flow", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Drill system design");
 
     await page.getByRole("link", { name: "Start drilling" }).first().click();
-    await expect(page).toHaveURL(/\/study$/);
+    await expect(page.getByRole("button", { name: "Reveal key points" })).toBeVisible();
+    await expect(page).toHaveURL(/\/study\/card\/[a-z0-9-]+$/);
 
     for (let i = 0; i < 3; i++) {
       await expect(page.getByRole("button", { name: "Reveal key points" })).toBeVisible();
@@ -42,6 +43,52 @@ test.describe("drill flow", () => {
       .toBe(3);
   });
 
+  test("card permalink opens that card and the back button returns", async ({ page }) => {
+    await page.goto("/dashboard");
+    await page.getByRole("link", { name: "Study url-shortener", exact: true }).click();
+    await expect(page).toHaveURL(/\/study\/card\/url-shortener$/);
+    await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toContainText(
+      "URL shortener",
+    );
+    await page.goBack();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    await page.goto("/study/estimation");
+    await expect(page).toHaveURL(/\/study\/card\/[a-z0-9-]+$/);
+    const first = page.url();
+    await page.getByRole("button", { name: "Quick" }).click();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("3");
+    await expect(page).not.toHaveURL(first);
+    await expect(page).toHaveURL(/\/study\/card\/[a-z0-9-]+$/);
+    await page.goBack();
+    await expect(page).toHaveURL(first);
+    await expect(page.getByRole("button", { name: "Reveal key points" })).toBeVisible();
+  });
+
+  test("skip forward and back without rating", async ({ page }) => {
+    await page.goto("/study/fundamentals");
+    await expect(page.getByText(/^1\/\d+/)).toBeVisible();
+    const first = page.url();
+    await expect(page.getByRole("button", { name: "Previous card" })).toBeDisabled();
+
+    await page.keyboard.press("ArrowRight");
+    await expect(page.getByText(/^2\/\d+/)).toBeVisible();
+    await expect(page).not.toHaveURL(first);
+
+    await page.getByRole("button", { name: "Previous card" }).click();
+    await expect(page.getByText(/^1\/\d+/)).toBeVisible();
+    await expect(page).toHaveURL(first);
+    // Nothing was rated, so the card is still new.
+    await expect(page.getByText("new", { exact: true })).toBeVisible();
+
+    // A card opened by its own URL walks the deck in content order.
+    await page.goto("/study/card/read-replicas-and-lag");
+    await expect(page.getByText(/^1\/1/)).toBeVisible();
+    await page.getByRole("button", { name: "Next card" }).click();
+    await expect(page).toHaveURL(/\/study\/card\/(?!read-replicas-and-lag)[a-z0-9-]+$/);
+  });
+
   test("quick mode rates with number keys", async ({ page }) => {
     await page.goto("/study/estimation");
     await page.getByRole("button", { name: "Quick" }).click();
@@ -58,6 +105,18 @@ test.describe("drill flow", () => {
     await page.getByRole("link", { name: /write-through/ }).click();
     await expect(page).toHaveURL(/\/cards\/caching-write-strategies$/);
     await expect(page.getByRole("heading", { name: "Key points" })).toBeVisible();
+  });
+
+  test("theme choice survives a reload and stays local when signed out", async ({ page }) => {
+    await page.goto("/settings");
+    await page.getByRole("radio", { name: "Dark" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.getByRole("radio", { name: "Dark" })).toHaveAttribute("aria-checked", "true");
+
+    const res = await page.request.get("/api/settings");
+    expect(res.status()).toBe(401);
   });
 
   test("settings export produces a JSON file", async ({ page }) => {

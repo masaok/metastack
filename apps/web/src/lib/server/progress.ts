@@ -3,7 +3,14 @@ import "server-only";
 import type { CardState, LearningState, Rating, ReviewRecord } from "@metastack/srs";
 
 import type { SessionUser } from "@/lib/auth/session";
-import type { ExportFile, Settings } from "@/lib/db";
+import type { ExportFile } from "@/lib/db";
+import {
+  isNewLimit,
+  isStudyMode,
+  isTheme,
+  parseSettingsPatch,
+  type Settings,
+} from "@/lib/settings";
 
 import { ensureSchema } from "./neon";
 
@@ -30,8 +37,18 @@ interface ReviewRow {
 }
 
 interface SettingsRow {
-  new_limit: number;
-  mode: "rubric" | "quick";
+  new_limit: number | null;
+  mode: string | null;
+  theme: string | null;
+}
+
+function toSettings(row: SettingsRow | undefined): Partial<Settings> {
+  const settings: Partial<Settings> = {};
+  if (!row) return settings;
+  if (isNewLimit(row.new_limit)) settings.newLimit = row.new_limit;
+  if (isStudyMode(row.mode)) settings.mode = row.mode;
+  if (isTheme(row.theme)) settings.theme = row.theme;
+  return settings;
 }
 
 const toIso = (d: Date | string) =>
@@ -67,12 +84,13 @@ function toReview(row: ReviewRow): ReviewRecord {
 export async function upsertUser(user: SessionUser): Promise<void> {
   const sql = await ensureSchema();
   await sql`
-    INSERT INTO users (id, login, name, avatar_url)
-    VALUES (${user.id}, ${user.login}, ${user.name}, ${user.avatarUrl})
+    INSERT INTO users (id, login, name, avatar_url, email)
+    VALUES (${user.id}, ${user.login}, ${user.name}, ${user.avatarUrl}, ${user.email})
     ON CONFLICT (id) DO UPDATE SET
       login = EXCLUDED.login,
       name = EXCLUDED.name,
       avatar_url = EXCLUDED.avatar_url,
+      email = EXCLUDED.email,
       updated_at = now()
   `;
 }
@@ -86,16 +104,11 @@ export async function loadProgress(userId: string): Promise<ExportFile> {
     sql`SELECT card_id, rating, previous_state, reviewed_at, scheduled_days FROM reviews WHERE user_id = ${userId} ORDER BY reviewed_at` as unknown as Promise<
       ReviewRow[]
     >,
-    sql`SELECT new_limit, mode FROM settings WHERE user_id = ${userId}` as unknown as Promise<
+    sql`SELECT new_limit, mode, theme FROM settings WHERE user_id = ${userId}` as unknown as Promise<
       SettingsRow[]
     >,
   ]);
-  const settings: Partial<Settings> = {};
-  const row = settingsRows[0];
-  if (row) {
-    settings.newLimit = row.new_limit;
-    settings.mode = row.mode;
-  }
+  const settings = toSettings(settingsRows[0]);
   return {
     app: "metastack",
     version: 1,
@@ -130,16 +143,32 @@ export async function replaceProgress(userId: string, data: ExportFile): Promise
       ON CONFLICT (user_id, card_id, reviewed_at, rating) DO NOTHING
     `;
   }
-  if (data.settings.newLimit !== undefined || data.settings.mode !== undefined) {
-    await sql`
-      INSERT INTO settings (user_id, new_limit, mode)
-      VALUES (${userId}, ${data.settings.newLimit ?? 10}, ${data.settings.mode ?? "rubric"})
-      ON CONFLICT (user_id) DO UPDATE SET
-        new_limit = EXCLUDED.new_limit,
-        mode = EXCLUDED.mode,
-        updated_at = now()
-    `;
+  await upsertSettings(userId, parseSettingsPatch(data.settings));
+}
+
+export async function loadSettings(userId: string): Promise<Partial<Settings>> {
+  const sql = await ensureSchema();
+  const rows = (await sql`
+    SELECT new_limit, mode, theme FROM settings WHERE user_id = ${userId}
+  `) as unknown as SettingsRow[];
+  return toSettings(rows[0]);
+}
+
+/** Writes the keys present in the patch; the others keep their stored value. */
+export async function upsertSettings(userId: string, patch: Partial<Settings>): Promise<void> {
+  if (patch.newLimit === undefined && patch.mode === undefined && patch.theme === undefined) {
+    return;
   }
+  const sql = await ensureSchema();
+  await sql`
+    INSERT INTO settings (user_id, new_limit, mode, theme)
+    VALUES (${userId}, ${patch.newLimit ?? null}, ${patch.mode ?? null}, ${patch.theme ?? null})
+    ON CONFLICT (user_id) DO UPDATE SET
+      new_limit = COALESCE(${patch.newLimit ?? null}::int, settings.new_limit),
+      mode = COALESCE(${patch.mode ?? null}::text, settings.mode),
+      theme = COALESCE(${patch.theme ?? null}::text, settings.theme),
+      updated_at = now()
+  `;
 }
 
 export async function appendReview(userId: string, state: CardState, review: ReviewRecord) {

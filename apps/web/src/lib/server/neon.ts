@@ -15,9 +15,11 @@ const STATEMENTS = [
     login TEXT NOT NULL,
     name TEXT,
     avatar_url TEXT,
+    email TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT`,
   `CREATE TABLE IF NOT EXISTS card_states (
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     card_id TEXT NOT NULL,
@@ -51,6 +53,10 @@ const STATEMENTS = [
     mode TEXT NOT NULL DEFAULT 'rubric',
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
+  `ALTER TABLE settings ADD COLUMN IF NOT EXISTS theme TEXT`,
+  // A key the user never set is NULL, so it cannot overwrite another device.
+  `ALTER TABLE settings ALTER COLUMN new_limit DROP NOT NULL, ALTER COLUMN new_limit DROP DEFAULT,
+    ALTER COLUMN mode DROP NOT NULL, ALTER COLUMN mode DROP DEFAULT`,
 ];
 
 export function getSql(): Sql {

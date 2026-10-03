@@ -3,14 +3,9 @@
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
 
+import { savePreference } from "@/lib/sync";
+import { applyTheme, currentTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
-
-type Theme = "light" | "dark";
-
-function readTheme(): Theme {
-  const attr = document.documentElement.getAttribute("data-theme");
-  return attr === "dark" ? "dark" : "light";
-}
 
 function subscribe(onChange: () => void) {
   const observer = new MutationObserver(onChange);
@@ -19,16 +14,12 @@ function subscribe(onChange: () => void) {
 }
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const theme = useSyncExternalStore<Theme>(subscribe, readTheme, () => "light");
+  const theme = useSyncExternalStore(subscribe, currentTheme, () => "light" as const);
 
   function toggle() {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("metastack-theme", next);
-    } catch {
-      // storage unavailable; the attribute still applies for this page
-    }
+    const next = theme === "dark" ? "light" : "dark";
+    applyTheme(next);
+    void savePreference("theme", next);
   }
 
   return (

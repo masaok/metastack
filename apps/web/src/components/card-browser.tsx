@@ -102,7 +102,7 @@ export function CardBrowser({
           {results.length} of {cards.length} cards
         </p>
         {results.length === 0 ? (
-          <div className="index-card plain mt-4 px-6 py-10 text-center text-ink-2">
+          <div className="index-card mt-4 px-6 py-10 text-center text-ink-2">
             No cards match. Clear a filter or{" "}
             <a
               href="https://github.com/masaok/metastack/issues/new?template=new-card.yml"

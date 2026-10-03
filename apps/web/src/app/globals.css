@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: light;
-  /* Index-card palette: cool paper, navy ink, blue rules, one red rule. */
+  /* Palette: cool paper, navy ink, blue hairlines, one red accent. */
   --bg: #f1f4f9;
   --paper: #ffffff;
   --paper-2: #f7f9fc;
@@ -58,7 +58,7 @@
   --font-display: var(--font-bricolage), var(--font-plex-sans), ui-sans-serif, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-card: 14px;
+  --radius-card: 20px;
   --shadow-card: 0 1px 0 rgb(var(--shadow) / 0.06), 0 10px 30px -14px rgb(var(--shadow) / 0.35);
   --shadow-lift: 0 1px 0 rgb(var(--shadow) / 0.08), 0 24px 50px -20px rgb(var(--shadow) / 0.45);
 }
@@ -85,43 +85,29 @@ body {
   border-radius: 6px;
 }
 
-/* An index card: paper, blue rules, a red header rule. */
+/* The question on a flashcard. The body face, not the display face, so a long prompt stays readable. */
+.card-prompt {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+@media (min-width: 640px) {
+  .card-prompt {
+    font-size: 1.5rem;
+  }
+}
+
+/* A card: one quiet paper surface. Hairline edge, soft lift, no ruling. */
 .index-card {
   position: relative;
   background-color: var(--paper);
-  border: 1px solid var(--rule);
+  border: 1px solid color-mix(in oklab, var(--rule) 65%, transparent);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  --rule-gap: 32px;
-  --rule-top: 64px;
-  background-image:
-    linear-gradient(var(--red) 0 0),
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent calc(var(--rule-gap) - 1px),
-      var(--rule) calc(var(--rule-gap) - 1px),
-      var(--rule) var(--rule-gap)
-    );
-  background-size:
-    100% 2px,
-    100% var(--rule-gap);
-  background-position:
-    0 calc(var(--rule-top) - 2px),
-    0 var(--rule-top);
-  background-repeat: no-repeat, repeat-y;
-}
-
-.index-card.plain {
-  background-image: none;
-}
-
-/* Keep the red header rule but drop the blue lines; for long-form content */
-.index-card.header-only {
-  background-image: linear-gradient(var(--red) 0 0);
-  background-size: 100% 2px;
-  background-position: 0 calc(var(--rule-top) - 2px);
-  background-repeat: no-repeat;
 }
 
 /* Flip animation for the hero / study card */
@@ -150,26 +136,6 @@ body {
   .flip-inner {
     transition: none;
   }
-  .mascot-blink {
-    animation: none !important;
-  }
-}
-
-/* Mascot blink: one quiet, occasional blink */
-@keyframes blink {
-  0%,
-  92%,
-  100% {
-    transform: scaleY(1);
-  }
-  95% {
-    transform: scaleY(0.1);
-  }
-}
-.mascot-blink {
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: blink 6s infinite;
 }
 
 /* Prose for model answers */

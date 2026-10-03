@@ -4,25 +4,40 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Download, Trash2, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { GithubSignIn } from "@/components/github-sign-in";
 import { Button } from "@/components/ui/button";
 import {
   db,
   exportData,
   getSettings,
+  getStoredSettings,
   importData,
   resetAll,
-  setSetting,
   type Settings,
   type StudyMode,
+  type Theme,
 } from "@/lib/db";
-import { fetchSession, syncProgress, type SessionUser } from "@/lib/sync";
+import {
+  fetchSession,
+  pushPreferences,
+  savePreference,
+  syncProgress,
+  type SessionUser,
+} from "@/lib/sync";
+import { applyTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+
+const THEMES: Array<{ value: Theme; label: string }> = [
+  { value: "system", label: "System" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
 
 const buttonClass =
   "inline-flex h-10 items-center justify-center rounded-full border border-rule px-4 text-sm font-medium";
 
 export function SettingsPanel() {
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const settings = useLiveQuery(getSettings, [], null);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -43,7 +58,6 @@ export function SettingsPanel() {
   );
 
   useEffect(() => {
-    void getSettings().then(setSettings);
     void fetchSession().then((signedIn) => {
       setUser(signedIn);
       const auth = new URLSearchParams(window.location.search).get("auth");
@@ -53,14 +67,13 @@ export function SettingsPanel() {
         return;
       }
       if (auth === "error") {
-        setMessage({ tone: "error", text: "GitHub sign-in failed. Check the app callback URL." });
+        setMessage({ tone: "error", text: "GitHub sign-in failed." });
         return;
       }
       if (auth === "ok") {
         setSyncing(true);
         return syncProgress()
           .then(async (result) => {
-            setSettings(await getSettings());
             setUser(await fetchSession());
             if (!result) {
               setMessage({ tone: "error", text: "Sign in first to sync." });
@@ -86,7 +99,6 @@ export function SettingsPanel() {
     setSyncing(true);
     try {
       const result = await syncProgress();
-      setSettings(await getSettings());
       setUser(await fetchSession());
       if (!result) {
         setMessage({ tone: "error", text: "Sign in first to sync." });
@@ -105,13 +117,16 @@ export function SettingsPanel() {
 
   async function updateLimit(value: number) {
     const n = Math.min(100, Math.max(1, Math.round(value)));
-    setSettings((s) => (s ? { ...s, newLimit: n } : s));
-    await setSetting("newLimit", n);
+    await savePreference("newLimit", n);
   }
 
   async function updateMode(mode: StudyMode) {
-    setSettings((s) => (s ? { ...s, mode } : s));
-    await setSetting("mode", mode);
+    await savePreference("mode", mode);
+  }
+
+  async function updateTheme(theme: Theme) {
+    applyTheme(theme);
+    await savePreference("theme", theme);
   }
 
   async function onExport() {
@@ -132,7 +147,8 @@ export function SettingsPanel() {
   async function onImport(file: File) {
     try {
       const result = await importData(await file.text());
-      setSettings(await getSettings());
+      applyTheme((await getSettings()).theme);
+      void pushPreferences(Object.keys(await getStoredSettings()) as Array<keyof Settings>);
       setMessage({
         tone: "ok",
         text: `Imported ${result.cards} card states and ${result.reviews} reviews.`,
@@ -146,13 +162,13 @@ export function SettingsPanel() {
 
   async function onReset() {
     await resetAll();
-    setSettings(await getSettings());
+    applyTheme("system");
     setConfirmReset(false);
     setMessage({ tone: "ok", text: "Progress cleared. Every card is new again." });
   }
 
   if (!settings) {
-    return <div className="index-card plain h-64 animate-pulse" />;
+    return <div className="index-card h-64 animate-pulse" />;
   }
 
   return (
@@ -209,11 +225,36 @@ export function SettingsPanel() {
       </Section>
 
       <Section
+        title="Appearance"
+        description="System follows your device. Signed in, the choice follows you to other browsers."
+      >
+        <div role="radiogroup" aria-label="Theme" className="flex gap-2">
+          {THEMES.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={settings.theme === option.value}
+              onClick={() => void updateTheme(option.value)}
+              className={cn(
+                "rounded-full border px-4 py-2 text-sm",
+                settings.theme === option.value
+                  ? "border-ink bg-ink text-bg"
+                  : "border-rule text-ink-2 hover:text-ink",
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section
         title="Account"
         description={
           user
-            ? `Signed in as ${user.login}. Reviews in this browser are copied to your account after each rating.`
-            : "Optional. Sign in with GitHub so progress follows you to another browser."
+            ? `Signed in as ${user.login}. Reviews and preferences in this browser are copied to your account as you change them.`
+            : "Optional. Sign in with GitHub so progress and preferences follow you to another browser."
         }
       >
         <div className="flex flex-wrap gap-3">
@@ -227,12 +268,7 @@ export function SettingsPanel() {
               </a>
             </>
           ) : (
-            <a
-              href="/api/auth/github"
-              className={cn(buttonClass, "bg-ink text-bg hover:opacity-90")}
-            >
-              Sign in with GitHub
-            </a>
+            <GithubSignIn />
           )}
         </div>
       </Section>

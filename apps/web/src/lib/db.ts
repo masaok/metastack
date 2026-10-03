@@ -4,15 +4,17 @@ import Dexie, { type EntityTable } from "dexie";
 
 import { dayKey, type CardState, type ReviewRecord } from "@metastack/srs";
 
-export type StudyMode = "rubric" | "quick";
+import {
+  DEFAULT_SETTINGS,
+  isNewLimit,
+  isStudyMode,
+  isTheme,
+  SETTING_KEYS,
+  type Settings,
+} from "./settings";
 
-export interface Settings {
-  /** New cards introduced per day across all decks. */
-  newLimit: number;
-  mode: StudyMode;
-}
-
-export const DEFAULT_SETTINGS: Settings = { newLimit: 10, mode: "rubric" };
+export { DEFAULT_SETTINGS } from "./settings";
+export type { Settings, StudyMode, Theme } from "./settings";
 
 interface SettingRow {
   key: string;
@@ -56,19 +58,46 @@ export function db(): MetaStackDB {
   return instance;
 }
 
-export async function getSettings(): Promise<Settings> {
+/** Only the settings the user has set. Defaults are left out so a sync cannot overwrite another device with them. */
+export async function getStoredSettings(): Promise<Partial<Settings>> {
   const rows = await db().settings.toArray();
-  const out: Settings = { ...DEFAULT_SETTINGS };
+  const out: Partial<Settings> = {};
   for (const row of rows) {
-    if (row.key === "newLimit" && typeof row.value === "number") out.newLimit = row.value;
-    if (row.key === "mode" && (row.value === "rubric" || row.value === "quick"))
-      out.mode = row.value;
+    if (row.key === "newLimit" && isNewLimit(row.value)) out.newLimit = row.value;
+    if (row.key === "mode" && isStudyMode(row.value)) out.mode = row.value;
+    if (row.key === "theme" && isTheme(row.value)) out.theme = row.value;
   }
   return out;
 }
 
+export async function getSettings(): Promise<Settings> {
+  return { ...DEFAULT_SETTINGS, ...(await getStoredSettings()) };
+}
+
 export async function setSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
   await db().settings.put({ key, value });
+}
+
+const UNSYNCED_ROW = "unsynced";
+
+/** Preference keys changed here that the account has not confirmed yet. */
+export async function getUnsyncedKeys(): Promise<Array<keyof Settings>> {
+  const row = await db().settings.get(UNSYNCED_ROW);
+  if (!Array.isArray(row?.value)) return [];
+  return SETTING_KEYS.filter((key) => (row.value as unknown[]).includes(key));
+}
+
+export async function setUnsyncedKeys(keys: Array<keyof Settings>) {
+  await db().settings.put({ key: UNSYNCED_ROW, value: [...new Set(keys)] });
+}
+
+/** Writes every key present in the patch. Used when the server copy arrives. */
+export async function putSettings(patch: Partial<Settings>) {
+  const rows = SETTING_KEYS.filter((key) => patch[key] !== undefined).map((key) => ({
+    key,
+    value: patch[key],
+  }));
+  if (rows.length) await db().settings.bulkPut(rows);
 }
 
 /** How many cards were studied for the first time today (local calendar day). */
@@ -95,7 +124,7 @@ export async function exportData(): Promise<ExportFile> {
   const [cardStates, reviews, settings] = await Promise.all([
     d.cardStates.toArray(),
     d.reviews.toArray(),
-    getSettings(),
+    getStoredSettings(),
   ]);
   return {
     app: "metastack",
@@ -141,12 +170,7 @@ export async function importData(json: string): Promise<{ cards: number; reviews
     await d.reviews.clear();
     await d.cardStates.bulkPut(parsed.cardStates);
     await d.reviews.bulkAdd(parsed.reviews);
-    if (parsed.settings?.newLimit !== undefined) {
-      await d.settings.put({ key: "newLimit", value: parsed.settings.newLimit });
-    }
-    if (parsed.settings?.mode !== undefined) {
-      await d.settings.put({ key: "mode", value: parsed.settings.mode });
-    }
+    await putSettings(parsed.settings ?? {});
   });
   return { cards: parsed.cardStates.length, reviews: parsed.reviews.length };
 }

@@ -44,19 +44,14 @@ export default async function CardPage({ params }: Props) {
         <ArrowLeft className="h-4 w-4" /> All cards
       </Link>
 
-      <article
-        className="index-card header-only mt-5 px-6 pt-5 pb-8 sm:px-9"
-        style={{ ["--rule-top" as string]: "68px" }}
-      >
+      <article className="index-card mt-5 px-6 pt-5 pb-8 sm:px-9">
         <header className="flex flex-wrap items-center gap-2">
           <Badge tone="red">{deck.title}</Badge>
           <Badge>{card.type}</Badge>
           <Badge>difficulty {card.difficulty}/3</Badge>
           <span className="ml-auto font-mono text-xs text-ink-3">#{card.id}</span>
         </header>
-        <h1 className="mt-6 font-display text-[1.6rem] leading-[1.3] font-semibold tracking-tight text-ink sm:text-[1.9rem]">
-          {card.prompt.trim()}
-        </h1>
+        <h1 className="card-prompt mt-6">{card.prompt.trim()}</h1>
 
         <section className="mt-8">
           <h2 className="text-sm font-medium text-ink-2">Key points</h2>
@@ -150,8 +145,11 @@ export default async function CardPage({ params }: Props) {
         </footer>
       </article>
 
-      <div className="mt-8 flex gap-3">
-        <ButtonLink href={`/study/${card.deck}`}>Drill the {deck.title} deck</ButtonLink>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <ButtonLink href={`/study/card/${card.id}`}>Study this card</ButtonLink>
+        <ButtonLink href={`/study/${card.deck}`} variant="outline">
+          Drill the {deck.title} deck
+        </ButtonLink>
       </div>
     </div>
   );

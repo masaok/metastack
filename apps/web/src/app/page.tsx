@@ -101,26 +101,23 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {DECKS.map((deck, i) => {
+          {DECKS.map((deck) => {
             const n = cardsForDeck(deck.slug).length;
             return (
               <Link
                 key={deck.slug}
                 href={`/study/${deck.slug}`}
-                className="index-card group flex min-h-[220px] flex-col px-6 pt-5 pb-5 transition-shadow hover:shadow-[var(--shadow-lift)]"
-                style={{
-                  ["--rule-top" as string]: "60px",
-                  transform: `rotate(${[-0.6, 0.4, -0.3][i]}deg)`,
-                }}
+                className="index-card group flex min-h-[240px] flex-col overflow-hidden transition-shadow hover:shadow-[var(--shadow-lift)]"
               >
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-display text-xl font-bold text-ink">{deck.title}</h3>
-                  <span className="shrink-0 font-mono text-sm whitespace-nowrap text-ink-3">
-                    {n} cards
-                  </span>
+                <div className="flex-1 px-6 pt-6 pb-6">
+                  <div className="flex items-center gap-2 text-xs font-medium tracking-wide text-ink-3 uppercase">
+                    <span className="text-red-ink">{deck.slug}</span>
+                    <span className="ml-auto font-mono font-normal normal-case">{n} cards</span>
+                  </div>
+                  <h3 className="mt-4 font-display text-xl font-bold text-ink">{deck.title}</h3>
+                  <p className="mt-2 text-[0.95rem] leading-relaxed text-ink-2">{deck.blurb}</p>
                 </div>
-                <p className="mt-6 text-[0.95rem] leading-relaxed text-ink-2">{deck.blurb}</p>
-                <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-red-ink">
+                <span className="inline-flex items-center gap-1.5 border-t border-rule/60 bg-paper-2/70 px-6 py-3.5 text-sm font-medium text-red-ink">
                   Drill this deck
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
