@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/web/src/app/icon.svg" width="88" height="88" alt="MetaStack logo: a stack of three index cards" />
+  <img src="apps/web/src/app/icon.svg" width="88" height="88" alt="MetaStack logo: the letters MS on a stacked flashcard" />
 </p>
 
 <h1 align="center">MetaStack</h1>

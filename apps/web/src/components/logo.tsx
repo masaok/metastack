@@ -1,19 +1,48 @@
+import { useId } from "react";
+
 import { cn } from "@/lib/utils";
 
 /**
- * The mark is a stack of three flashcards. The front card is solid, with
- * the red rule of an index card. The two behind it show only their top
- * and right edges.
+ * The mark is a flashcard with MS cut out of it, on top of a second card
+ * that shows only its red top and right edge. The S is three stacked bars.
  */
+const MONOGRAM =
+  "M5 24.5V11.5l3.5 5.5 3.5-5.5v13M23.5 11.5H19.75a3.25 3.25 0 0 0 0 6.5h1a3.25 3.25 0 0 1 0 6.5H17";
+
 export function Logo({ className, title = "MetaStack" }: { className?: string; title?: string }) {
+  const id = useId().replace(/:/g, "");
+
   return (
     <svg viewBox="0 0 32 32" role="img" aria-label={title} className={cn("block", className)}>
-      <g fill="none" stroke="var(--ink, #15203a)" strokeWidth="2" strokeLinecap="round">
-        <path d="M12 5H27a3 3 0 0 1 3 3V19" opacity="0.35" />
-        <path d="M8 9H23a3 3 0 0 1 3 3V23" opacity="0.6" />
-      </g>
-      <rect x="2" y="12" width="21" height="17" rx="3" fill="var(--ink, #15203a)" />
-      <rect x="2" y="16.5" width="21" height="2" fill="var(--red, #e2505c)" />
+      <defs>
+        <mask id={`${id}-cut`}>
+          <rect x="1" y="5" width="27" height="26" rx="4" fill="#fff" />
+          <path
+            d={MONOGRAM}
+            fill="none"
+            stroke="#000"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </mask>
+      </defs>
+      <path
+        d="M8 2H27a4 4 0 0 1 4 4V24"
+        fill="none"
+        stroke="var(--red, #e2505c)"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <rect
+        x="1"
+        y="5"
+        width="27"
+        height="26"
+        rx="4"
+        fill="var(--ink, #15203a)"
+        mask={`url(#${id}-cut)`}
+      />
     </svg>
   );
 }
