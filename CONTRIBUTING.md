@@ -26,6 +26,11 @@ keyPoints:
   - On a miss the application writes the result back to the cache
   - Writes go to the store and invalidate (not update) the cache entry
   - A read racing a write can repopulate the cache with a stale value
+eli5: # optional; one plain-language line per key point, same order
+  - Look in the fridge first, and only go to the shop when the fridge is empty
+  - Whatever you bring back from the shop goes in the fridge for next time
+  - When the shop changes a product, throw out your old one instead of patching it
+  - Restock at the wrong moment and you put the old product back in the fridge
 followUps:
   - How would you shorten the stale window?
 references:
@@ -44,6 +49,7 @@ Rules the validator enforces (`pnpm validate`):
 - `id` is kebab-case, unique, and matches the filename.
 - `deck` matches the folder: `fundamentals`, `estimation`, or `designs`.
 - `keyPoints` has 3 to 6 entries. `followUps` has at most 5.
+- `eli5` is optional. When present it has exactly one entry per key point.
 - At least one reference with a public URL.
 - Tags come from the closed vocabulary in `packages/content/src/schema.ts`. Add a tag there in the same PR if you really need one.
 - `type: design` cards must include `stages` (3 to 8), each with a name and its own key points. Non-design cards must not.

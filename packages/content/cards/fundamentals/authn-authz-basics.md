@@ -13,6 +13,12 @@ keyPoints:
   - JWTs cannot be revoked before expiry without reintroducing state, so keep them short lived and pair with refresh tokens
   - Store tokens in HttpOnly, Secure, SameSite cookies for browsers to limit XSS exposure
   - Authorisation is separate, check permissions on every request against the resource, not just the token's validity
+eli5:
+  - A session is a coat check ticket. The number means nothing by itself, and the desk can tear up its half whenever it likes
+  - A JWT is a stamped wristband. Any door can check the stamp without phoning the front desk
+  - A wristband works until it wears off, so make it wear off quickly and hand out a new one at the desk
+  - Keep the ticket in a locked pocket that page scripts cannot reach into
+  - Knowing who you are is not the same as letting you in. Each door still checks whether you may enter that room
 followUps:
   - How would you rotate signing keys without logging everyone out?
   - Where do you put authorization checks in a microservice architecture?

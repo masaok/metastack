@@ -22,6 +22,7 @@ Enforced in `packages/content/src/schema.ts` and `compile.ts`:
 - `deck` equal to the folder and one of the known slugs
 - `type` in `concept | tradeoff | estimation | design | failure`
 - 3–6 `keyPoints`; at most 5 `followUps`; at least one `reference` with a URL
+- optional `eli5`, one plain-language entry per key point
 - tags from a closed vocabulary
 - `design` cards have 3–8 `stages`, each with its own key points; other types must not
 - `estimation` cards carry the `estimation` tag

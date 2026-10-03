@@ -64,6 +64,8 @@ export const frontMatterSchema = z
     tags: z.array(z.enum(TAGS)).min(1).max(5),
     prompt: z.string().min(10),
     keyPoints: z.array(z.string().min(1)).min(3).max(6),
+    /** A plain-language restatement of each key point, in the same order. */
+    eli5: z.array(z.string().min(1)).optional(),
     followUps: z.array(z.string().min(1)).max(5).default([]),
     references: z.array(referenceSchema).min(1),
     stages: z.array(stageSchema).min(3).max(8).optional(),
@@ -71,6 +73,13 @@ export const frontMatterSchema = z
     reviewed: z.boolean().default(false),
   })
   .superRefine((card, ctx) => {
+    if (card.eli5 && card.eli5.length !== card.keyPoints.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["eli5"],
+        message: "eli5 must have one entry per key point",
+      });
+    }
     if (card.type === "design" && !card.stages) {
       ctx.addIssue({
         code: "custom",

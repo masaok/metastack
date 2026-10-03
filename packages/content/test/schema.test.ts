@@ -35,6 +35,14 @@ describe("frontMatterSchema", () => {
     ).toBe(false);
   });
 
+  it("accepts eli5 only when it has one entry per key point", () => {
+    expect(frontMatterSchema.parse(valid).eli5).toBeUndefined();
+    expect(frontMatterSchema.safeParse({ ...valid, eli5: ["a", "b", "c"] }).success).toBe(true);
+    const short = frontMatterSchema.safeParse({ ...valid, eli5: ["a", "b"] });
+    expect(short.success).toBe(false);
+    expect(short.error?.issues[0]?.path).toEqual(["eli5"]);
+  });
+
   it("requires at least one reference with a real URL", () => {
     expect(frontMatterSchema.safeParse({ ...valid, references: [] }).success).toBe(false);
     expect(

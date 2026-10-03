@@ -620,7 +620,15 @@ export function StudySession({
                         ) : (
                           <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
                         )}
-                        <span className={cn("leading-snug", on && "text-ink-2")}>{kp}</span>
+                        <span className={cn("leading-snug", on && "text-ink-2")}>
+                          {kp}
+                          {current.eli5?.[i] && (
+                            <span className="mt-1 block text-sm text-ink-2">
+                              <span className="sr-only">In plain words: </span>
+                              {current.eli5[i]}
+                            </span>
+                          )}
+                        </span>
                         {settings.mode === "rubric" && i < 9 && (
                           <Kbd className="mt-0.5 ml-auto hidden sm:inline-flex">{i + 1}</Kbd>
                         )}

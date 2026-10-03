@@ -56,9 +56,15 @@ export default async function CardPage({ params }: Props) {
         <section className="mt-8">
           <h2 className="text-sm font-medium text-ink-2">Key points</h2>
           <ol className="mt-3 list-decimal space-y-1.5 pl-5">
-            {card.keyPoints.map((kp) => (
+            {card.keyPoints.map((kp, i) => (
               <li key={kp} className="leading-snug">
                 {kp}
+                {card.eli5?.[i] && (
+                  <span className="mt-1 block text-sm text-ink-2">
+                    <span className="sr-only">In plain words: </span>
+                    {card.eli5[i]}
+                  </span>
+                )}
               </li>
             ))}
           </ol>
