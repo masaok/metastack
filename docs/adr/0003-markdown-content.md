@@ -1,6 +1,8 @@
 # ADR 0003: Markdown with front matter for card content
 
-Date: 2026-10-02 · Status: accepted
+Date: 2026-10-02 · Status: accepted, amended by [0005](0005-cards-in-the-database.md)
+
+The format and the validation rules below still hold. Since 0005 the files are the seed for the `cards` table, and the app reads cards from the database.
 
 ## Context
 

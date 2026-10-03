@@ -2,13 +2,14 @@
   "name": "@metastack/content",
   "version": "0.1.0",
   "private": true,
-  "description": "The MetaStack question bank: Markdown cards validated by Zod and compiled to JSON at build time.",
+  "description": "The MetaStack question bank: Markdown cards validated by Zod and compiled to the JSON seed for the database.",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./schema": "./src/schema.ts"
+    "./schema": "./src/schema.ts",
+    "./seed": "./src/seed.ts"
   },
   "scripts": {
     "compile": "tsx scripts/compile.ts",

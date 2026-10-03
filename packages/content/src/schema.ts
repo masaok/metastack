@@ -114,6 +114,11 @@ export interface Card extends Omit<FrontMatter, "updated"> {
   body: string;
 }
 
+/** The compiled form of validated front matter plus its Markdown body. */
+export function toCard(frontMatter: FrontMatter, body: string): Card {
+  return { ...frontMatter, updated: frontMatter.updated.toISOString().slice(0, 10), body };
+}
+
 export interface Deck {
   slug: DeckSlug;
   title: string;

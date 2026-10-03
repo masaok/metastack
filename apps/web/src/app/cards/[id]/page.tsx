@@ -3,24 +3,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { cards, getCard, getDeck } from "@metastack/content";
+import { getDeck } from "@metastack/content";
 
 import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
+import { loadCard, loadCards } from "@/lib/server/cards";
 import { GITHUB_URL } from "@/lib/utils";
 
 type Props = { params: Promise<{ id: string }> };
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return cards.map((c) => ({ id: c.id }));
+export async function generateStaticParams() {
+  return (await loadCards()).map((c) => ({ id: c.id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const card = getCard(id);
+  const card = await loadCard(id);
   if (!card) return {};
   return {
     title: card.prompt.trim().slice(0, 80),
@@ -30,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CardPage({ params }: Props) {
   const { id } = await params;
-  const card = getCard(id);
+  const card = await loadCard(id);
   if (!card) notFound();
   const deck = getDeck(card.deck)!;
   const sourcePath = `packages/content/cards/${card.deck}/${card.id}.md`;

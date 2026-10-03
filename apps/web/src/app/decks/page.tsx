@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
 
-import { cardIdsForDeck, DECKS } from "@metastack/content";
+import { cardsForDeck, DECKS } from "@metastack/content";
 
 import { DeckGrid } from "@/components/deck-grid";
 import { ButtonLink } from "@/components/ui/button";
+import { loadCards } from "@/lib/server/cards";
 
 export const metadata: Metadata = {
   title: "Decks",
   description: "Pick a deck. Due and new counts come from your progress in this browser.",
 };
 
-export default function DecksPage() {
-  const decks = DECKS.map((d) => ({ ...d, cardIds: cardIdsForDeck(d.slug) }));
+export default async function DecksPage() {
+  const cards = await loadCards();
+  const decks = DECKS.map((d) => ({
+    ...d,
+    cardIds: cardsForDeck(cards, d.slug).map((card) => card.id),
+  }));
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex flex-wrap items-end justify-between gap-4">

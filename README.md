@@ -48,7 +48,8 @@ pnpm validate      # lint every card against the schema
 pnpm test          # unit tests for the scheduler and content pipeline
 pnpm test:coverage # same, enforcing 100% on packages/srs
 pnpm e2e           # Playwright drill-flow tests
-pnpm build         # static production build
+pnpm build         # production build
+pnpm db:seed       # write the repository's cards into the configured database
 ```
 
 ## How it works
@@ -56,14 +57,15 @@ pnpm build         # static production build
 ```mermaid
 flowchart LR
   md["packages/content/cards/**/*.md<br/>Markdown + YAML front matter"] -->|zod validate| json["generated/cards.json"]
-  json --> web["apps/web (Next.js, static export)"]
+  json -->|seed| neon[("Neon<br/>cards")]
+  neon --> web["apps/web (Next.js)"]
   srs["packages/srs<br/>FSRS wrapper, pure functions"] --> web
   web -->|reads / writes| idb[("IndexedDB<br/>card states, reviews, settings")]
   idb -->|export / import| file["JSON file"]
 ```
 
 1. Cards are Markdown files with front matter. A compile step validates them with [zod](https://zod.dev) (closed tag vocabulary, 3–6 key points, at least one public reference, `reviewed: true`) and writes a JSON bundle. Invalid cards fail the build.
-2. The web app imports that bundle and pre-renders every page.
+2. That bundle seeds the `cards` table in Neon. The web app reads cards from the database and pre-renders every page, refreshing them in the background. With no database configured it serves the bundle directly, so a fork runs with `pnpm dev` alone.
 3. In the browser, `buildSession` merges due reviews with new cards (default limit 10/day), `ratingFromRubric` maps your tick count to a rating, and `rate` asks FSRS for the next due date.
 
 Read more in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the [ADRs](docs/adr).
@@ -76,7 +78,7 @@ SM-2 (1987) multiplies the interval by a fixed ease factor. FSRS fits a three-co
 
 ```
 apps/web/              Next.js 16 app (App Router, Tailwind v4, Dexie)
-packages/content/      cards/*.md, schema, compiler, validator
+packages/content/      cards/*.md (the database seed), schema, compiler, validator
 packages/srs/          FSRS wrapper: createCardState, rate, buildSession, ...
 docs/                  architecture notes and ADRs
 scripts/check-public.sh  CI guardrail for a public repository

@@ -1,7 +1,8 @@
-import { cards, DECKS } from "@metastack/content";
+import { DECKS } from "@metastack/content";
 
 import { AdminOverview } from "@/components/admin/admin-overview";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { loadCards } from "@/lib/server/cards";
 import { loadSiteOverview } from "@/lib/server/site";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export const metadata = {
 
 export default async function AdminPage() {
   const user = await requireAdmin();
-  const site = await loadSiteOverview();
+  const [site, cards] = await Promise.all([loadSiteOverview(), loadCards()]);
 
   return (
     <AdminOverview

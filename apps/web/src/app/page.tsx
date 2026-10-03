@@ -1,11 +1,12 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-import { cards, cardsForDeck, DECKS, getCard } from "@metastack/content";
+import { cardsForDeck, DECKS } from "@metastack/content";
 
 import { HeroCard } from "@/components/hero-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
+import { loadCards } from "@/lib/server/cards";
 import { GITHUB_URL } from "@/lib/utils";
 
 const HERO_CARD_ID = "caching-write-strategies";
@@ -25,8 +26,9 @@ const steps = [
   },
 ];
 
-export default function HomePage() {
-  const hero = getCard(HERO_CARD_ID) ?? cards[0]!;
+export default async function HomePage() {
+  const cards = await loadCards();
+  const hero = cards.find((card) => card.id === HERO_CARD_ID) ?? cards[0];
   const total = cards.length;
 
   return (
@@ -57,9 +59,7 @@ export default function HomePage() {
               <Kbd>1</Kbd>–<Kbd>9</Kbd> to tick points, <Kbd>enter</Kbd> to rate.
             </p>
           </div>
-          <div className="pt-12 lg:pt-6">
-            <HeroCard card={hero} />
-          </div>
+          <div className="pt-12 lg:pt-6">{hero && <HeroCard card={hero} />}</div>
         </div>
       </section>
 
@@ -102,7 +102,7 @@ export default function HomePage() {
         </div>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {DECKS.map((deck) => {
-            const n = cardsForDeck(deck.slug).length;
+            const n = cardsForDeck(cards, deck.slug).length;
             return (
               <Link
                 key={deck.slug}

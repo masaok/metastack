@@ -1,5 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 
+import { CARDS_TABLE } from "../src/lib/cards/store";
+
 const url = process.env.NEON_URL ?? process.env.DATABASE_URL;
 if (!url) throw new Error("NEON_URL or DATABASE_URL is not set");
 
@@ -48,6 +50,7 @@ const statements = [
     mode TEXT NOT NULL DEFAULT 'rubric',
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
+  CARDS_TABLE,
 ];
 
 async function main() {

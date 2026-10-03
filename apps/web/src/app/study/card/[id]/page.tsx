@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { cards, getCard } from "@metastack/content";
+import { loadCard, loadCards } from "@/lib/server/cards";
 
 type Props = { params: Promise<{ id: string }> };
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return cards.map((card) => ({ id: card.id }));
+export async function generateStaticParams() {
+  return (await loadCards()).map((card) => ({ id: card.id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const card = getCard(id);
+  const card = await loadCard(id);
   if (!card) return {};
   return {
     title: card.id,
@@ -24,6 +22,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /** The session UI lives in the study layout so moving between cards stays one mount. */
 export default async function StudyCardPage({ params }: Props) {
   const { id } = await params;
-  if (!getCard(id)) notFound();
+  if (!(await loadCard(id))) notFound();
   return null;
 }

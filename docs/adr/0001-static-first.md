@@ -1,6 +1,8 @@
 # ADR 0001: Static first, no backend
 
-Date: 2026-10-02 · Status: accepted
+Date: 2026-10-02 · Status: accepted, amended by [0005](0005-cards-in-the-database.md)
+
+Since 0005 the app reads card content from Neon when a database is configured. With none configured it still runs as described here.
 
 ## Context
 

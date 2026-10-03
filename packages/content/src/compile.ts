@@ -1,15 +1,15 @@
 /**
  * Build-time compiler: reads `cards/<deck>/<id>.md`, validates each file with
  * the Zod schema, enforces cross-file invariants, and returns the compiled
- * card list. Used by `scripts/compile.ts` (writes JSON) and `scripts/validate.ts`
- * (CI gate). Node-only; the web app never imports this module.
+ * card list. Used by `scripts/compile.ts` (writes the seed JSON) and
+ * `scripts/validate.ts` (CI gate). Node-only; the web app never imports this module.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 
 import matter from "gray-matter";
 
-import { DECK_SLUGS, frontMatterSchema, type Card } from "./schema";
+import { DECK_SLUGS, frontMatterSchema, toCard, type Card } from "./schema";
 
 export interface CompileIssue {
   file: string;
@@ -82,11 +82,7 @@ export function compileSource(
       issues.push({ file, message: "model answer body is too short (min 40 characters)" });
     }
 
-    cards.push({
-      ...fm,
-      updated: fm.updated.toISOString().slice(0, 10),
-      body,
-    });
+    cards.push(toCard(fm, body));
   }
 
   for (const slug of DECK_SLUGS) {

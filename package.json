@@ -10,6 +10,7 @@
     "start": "pnpm --filter @metastack/web start",
     "compile": "pnpm --filter @metastack/content compile",
     "validate": "pnpm --filter @metastack/content validate",
+    "db:seed": "pnpm --filter @metastack/web db:seed",
     "typecheck": "pnpm compile && pnpm -r typecheck",
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r --if-present lint:fix",

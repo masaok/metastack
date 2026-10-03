@@ -16,6 +16,7 @@ This is a **public, MIT-licensed** repository. Everything you write here will be
 
 - pnpm workspace. `apps/web` is a Next.js 16 App Router app (Turbopack, Tailwind v4, Dexie). `packages/content` holds the cards and their compiler. `packages/srs` wraps ts-fsrs in pure functions.
 - The content package must be compiled before the app runs: `pnpm compile` writes `packages/content/generated/cards.json` (gitignored). `pnpm dev` and `pnpm build` do this automatically.
+- The app reads cards from the Neon `cards` table through `loadCards()` in `apps/web/src/lib/server/cards.ts`. The Markdown cards are the seed: `pnpm db:seed` upserts them, an empty table fills itself from them, and with no database configured they are served directly. Client components get cards as props and never import card content.
 - `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` must all pass before a PR. `packages/srs` enforces 100% coverage.
 - Next 16 specifics: `params` is a Promise; `next lint` no longer exists (use `eslint`); the favicon is `apps/web/src/app/icon.svg`.
 

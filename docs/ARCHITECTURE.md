@@ -1,13 +1,15 @@
 # Architecture
 
-MetaStack is a static site plus a browser database. There is no server at runtime.
+MetaStack is a Next.js site that reads its cards from Neon Postgres and keeps each person's progress in a browser database. With no database configured it serves the cards that ship in the repository.
 
 ```mermaid
 flowchart TB
-  subgraph build["Build time"]
+  subgraph build["Seed"]
     md["cards/**/*.md"] --> compile["compile.ts<br/>gray-matter + zod"]
     compile --> json["generated/cards.json<br/>(reviewed cards only)"]
-    json --> next["next build<br/>75 static pages"]
+    json -->|"pnpm db:seed, or first read of an empty table"| neon[("Neon<br/>cards")]
+    neon --> next["Next.js server<br/>pre-rendered, refreshed every 5 minutes"]
+    json -.->|"no database configured"| next
   end
   subgraph browser["Browser"]
     page["/study, /decks, /cards, /settings"]
@@ -27,7 +29,8 @@ flowchart TB
 - `src/schema.ts`: zod schema, deck slugs, card types, tag vocabulary. The single source of truth for what a card is.
 - `src/compile.ts`: reads a directory, validates every file, checks cross-file invariants (unique ids, id matches filename, deck matches folder, every deck non-empty).
 - `scripts/compile.ts`: writes `generated/cards.json` containing only `reviewed: true` cards. Exits non-zero on any issue. Runs before `next dev` and `next build`.
-- `src/index.ts`: imports the JSON and exposes typed accessors (`cards`, `getCard`, `cardsForDeck`, `tagCounts`). No filesystem access, so it is safe in the browser bundle.
+- `src/seed.ts`: imports that JSON as `seedCards`. Server-side only: it fills the database and stands in for it when none is configured.
+- `src/index.ts`: the schema, the decks and pure helpers over a list of cards (`cardsForDeck`, `tagCounts`). It holds no card content, so it is safe in the browser bundle.
 
 ### `packages/srs`
 
@@ -50,7 +53,8 @@ Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync ar
 
 - `lib/db.ts`: Dexie schema (`cardStates`, `reviews`, `settings`), export/import, daily new-card counting (local day). IndexedDB remains the working copy while you study.
 - `lib/auth/`: GitHub OAuth (`GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`) and a signed session cookie (`AUTH_SECRET`).
-- `lib/server/`: Neon Postgres (`NEON_URL` or `DATABASE_URL`). Tables `users`, `card_states`, `reviews`, `settings`. Created on first use.
+- `lib/server/`: Neon Postgres (`NEON_URL` or `DATABASE_URL`). Tables `users`, `card_states`, `reviews`, `settings`, `cards`. Created on first use.
+- `lib/server/cards.ts`: `loadCards()` and `loadCard(id)`, the only way pages get cards. `lib/cards/store.ts` holds the table definition and the queries, and is shared with `scripts/seed-cards.ts`.
 - `lib/progress/merge.ts`: last-write-wins per card, union of reviews. Used on sign-in to merge browser and server copies.
 - `components/study/session.tsx`: the drill loop. After each rating it writes IndexedDB, then posts the review to `/api/progress/review` if a session cookie is present.
 - `components/markdown.tsx` + `mermaid-block.tsx`: react-markdown with GFM; Mermaid fences are rendered client-side with a lazily loaded Mermaid bundle, themed to match light/dark.
@@ -58,6 +62,8 @@ Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync ar
 - Theme is a `data-theme` attribute set by an inline script before paint. The script reads a `localStorage` cache. `lib/theme.ts` writes that cache and the attribute.
 
 ## Key flows
+
+**Cards.** Every page that shows cards calls `loadCards()` on the server. It reads the reviewed rows of the `cards` table, caches the result for five minutes, and fills an empty table from the seed. Client components never import card content; the study layout passes the list to the session as a prop. `pnpm db:seed` upserts the repository's cards into the database by id. See [ADR 0005](adr/0005-cards-in-the-database.md).
 
 **Session build.** `/study` passes all card ids; `/study/[deck]` passes that deck's ids. The client reads matching `cardStates`, counts how many new cards were introduced today (reviews whose `previousState` was `new` and whose `reviewedAt` is today), and calls `buildSession`. The queue is due cards sorted by due date, then shuffled new cards up to `newLimit - introducedToday`.
 
@@ -92,3 +98,4 @@ See the ADRs in [`docs/adr`](adr):
 - [0002 FSRS over SM-2](adr/0002-fsrs-over-sm2.md)
 - [0003 Markdown + front matter for content](adr/0003-markdown-content.md)
 - [0004 Monorepo layout](adr/0004-monorepo-layout.md)
+- [0005 Cards are served from the database](adr/0005-cards-in-the-database.md)

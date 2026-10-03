@@ -1,15 +1,17 @@
 import type { MetadataRoute } from "next";
 
-import { cards, DECKS } from "@metastack/content";
+import { DECKS } from "@metastack/content";
 
 import { getPublishedPosts } from "@/lib/blog/load";
 import { BLOG_PATH, postPath } from "@/lib/blog/schema";
+import { loadCards } from "@/lib/server/cards";
 
 export const dynamic = "force-static";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.metastack.app";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const cards = await loadCards();
   const posts = getPublishedPosts();
   const newest = posts[0]?.updatedAt ?? posts[0]?.publishedAt;
   const statics: MetadataRoute.Sitemap = ["/", "/study", "/decks", "/cards", "/settings"].map(

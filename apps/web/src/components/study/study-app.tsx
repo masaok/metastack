@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { cards, cardsForDeck, getCard, getDeck, isDeckSlug, type Card } from "@metastack/content";
+import { cardsForDeck, getDeck, isDeckSlug, type Card } from "@metastack/content";
 
 import { StudySession } from "@/components/study/session";
 import { parseStudyPath, studyCardPath, type StudyRoute } from "@/lib/study-url";
@@ -18,8 +18,11 @@ type SessionModel = {
   mode: "queue" | "single";
 };
 
-function singleModel(id: string): SessionModel | null {
-  const card = getCard(id);
+/** Every card the server loaded, with a lookup by id. */
+type Bank = { cards: readonly Card[]; byId: ReadonlyMap<string, Card> };
+
+function singleModel(bank: Bank, id: string): SessionModel | null {
+  const card = bank.byId.get(id);
   if (!card) return null;
   const deck = getDeck(card.deck);
   return {
@@ -34,6 +37,7 @@ function singleModel(id: string): SessionModel | null {
 }
 
 function poolModel(
+  bank: Bank,
   route: Extract<StudyRoute, { kind: "all" | "deck" }>,
   generation: number,
 ): SessionModel | null {
@@ -44,7 +48,7 @@ function poolModel(
       key: `queue:all:${generation}`,
       generation,
       entry,
-      cards: [...cards],
+      cards: [...bank.cards],
       title: "All decks",
       scope,
       mode: "queue",
@@ -57,21 +61,21 @@ function poolModel(
     key: `queue:${scope}:${generation}`,
     generation,
     entry,
-    cards: cardsForDeck(scope),
+    cards: cardsForDeck(bank.cards, scope),
     title: deck.title,
     scope,
     mode: "queue",
   };
 }
 
-function modelFor(route: StudyRoute, generation: number): SessionModel | null {
-  if (route.kind === "card") return singleModel(route.id);
-  return poolModel(route, generation);
+function modelFor(bank: Bank, route: StudyRoute, generation: number): SessionModel | null {
+  if (route.kind === "card") return singleModel(bank, route.id);
+  return poolModel(bank, route, generation);
 }
 
-function routeIsValid(route: StudyRoute): boolean {
+function routeIsValid(bank: Bank, route: StudyRoute): boolean {
   if (route.kind === "deck") return isDeckSlug(route.deck);
-  if (route.kind === "card") return getCard(route.id) !== undefined;
+  if (route.kind === "card") return bank.byId.has(route.id);
   return true;
 }
 
@@ -79,16 +83,20 @@ function routeIsValid(route: StudyRoute): boolean {
  * One study session for every `/study` URL. The component stays mounted while
  * the address moves from card to card, so Back restores the previous card.
  */
-export function StudyApp() {
+export function StudyApp({ cards }: { cards: readonly Card[] }) {
   const pathname = usePathname();
   const route = parseStudyPath(pathname);
+  const bank = useMemo<Bank>(
+    () => ({ cards, byId: new Map(cards.map((card) => [card.id, card])) }),
+    [cards],
+  );
   const [prevPath, setPrevPath] = useState(pathname);
   const [queueIds, setQueueIds] = useState<string[]>([]);
   const [model, setModel] = useState<SessionModel | null>(() =>
-    route && routeIsValid(route) ? modelFor(route, 1) : null,
+    route && routeIsValid(bank, route) ? modelFor(bank, route, 1) : null,
   );
 
-  if (!route || !routeIsValid(route)) return null;
+  if (!route || !routeIsValid(bank, route)) return null;
 
   let display = model;
   if (pathname !== prevPath) {
@@ -96,8 +104,8 @@ export function StudyApp() {
     const next = keep
       ? model
       : route.kind === "card"
-        ? singleModel(route.id)
-        : poolModel(route, (model?.generation ?? 0) + 1);
+        ? singleModel(bank, route.id)
+        : poolModel(bank, route, (model?.generation ?? 0) + 1);
     setPrevPath(pathname);
     setModel(next);
     if (!keep) setQueueIds(route.kind === "card" ? (next?.cards.map((card) => card.id) ?? []) : []);
@@ -115,6 +123,7 @@ export function StudyApp() {
   return (
     <StudySessionHost
       model={display}
+      bank={bank.cards}
       activeId={route.kind === "card" ? route.id : undefined}
       queueIds={queueIds}
       onQueue={setQueueIds}
@@ -124,11 +133,13 @@ export function StudyApp() {
 
 function StudySessionHost({
   model,
+  bank,
   activeId,
   queueIds,
   onQueue,
 }: {
   model: SessionModel;
+  bank: readonly Card[];
   activeId?: string;
   queueIds: string[];
   onQueue: (ids: string[]) => void;
@@ -150,6 +161,7 @@ function StudySessionHost({
     <StudySession
       key={model.key}
       cards={model.cards}
+      bank={bank}
       title={model.title}
       scope={model.scope}
       activeId={activeId}

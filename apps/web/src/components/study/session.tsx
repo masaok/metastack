@@ -121,12 +121,15 @@ async function loadFixed(cardIds: string[]) {
 
 export function StudySession({
   cards,
+  bank,
   title,
   scope = "all",
   activeId,
   onQueue,
 }: {
   cards: Card[];
+  /** Every card, for stepping through a deck from a card opened by its own URL. */
+  bank: readonly Card[];
   title: string;
   scope?: string;
   /** Card named by the URL. Absent while a fresh session is still at `/study`. */
@@ -254,10 +257,10 @@ export function StudySession({
   const neighbors = useMemo(() => {
     if (!currentId || !current) return { prev: undefined, next: undefined };
     if (scope !== "card") return { prev: queue[index - 1], next: queue[index + 1] };
-    const siblings = cardsForDeck(current.deck).map((card) => card.id);
+    const siblings = cardsForDeck(bank, current.deck).map((card) => card.id);
     const at = siblings.indexOf(currentId);
     return { prev: siblings[at - 1], next: siblings[at + 1] };
-  }, [current, currentId, index, queue, scope]);
+  }, [bank, current, currentId, index, queue, scope]);
 
   // Move without rating. Nothing is saved, so the card stays due.
   const skipTo = useCallback(

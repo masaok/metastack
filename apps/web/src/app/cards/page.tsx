@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 
-import { cards, DECKS, tagCounts } from "@metastack/content";
+import { DECKS, tagCounts } from "@metastack/content";
 
 import { CardBrowser, type CardSummary } from "@/components/card-browser";
+import { loadCards } from "@/lib/server/cards";
 
 export const metadata: Metadata = {
   title: "Cards",
   description: "Browse and search every card in the question bank.",
 };
 
-export default function CardsPage() {
+export default async function CardsPage() {
+  const cards = await loadCards();
   const summaries: CardSummary[] = cards.map((c) => ({
     id: c.id,
     deck: c.deck,
@@ -27,7 +29,7 @@ export default function CardsPage() {
       <div className="mt-10">
         <CardBrowser
           cards={summaries}
-          tags={tagCounts()}
+          tags={tagCounts(cards)}
           decks={DECKS.map((d) => ({ slug: d.slug, title: d.title }))}
         />
       </div>

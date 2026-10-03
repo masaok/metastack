@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DECKS, getDeck, isDeckSlug } from "../src/decks";
-import { frontMatterSchema, type FrontMatterInput } from "../src/schema";
+import { frontMatterSchema, toCard, type FrontMatterInput } from "../src/schema";
 
 const valid: FrontMatterInput = {
   id: "caching-write-strategies",
@@ -21,6 +21,13 @@ describe("frontMatterSchema", () => {
     expect(card.followUps).toEqual([]);
     expect(card.reviewed).toBe(false);
     expect(card.updated).toBeInstanceOf(Date);
+  });
+
+  it("turns front matter and a body into a card with a plain date", () => {
+    const card = toCard(frontMatterSchema.parse(valid), "The model answer.");
+    expect(card.updated).toBe("2026-10-02");
+    expect(card.body).toBe("The model answer.");
+    expect(card.id).toBe(valid.id);
   });
 
   it("rejects ids that are not kebab-case", () => {

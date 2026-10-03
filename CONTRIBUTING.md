@@ -55,7 +55,8 @@ Rules the validator enforces (`pnpm validate`):
 - `type: design` cards must include `stages` (3 to 8), each with a name and its own key points. Non-design cards must not.
 - `type: estimation` cards must carry the `estimation` tag.
 - Body is at least 40 characters.
-- Only cards with `reviewed: true` are compiled into the app. Open your PR with `reviewed: false`; a maintainer flips it after review.
+- Only cards with `reviewed: true` are compiled into the seed. Open your PR with `reviewed: false`; a maintainer flips it after review.
+- The live site reads cards from its database. A merged card appears there once a maintainer runs `pnpm db:seed`.
 
 Rules a human enforces:
 

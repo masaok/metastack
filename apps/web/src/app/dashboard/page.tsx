@@ -1,9 +1,10 @@
-import { cards, DECKS, getDeck } from "@metastack/content";
+import { DECKS, getDeck } from "@metastack/content";
 
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { SyncAfterLogin } from "@/components/dashboard/sync-after-login";
 import { getSession } from "@/lib/auth/session";
 import { buildDashboardRows } from "@/lib/dashboard/rows";
+import { loadCards } from "@/lib/server/cards";
 import { loadProgress } from "@/lib/server/progress";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,7 @@ export const metadata = {
 
 export default async function DashboardPage() {
   const user = await getSession();
-  const progress = user ? await loadProgress(user.id) : null;
+  const [progress, cards] = await Promise.all([user ? loadProgress(user.id) : null, loadCards()]);
   const rows = buildDashboardRows(
     cards.map((card) => ({
       id: card.id,
