@@ -1,17 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="7" fill="#15203a"/>
-  <mask id="peek">
-    <rect x="6" y="2" width="24" height="22" rx="3.5" fill="#ffffff"/>
-    <rect x="2" y="6" width="26" height="24" rx="3.5" fill="#000000"/>
-  </mask>
-  <rect x="6" y="2" width="24" height="22" rx="3.5" fill="#ffffff" opacity="0.55" mask="url(#peek)"/>
-  <mask id="cut">
-    <rect x="2" y="6" width="26" height="24" rx="3.5" fill="#ffffff"/>
-    <path d="M8 27.2V8.6H12.2L17 17.5L21.8 8.6H26V27.2H21.8V15.2L17 22.4L12.2 15.2V27.2Z" fill="#000000"/>
-  </mask>
-  <rect x="2" y="6" width="26" height="24" rx="3.5" fill="#ffffff" mask="url(#cut)"/>
-  <clipPath id="card">
-    <rect x="2" y="6" width="26" height="24" rx="3.5"/>
-  </clipPath>
-  <rect x="2" y="6" width="4.2" height="24" fill="#e2505c" clip-path="url(#card)"/>
+  <g transform="translate(2.8 2.8) scale(0.8)">
+    <path d="M12 5H27a3 3 0 0 1 3 3V19" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+    <path d="M8 9H23a3 3 0 0 1 3 3V23" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <rect x="2" y="12" width="21" height="17" rx="3" fill="#ffffff"/>
+    <rect x="2" y="16.5" width="21" height="2" fill="#e2505c"/>
+  </g>
 </svg>

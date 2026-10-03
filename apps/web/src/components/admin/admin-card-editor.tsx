@@ -16,6 +16,7 @@ import {
 } from "@metastack/content";
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { Markdown } from "@/components/markdown";
 import { Button } from "@/components/ui/button";
 import type { SessionUser } from "@/lib/sync";
 import { cn } from "@/lib/utils";
@@ -132,6 +133,7 @@ export function AdminCardEditor({
   const [issues, setIssues] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "deleting">("idle");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [answerView, setAnswerView] = useState<"write" | "preview">("write");
   const busy = status === "saving" || status === "deleting";
 
   function change(patch: Partial<Draft>) {
@@ -418,13 +420,42 @@ export function AdminCardEditor({
               title="Model answer"
               description="Markdown. Mermaid code fences render as diagrams."
             >
-              <textarea
-                value={draft.body}
-                onChange={(event) => change({ body: event.target.value })}
-                rows={16}
-                aria-label="Model answer"
-                className={cn(INPUT, "font-mono")}
-              />
+              <div
+                role="group"
+                aria-label="Model answer view"
+                className="inline-flex rounded-full border border-rule p-0.5 text-xs"
+              >
+                {(["write", "preview"] as const).map((view) => (
+                  <button
+                    key={view}
+                    type="button"
+                    onClick={() => setAnswerView(view)}
+                    aria-pressed={answerView === view}
+                    className={cn(
+                      "rounded-full px-2.5 py-1 capitalize",
+                      answerView === view ? "bg-ink text-bg" : "text-ink-2 hover:text-ink",
+                    )}
+                  >
+                    {view}
+                  </button>
+                ))}
+              </div>
+              {answerView === "write" ? (
+                <textarea
+                  value={draft.body}
+                  onChange={(event) => change({ body: event.target.value })}
+                  rows={16}
+                  aria-label="Model answer"
+                  className={cn(INPUT, "font-mono")}
+                />
+              ) : draft.body.trim() ? (
+                // The same renderer the study card and the card page use.
+                <div className="rounded-md border border-rule bg-bg px-4 py-3">
+                  <Markdown source={draft.body} />
+                </div>
+              ) : (
+                <p className="text-sm text-ink-3">Nothing to preview yet.</p>
+              )}
             </Group>
 
             <Group title="Follow-ups" description="Likely follow-up questions, one per line.">

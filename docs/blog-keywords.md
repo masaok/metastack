@@ -11,6 +11,16 @@ These keywords were **derived from the project** (what MetaStack does and who th
 | fsrs vs sm-2                        | compare | FSRS vs SM-2: which scheduler should you study with?   | `fsrs-vs-sm-2`                        | published |
 | back-of-the-envelope estimation     | do      | Back-of-the-envelope estimation for system design      | `back-of-the-envelope-estimation`     | published |
 | consistent hashing explained        | learn   | Consistent hashing explained for the interview         | `consistent-hashing-explained`        | published |
+| cap theorem                         | learn   | CAP theorem explained for interviews                   | `cap-theorem-explained`               | published |
+| pacelc                              | learn   | PACELC explained for system design                     | `pacelc-explained`                    | published |
+| rate limiting                       | learn   | Rate limiting for system design interviews             | `rate-limiting-for-interviews`        | published |
+| load balancing                      | learn   | Load balancing for system design interviews            | `load-balancing-for-interviews`       | published |
+| database partitioning               | learn   | Database partitioning explained simply                 | `database-partitioning-explained`     | published |
+| message queues                      | learn   | Message queues for system design interviews            | `message-queues-for-interviews`       | published |
+| design url shortener                | do      | Design URL shortener for the interview                 | `design-url-shortener`                | published |
+| design news feed                    | do      | Design news feed for the interview                     | `design-news-feed`                    | published |
+| idempotency                         | learn   | Idempotency keys in system design                      | `idempotency-keys`                    | published |
+| sql                                 | compare | SQL vs NoSQL for system design interviews              | `sql-vs-nosql`                        | published |
 
 ## Rules the table encodes
 
@@ -21,4 +31,17 @@ These keywords were **derived from the project** (what MetaStack does and who th
 
 ## Grouped or deferred
 
-Nothing grouped in this run. Candidate keywords for a later run, each able to carry its own post: `cache write-through vs write-back`, `cap theorem explained simply`, `how to design a url shortener`, `idempotency keys explained`, `system design interview rubric`.
+The first five rows were derived from the project. The ten rows added on 2026-10-02 come from the supplied keyword list. `claude_fable51_keywords.md` was empty, so it contributed nothing.
+
+Grouped onto one post, because they ask the same question:
+
+- `cap theorem` also carries `consistency`, `eventual consistency`, and `strong consistency`.
+- `rate limiting` also carries `design rate limiter`.
+- `database partitioning` also carries `sharding` and `partitioning`.
+- `message queues` also carries `pub sub`.
+- `idempotency` also carries `idempotency keys`.
+- `sql` also carries `nosql`, `relational databases`, `document databases`, and `key value stores`.
+
+`pacelc` stays its own post. It is the question you answer when the network is healthy, which CAP does not cover.
+
+Left for a later run: the rest of the supplied list, including `caching`, `replication`, `microservices`, `design chat system`, and `design distributed cache`.
