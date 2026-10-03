@@ -53,6 +53,7 @@ const STATEMENTS = [
     mode TEXT NOT NULL DEFAULT 'rubric',
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
+  `ALTER TABLE settings ADD COLUMN IF NOT EXISTS theme TEXT`,
 ];
 
 export function getSql(): Sql {

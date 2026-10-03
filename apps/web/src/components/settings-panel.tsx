@@ -12,12 +12,19 @@ import {
   getSettings,
   importData,
   resetAll,
-  setSetting,
   type Settings,
   type StudyMode,
+  type Theme,
 } from "@/lib/db";
-import { fetchSession, syncProgress, type SessionUser } from "@/lib/sync";
+import { fetchSession, savePreference, syncProgress, type SessionUser } from "@/lib/sync";
+import { applyTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+
+const THEMES: Array<{ value: Theme; label: string }> = [
+  { value: "system", label: "System" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
 
 const buttonClass =
   "inline-flex h-10 items-center justify-center rounded-full border border-rule px-4 text-sm font-medium";
@@ -107,12 +114,18 @@ export function SettingsPanel() {
   async function updateLimit(value: number) {
     const n = Math.min(100, Math.max(1, Math.round(value)));
     setSettings((s) => (s ? { ...s, newLimit: n } : s));
-    await setSetting("newLimit", n);
+    await savePreference("newLimit", n);
   }
 
   async function updateMode(mode: StudyMode) {
     setSettings((s) => (s ? { ...s, mode } : s));
-    await setSetting("mode", mode);
+    await savePreference("mode", mode);
+  }
+
+  async function updateTheme(theme: Theme) {
+    setSettings((s) => (s ? { ...s, theme } : s));
+    applyTheme(theme);
+    await savePreference("theme", theme);
   }
 
   async function onExport() {
@@ -133,7 +146,9 @@ export function SettingsPanel() {
   async function onImport(file: File) {
     try {
       const result = await importData(await file.text());
-      setSettings(await getSettings());
+      const next = await getSettings();
+      setSettings(next);
+      applyTheme(next.theme);
       setMessage({
         tone: "ok",
         text: `Imported ${result.cards} card states and ${result.reviews} reviews.`,
@@ -210,11 +225,36 @@ export function SettingsPanel() {
       </Section>
 
       <Section
+        title="Appearance"
+        description="System follows your device. Signed in, the choice follows you to other browsers."
+      >
+        <div role="radiogroup" aria-label="Theme" className="flex gap-2">
+          {THEMES.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={settings.theme === option.value}
+              onClick={() => void updateTheme(option.value)}
+              className={cn(
+                "rounded-full border px-4 py-2 text-sm",
+                settings.theme === option.value
+                  ? "border-ink bg-ink text-bg"
+                  : "border-rule text-ink-2 hover:text-ink",
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section
         title="Account"
         description={
           user
-            ? `Signed in as ${user.login}. Reviews in this browser are copied to your account after each rating.`
-            : "Optional. Sign in with GitHub so progress follows you to another browser."
+            ? `Signed in as ${user.login}. Reviews and preferences in this browser are copied to your account as you change them.`
+            : "Optional. Sign in with GitHub so progress and preferences follow you to another browser."
         }
       >
         <div className="flex flex-wrap gap-3">

@@ -3,11 +3,13 @@
 import {
   BookOpen,
   GalleryVerticalEnd,
+  Gauge,
   Layers,
   LayoutGrid,
   Play,
   Settings,
   Shield,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -25,6 +27,12 @@ const NAV = [
   { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
+/** The admin area has its own sections; none of the study navigation applies there. */
+const ADMIN_NAV = [
+  { href: "/admin", label: "Overview", icon: Gauge },
+  { href: "/admin/users", label: "Users", icon: Users },
+] as const;
+
 export function DashboardShell({
   user,
   deckOptions,
@@ -33,11 +41,15 @@ export function DashboardShell({
 }: {
   user: SessionUser | null;
   deckOptions: Array<{ slug: string; title: string }>;
-  active: "/dashboard" | "/admin";
+  active: "/dashboard" | "/admin" | "/admin/users";
   children: React.ReactNode;
 }) {
-  const onAdmin = active === "/admin";
-  const items = user?.admin ? NAV.filter((item) => item.href !== "/dashboard") : NAV;
+  const onAdmin = active.startsWith("/admin");
+  const items = onAdmin
+    ? ADMIN_NAV
+    : user?.admin
+      ? NAV.filter((item) => item.href !== "/dashboard")
+      : NAV;
 
   return (
     <div className="flex h-full min-h-0 bg-bg text-ink">
@@ -45,13 +57,15 @@ export function DashboardShell({
         <div className="flex shrink-0 items-center gap-2 border-b border-rule px-3 py-3">
           <Logo className="h-7 w-7 shrink-0" />
           <div className="hidden min-w-0 sm:block">
-            <p className="truncate font-display text-sm font-semibold">MetaStack</p>
+            <p className="truncate font-display text-sm font-semibold">
+              {onAdmin ? "MetaStack admin" : "MetaStack"}
+            </p>
             <p className="truncate text-xs text-ink-3">{user ? user.login : "Signed out"}</p>
           </div>
         </div>
         <nav
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-2"
-          aria-label="Dashboard"
+          aria-label={onAdmin ? "Admin" : "Dashboard"}
         >
           <ul className="space-y-0.5">
             {items.map((item) => {
@@ -75,21 +89,25 @@ export function DashboardShell({
               );
             })}
           </ul>
-          <p className="mt-4 hidden px-2 text-xs font-medium tracking-wide text-ink-3 uppercase sm:block">
-            Decks
-          </p>
-          <ul className="mt-1 hidden space-y-0.5 sm:block">
-            {deckOptions.map((item) => (
-              <li key={item.slug}>
-                <Link
-                  href={`/study/${item.slug}`}
-                  className="block truncate rounded-md px-2 py-1.5 text-sm text-ink-2 hover:bg-paper-2 hover:text-ink"
-                >
-                  {item.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {onAdmin ? null : (
+            <>
+              <p className="mt-4 hidden px-2 text-xs font-medium tracking-wide text-ink-3 uppercase sm:block">
+                Decks
+              </p>
+              <ul className="mt-1 hidden space-y-0.5 sm:block">
+                {deckOptions.map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={`/study/${item.slug}`}
+                      className="block truncate rounded-md px-2 py-1.5 text-sm text-ink-2 hover:bg-paper-2 hover:text-ink"
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </nav>
         {user?.admin ? (
           <div className="shrink-0 space-y-1 border-t border-rule px-2 py-2">

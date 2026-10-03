@@ -1,16 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { GithubSignIn } from "@/components/github-sign-in";
-import { fetchSession, type SessionUser } from "@/lib/sync";
+import { useSession } from "@/lib/use-session";
 
 export function AuthButton({ compact = false }: { compact?: boolean }) {
-  const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
-
-  useEffect(() => {
-    void fetchSession().then(setUser);
-  }, []);
+  const user = useSession();
 
   if (user === undefined) {
     return <span className="inline-block h-9 w-9" aria-hidden />;

@@ -7,16 +7,14 @@ import { relativeTime } from "@/lib/dashboard/rows";
 import type { SiteOverview } from "@/lib/site";
 import type { SessionUser } from "@/lib/sync";
 
-export function AdminView({
+export function AdminUsers({
   user,
   site,
-  bank,
   deckOptions,
   now,
 }: {
   user: SessionUser;
   site: SiteOverview;
-  bank: number;
   deckOptions: Array<{ slug: string; title: string }>;
   now: number;
 }) {
@@ -34,28 +32,25 @@ export function AdminView({
   }, [site.accounts, query]);
 
   return (
-    <DashboardShell user={user} deckOptions={deckOptions} active="/admin">
+    <DashboardShell user={user} deckOptions={deckOptions} active="/admin/users">
       <section className="flex h-full min-w-0 flex-1 flex-col">
         <div className="flex shrink-0 items-center justify-between border-b border-rule bg-paper px-4 py-3">
-          <h1 className="font-display text-base font-semibold">Admin</h1>
+          <h1 className="font-display text-base font-semibold">Users</h1>
           <p className="text-sm text-ink-3">
             {site.users} {site.users === 1 ? "account" : "accounts"}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-rule bg-paper px-4 py-2">
           <label className="sr-only" htmlFor="account-search">
-            Search accounts
+            Search users
           </label>
           <input
             id="account-search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search accounts"
+            placeholder="Search users"
             className="h-8 w-full rounded-md border border-rule bg-bg px-3 text-sm outline-none placeholder:text-ink-3 focus:border-rule-strong sm:w-56"
           />
-          <p className="text-xs text-ink-3">
-            {bank} cards in the bank · {site.cardsStudied} studied · {site.reviews} reviews
-          </p>
           <p className="ml-auto text-xs text-ink-3">
             {visible.length}/{site.accounts.length}
           </p>
@@ -96,13 +91,9 @@ export function AdminView({
           </table>
           {visible.length === 0 ? (
             <p className="px-4 py-8 text-sm text-ink-3">
-              {site.accounts.length === 0 ? "No accounts yet." : "No accounts match this search."}
+              {site.accounts.length === 0 ? "No accounts yet." : "No users match this search."}
             </p>
           ) : null}
-          <p className="px-4 py-4 text-xs text-ink-3">
-            Ratings: Again {site.ratings.again}, Hard {site.ratings.hard}, Good {site.ratings.good},
-            Easy {site.ratings.easy}
-          </p>
         </div>
       </section>
     </DashboardShell>

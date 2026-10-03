@@ -31,14 +31,14 @@ import { Kbd } from "@/components/ui/kbd";
 import {
   countNewIntroducedToday,
   db,
+  DEFAULT_SETTINGS,
   getSettings,
   saveReview,
-  setSetting,
   type Settings,
   type StudyMode,
 } from "@/lib/db";
 import { studyCardPath } from "@/lib/study-url";
-import { pushReview } from "@/lib/sync";
+import { pushReview, savePreference } from "@/lib/sync";
 import { cn } from "@/lib/utils";
 
 type Status = "loading" | "ready" | "empty" | "done";
@@ -137,7 +137,7 @@ export function StudySession({
   const cardIds = useMemo(() => cards.map((c) => c.id), [cards]);
 
   const [status, setStatus] = useState<Status>("loading");
-  const [settings, setSettings] = useState<Settings>({ newLimit: 10, mode: "rubric" });
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [states, setStates] = useState<Map<string, CardState>>(new Map());
   const [queue, setQueue] = useState<string[]>([]);
   const [counts, setCounts] = useState({ due: 0, fresh: 0 });
@@ -303,7 +303,7 @@ export function StudySession({
 
   async function setMode(mode: StudyMode) {
     setSettings((s) => ({ ...s, mode }));
-    await setSetting("mode", mode);
+    await savePreference("mode", mode);
   }
 
   // Keyboard shortcuts

@@ -2,9 +2,9 @@ import { Github } from "lucide-react";
 import Link from "next/link";
 
 import { AuthButton } from "@/components/auth-button";
+import { HeaderCta } from "@/components/header-cta";
 import { Logo, Wordmark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ButtonLink } from "@/components/ui/button";
 import { GITHUB_URL } from "@/lib/utils";
 
 const nav = [
@@ -50,10 +50,7 @@ export function SiteHeader() {
             <AuthButton />
           </span>
           <ThemeToggle />
-          <ButtonLink href="/study" size="sm" className="ml-1">
-            <span className="sm:hidden">Drill</span>
-            <span className="hidden sm:inline">Start drilling</span>
-          </ButtonLink>
+          <HeaderCta />
         </div>
       </div>
       <nav className="flex gap-1 overflow-x-auto px-3 pb-2 sm:hidden" aria-label="Primary mobile">
