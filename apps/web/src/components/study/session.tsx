@@ -2,6 +2,7 @@
 
 import { ArrowRight, ExternalLink, PenLine, RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { Card } from "@metastack/content";
@@ -30,6 +31,7 @@ import {
   type Settings,
   type StudyMode,
 } from "@/lib/db";
+import { studyCardPath } from "@/lib/study-url";
 import { pushReview } from "@/lib/sync";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +95,37 @@ async function loadSession(cardIds: string[], opts: { ignoreLimit?: boolean }) {
   };
 }
 
-export function StudySession({ cards, title }: { cards: Card[]; title: string }) {
+/** Show these cards in this order, including ones the scheduler would skip. */
+async function loadFixed(cardIds: string[]) {
+  const [settings, rows] = await Promise.all([
+    getSettings(),
+    cardIds.length ? db().cardStates.where("cardId").anyOf(cardIds).toArray() : Promise.resolve([]),
+  ]);
+  const learned = rows.filter((row) => row.state !== "new");
+  const due = learned.filter((row) => new Date(row.due).getTime() <= Date.now());
+  return {
+    settings,
+    states: new Map(rows.map((row) => [row.cardId, row])),
+    queue: cardIds,
+    counts: { due: due.length, fresh: cardIds.length - learned.length },
+    nextDueLabel: null as string | null,
+  };
+}
+
+export function StudySession({
+  cards,
+  title,
+  scope = "all",
+  activeId,
+  onQueue,
+}: {
+  cards: Card[];
+  title: string;
+  scope?: string;
+  /** Card named by the URL. Absent while a fresh session is still at `/study`. */
+  activeId?: string;
+  onQueue?: (ids: string[]) => void;
+}) {
   const cardById = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards]);
   const cardIds = useMemo(() => cards.map((c) => c.id), [cards]);
 
@@ -116,29 +148,82 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
   const [nextDueLabel, setNextDueLabel] = useState<string | null>(null);
   const [timing, setTiming] = useState({ startedAt: 0, finishedAt: 0 });
   const scratchRef = useRef<HTMLTextAreaElement>(null);
+  const router = useRouter();
+  const onQueueRef = useRef(onQueue);
+  const indexRef = useRef(0);
+  const pendingUrl = useRef<string | null>(null);
+  const finishedOn = useRef<string | null>(null);
+  const request = useRef(0);
+  const activeIdRef = useRef(activeId);
+
+  useEffect(() => {
+    onQueueRef.current = onQueue;
+    activeIdRef.current = activeId;
+  });
 
   const load = useCallback(
-    (opts: { ignoreLimit?: boolean } = {}) =>
-      loadSession(cardIds, opts).then((loaded) => {
+    (opts: { ignoreLimit?: boolean } = {}) => {
+      const token = ++request.current;
+      const currentId = activeIdRef.current;
+      const runner =
+        currentId && cardIds.length === 1 && !opts.ignoreLimit
+          ? loadFixed(cardIds)
+          : loadSession(cardIds, opts);
+      return runner.then((loaded) => {
+        if (token !== request.current) return;
+        const startedAt = Date.now();
+        const startIndex =
+          currentId && !opts.ignoreLimit ? Math.max(0, loaded.queue.indexOf(currentId)) : 0;
+        indexRef.current = startIndex;
         setSettings(loaded.settings);
         setStates(loaded.states);
         setQueue(loaded.queue);
         setCounts(loaded.counts);
-        setIndex(0);
+        setIndex(startIndex);
         setPhase("prompt");
         setChecked(new Set());
         setScratch("");
+        setScratchOpen(false);
         setTally({ again: 0, hard: 0, good: 0, easy: 0 });
-        setTiming({ startedAt: Date.now(), finishedAt: 0 });
+        setTiming({ startedAt, finishedAt: 0 });
         setNextDueLabel(loaded.nextDueLabel);
+        onQueueRef.current?.(loaded.queue);
+        const first = loaded.queue[0];
+        if (opts.ignoreLimit && currentId && first && first !== currentId) {
+          pendingUrl.current = first;
+          router.push(studyCardPath(first));
+        }
         setStatus(loaded.queue.length === 0 ? "empty" : "ready");
-      }),
-    [cardIds],
+      });
+    },
+    [cardIds, router],
   );
 
   useEffect(() => {
     void load();
+    return () => {
+      request.current += 1;
+    };
   }, [load]);
+
+  // The URL is the source of truth. Back and Forward change `activeId`.
+  useEffect(() => {
+    if (!activeId) return;
+    if (pendingUrl.current && pendingUrl.current !== activeId) return;
+    pendingUrl.current = null;
+    if (status !== "ready" && status !== "done") return;
+    const nextIndex = queue.indexOf(activeId);
+    if (nextIndex < 0) return;
+    if (status === "done" && finishedOn.current === activeId) return;
+    if (nextIndex === indexRef.current && status === "ready") return;
+    indexRef.current = nextIndex;
+    setIndex(nextIndex);
+    setPhase("prompt");
+    setChecked(new Set());
+    setScratch("");
+    setScratchOpen(false);
+    setStatus("ready");
+  }, [activeId, queue, status]);
 
   const currentId = queue[index];
   const current = currentId ? cardById.get(currentId) : undefined;
@@ -158,24 +243,33 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
 
   const applyRating = useCallback(
     async (rating: Rating) => {
-      if (!current || !currentState) return;
+      if (!current || !currentState || pendingUrl.current) return;
       const result = rate(currentState, rating);
       await saveReview(result.state, result.review);
       void pushReview(result.state, result.review).catch(() => undefined);
       setStates((prev) => new Map(prev).set(current.id, result.state));
-      setTally((t) => ({ ...t, [rating]: t[rating] + 1 }));
-      if (index + 1 >= queue.length) {
+      const nextTally = { ...tally, [rating]: tally[rating] + 1 };
+      setTally(nextTally);
+      const nextId = queue[index + 1];
+      if (!nextId) {
+        finishedOn.current = current.id;
         setTiming((t) => ({ ...t, finishedAt: Date.now() }));
         setStatus("done");
-      } else {
-        setIndex(index + 1);
-        setPhase("prompt");
-        setChecked(new Set());
-        setScratch("");
+        return;
       }
+      pendingUrl.current = nextId;
+      router.push(studyCardPath(nextId));
     },
-    [current, currentState, index, queue.length],
+    [current, currentState, index, queue, router, tally],
   );
+
+  function studyMore() {
+    if (scope === "card") {
+      router.push("/study");
+      return;
+    }
+    void load({ ignoreLimit: true });
+  }
 
   const reveal = useCallback(() => setPhase("revealed"), []);
 
@@ -186,7 +280,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
 
   // Keyboard shortcuts
   useEffect(() => {
-    if (status !== "ready") return;
+    if (status !== "ready" || !activeId) return;
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
       const inField =
@@ -256,7 +350,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [status, phase, settings.mode, current, suggested, applyRating, reveal]);
+  }, [status, activeId, phase, settings.mode, current, suggested, applyRating, reveal]);
 
   // ---- Render states ----
 
@@ -281,7 +375,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
               : `You have introduced ${settings.newLimit} new cards today. You can raise the limit in Settings or keep going anyway.`}
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Button onClick={() => void load({ ignoreLimit: true })}>Study 10 more now</Button>
+            <Button onClick={() => void studyMore()}>Study 10 more now</Button>
             <ButtonLink href="/decks" variant="outline">
               Pick another deck
             </ButtonLink>
@@ -316,7 +410,7 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
             will be waiting when you come back.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Button onClick={() => void load({ ignoreLimit: true })}>
+            <Button onClick={() => void studyMore()}>
               Study 10 more <ArrowRight className="h-4 w-4" />
             </Button>
             <ButtonLink href="/decks" variant="outline">
@@ -327,6 +421,14 @@ export function StudySession({ cards, title }: { cards: Card[]; title: string })
             </ButtonLink>
           </div>
         </div>
+      </SessionFrame>
+    );
+  }
+
+  if (status === "ready" && !activeId) {
+    return (
+      <SessionFrame title={title}>
+        <div className="index-card plain h-[360px] animate-pulse" />
       </SessionFrame>
     );
   }

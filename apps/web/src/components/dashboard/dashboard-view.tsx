@@ -135,6 +135,13 @@ export function DashboardView({
                     >
                       {row.id}
                     </Link>
+                    <Link
+                      href={`/study/card/${row.id}`}
+                      aria-label={`Study ${row.id}`}
+                      className="mt-1 block text-xs text-ink-3 hover:text-blue"
+                    >
+                      Study
+                    </Link>
                   </td>
                   <td className="px-3 py-3 align-top whitespace-nowrap">
                     <span className="flex items-center gap-2">

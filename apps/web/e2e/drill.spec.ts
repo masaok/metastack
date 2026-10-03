@@ -6,7 +6,8 @@ test.describe("drill flow", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Drill system design");
 
     await page.getByRole("link", { name: "Start drilling" }).first().click();
-    await expect(page).toHaveURL(/\/study$/);
+    await expect(page.getByRole("button", { name: "Reveal key points" })).toBeVisible();
+    await expect(page).toHaveURL(/\/study\/card\/[a-z0-9-]+$/);
 
     for (let i = 0; i < 3; i++) {
       await expect(page.getByRole("button", { name: "Reveal key points" })).toBeVisible();
@@ -40,6 +41,27 @@ test.describe("drill flow", () => {
         return texts.filter((_, i) => i % 3 === 2).reduce((a, b) => a + Number(b), 0);
       })
       .toBe(3);
+  });
+
+  test("card permalink opens that card and the back button returns", async ({ page }) => {
+    await page.goto("/dashboard");
+    await page.getByRole("link", { name: "Study url-shortener", exact: true }).click();
+    await expect(page).toHaveURL(/\/study\/card\/url-shortener$/);
+    await expect(page.getByRole("heading", { level: 2 })).toContainText("URL shortener");
+    await page.goBack();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    await page.goto("/study/estimation");
+    await expect(page).toHaveURL(/\/study\/card\/[a-z0-9-]+$/);
+    const first = page.url();
+    await page.getByRole("button", { name: "Quick" }).click();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("3");
+    await expect(page).not.toHaveURL(first);
+    await expect(page).toHaveURL(/\/study\/card\/[a-z0-9-]+$/);
+    await page.goBack();
+    await expect(page).toHaveURL(first);
+    await expect(page.getByRole("button", { name: "Reveal key points" })).toBeVisible();
   });
 
   test("quick mode rates with number keys", async ({ page }) => {

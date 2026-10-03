@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { cardsForDeck, DECKS, getDeck, isDeckSlug } from "@metastack/content";
-
-import { StudySession } from "@/components/study/session";
+import { DECKS, getDeck, isDeckSlug } from "@metastack/content";
 
 type Props = { params: Promise<{ deck: string }> };
 
@@ -19,9 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return d ? { title: `Study ${d.title}`, description: d.description } : {};
 }
 
+/** The session UI lives in the study layout and moves to `/study/card/[id]`. */
 export default async function StudyDeckPage({ params }: Props) {
   const { deck } = await params;
   if (!isDeckSlug(deck)) notFound();
-  const d = getDeck(deck)!;
-  return <StudySession cards={cardsForDeck(deck)} title={d.title} />;
+  return null;
 }

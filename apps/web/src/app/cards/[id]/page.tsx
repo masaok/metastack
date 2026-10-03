@@ -148,8 +148,11 @@ export default async function CardPage({ params }: Props) {
         </footer>
       </article>
 
-      <div className="mt-8 flex gap-3">
-        <ButtonLink href={`/study/${card.deck}`}>Drill the {deck.title} deck</ButtonLink>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <ButtonLink href={`/study/card/${card.id}`}>Study this card</ButtonLink>
+        <ButtonLink href={`/study/${card.deck}`} variant="outline">
+          Drill the {deck.title} deck
+        </ButtonLink>
       </div>
     </div>
   );
