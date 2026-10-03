@@ -2,29 +2,30 @@
 
 import { ButtonLink } from "@/components/ui/button";
 import { useSession } from "@/lib/use-session";
+import { cn } from "@/lib/utils";
 
-/** Signed-in visitors get Dashboard; everyone else gets Start drilling. */
+/**
+ * Signed-in visitors get Dashboard; everyone else gets Start drilling. Both
+ * labels share one grid cell, so the button keeps the wider label's width
+ * and nothing shifts when the session resolves.
+ */
 export function HeaderCta() {
   const user = useSession();
-  const loading = user === undefined;
-  const href = user ? "/dashboard" : "/study";
+  const signedIn = Boolean(user);
 
   return (
     <ButtonLink
-      href={href}
+      href={signedIn ? "/dashboard" : "/study"}
       size="sm"
-      className={loading ? "invisible ml-1" : "ml-1"}
-      aria-hidden={loading || undefined}
-      tabIndex={loading ? -1 : undefined}
+      className={cn("ml-1", user === undefined && "invisible")}
     >
-      {user ? (
-        "Dashboard"
-      ) : (
-        <>
+      <span className="grid justify-items-center">
+        <span className={cn("col-start-1 row-start-1", !signedIn && "invisible")}>Dashboard</span>
+        <span className={cn("col-start-1 row-start-1", signedIn && "invisible")}>
           <span className="sm:hidden">Drill</span>
           <span className="hidden sm:inline">Start drilling</span>
-        </>
-      )}
+        </span>
+      </span>
     </ButtonLink>
   );
 }

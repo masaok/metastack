@@ -10,13 +10,20 @@ import {
   db,
   exportData,
   getSettings,
+  getStoredSettings,
   importData,
   resetAll,
   type Settings,
   type StudyMode,
   type Theme,
 } from "@/lib/db";
-import { fetchSession, savePreference, syncProgress, type SessionUser } from "@/lib/sync";
+import {
+  fetchSession,
+  pushPreferences,
+  savePreference,
+  syncProgress,
+  type SessionUser,
+} from "@/lib/sync";
 import { applyTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +37,7 @@ const buttonClass =
   "inline-flex h-10 items-center justify-center rounded-full border border-rule px-4 text-sm font-medium";
 
 export function SettingsPanel() {
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const settings = useLiveQuery(getSettings, [], null);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -51,7 +58,6 @@ export function SettingsPanel() {
   );
 
   useEffect(() => {
-    void getSettings().then(setSettings);
     void fetchSession().then((signedIn) => {
       setUser(signedIn);
       const auth = new URLSearchParams(window.location.search).get("auth");
@@ -68,7 +74,6 @@ export function SettingsPanel() {
         setSyncing(true);
         return syncProgress()
           .then(async (result) => {
-            setSettings(await getSettings());
             setUser(await fetchSession());
             if (!result) {
               setMessage({ tone: "error", text: "Sign in first to sync." });
@@ -94,7 +99,6 @@ export function SettingsPanel() {
     setSyncing(true);
     try {
       const result = await syncProgress();
-      setSettings(await getSettings());
       setUser(await fetchSession());
       if (!result) {
         setMessage({ tone: "error", text: "Sign in first to sync." });
@@ -113,17 +117,14 @@ export function SettingsPanel() {
 
   async function updateLimit(value: number) {
     const n = Math.min(100, Math.max(1, Math.round(value)));
-    setSettings((s) => (s ? { ...s, newLimit: n } : s));
     await savePreference("newLimit", n);
   }
 
   async function updateMode(mode: StudyMode) {
-    setSettings((s) => (s ? { ...s, mode } : s));
     await savePreference("mode", mode);
   }
 
   async function updateTheme(theme: Theme) {
-    setSettings((s) => (s ? { ...s, theme } : s));
     applyTheme(theme);
     await savePreference("theme", theme);
   }
@@ -146,9 +147,8 @@ export function SettingsPanel() {
   async function onImport(file: File) {
     try {
       const result = await importData(await file.text());
-      const next = await getSettings();
-      setSettings(next);
-      applyTheme(next.theme);
+      applyTheme((await getSettings()).theme);
+      void pushPreferences(Object.keys(await getStoredSettings()) as Array<keyof Settings>);
       setMessage({
         tone: "ok",
         text: `Imported ${result.cards} card states and ${result.reviews} reviews.`,
@@ -162,7 +162,7 @@ export function SettingsPanel() {
 
   async function onReset() {
     await resetAll();
-    setSettings(await getSettings());
+    applyTheme("system");
     setConfirmReset(false);
     setMessage({ tone: "ok", text: "Progress cleared. Every card is new again." });
   }

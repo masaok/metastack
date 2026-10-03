@@ -78,6 +78,19 @@ export async function setSetting<K extends keyof Settings>(key: K, value: Settin
   await db().settings.put({ key, value });
 }
 
+const UNSYNCED_ROW = "unsynced";
+
+/** Preference keys changed here that the account has not confirmed yet. */
+export async function getUnsyncedKeys(): Promise<Array<keyof Settings>> {
+  const row = await db().settings.get(UNSYNCED_ROW);
+  if (!Array.isArray(row?.value)) return [];
+  return SETTING_KEYS.filter((key) => (row.value as unknown[]).includes(key));
+}
+
+export async function setUnsyncedKeys(keys: Array<keyof Settings>) {
+  await db().settings.put({ key: UNSYNCED_ROW, value: [...new Set(keys)] });
+}
+
 /** Writes every key present in the patch. Used when the server copy arrives. */
 export async function putSettings(patch: Partial<Settings>) {
   const rows = SETTING_KEYS.filter((key) => patch[key] !== undefined).map((key) => ({

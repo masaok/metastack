@@ -34,7 +34,8 @@ export function mergeProgress(local: ExportFile, remote: ExportFile): ExportFile
     (a, b) => a.reviewedAt.localeCompare(b.reviewedAt) || a.cardId.localeCompare(b.cardId),
   );
 
-  const settings: Partial<Settings> = { ...remote.settings, ...local.settings };
+  // The account's preferences win, as they do on every page load.
+  const settings: Partial<Settings> = { ...local.settings, ...remote.settings };
 
   return {
     app: "metastack",
