@@ -6,6 +6,7 @@ primaryKeyword: spaced repetition for system design
 secondaryKeywords:
   - forgetting curve
   - active recall for interviews
+category: study-method
 tags:
   - study-method
   - scheduling

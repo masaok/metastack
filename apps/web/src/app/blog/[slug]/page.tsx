@@ -9,7 +9,7 @@ import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { getPost, getPosts, getRelatedPosts } from "@/lib/blog/load";
-import { BLOG_PATH, postPath, tableOfContents } from "@/lib/blog/schema";
+import { BLOG_PATH, categoryPath, getCategory, postPath, tableOfContents } from "@/lib/blog/schema";
 import { GITHUB_URL } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -47,6 +47,8 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) notFound();
+  // The schema only accepts a category from the list.
+  const category = getCategory(post.category)!;
   const toc = tableOfContents(post.body);
   const related = getRelatedPosts(post);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.metastack.app";
@@ -69,12 +71,18 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Link
-        href={BLOG_PATH}
-        className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"
+      <nav
+        aria-label="Breadcrumb"
+        className="flex flex-wrap items-center gap-1.5 text-sm text-ink-2"
       >
-        <ArrowLeft className="h-4 w-4" /> All posts
-      </Link>
+        <Link href={BLOG_PATH} className="inline-flex items-center gap-1.5 hover:text-ink">
+          <ArrowLeft className="h-4 w-4" aria-hidden /> Blog
+        </Link>
+        <span aria-hidden>/</span>
+        <Link href={categoryPath(category.slug)} className="hover:text-ink">
+          {category.name}
+        </Link>
+      </nav>
 
       <div className="mt-5 lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-10">
         <article className="index-card min-w-0 px-6 pt-5 pb-8 sm:px-9">

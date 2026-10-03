@@ -6,6 +6,7 @@ primaryKeyword: system design interview flashcards
 secondaryKeywords:
   - system design flashcards
   - how to study for system design interviews
+category: study-method
 tags:
   - study-method
   - interviews

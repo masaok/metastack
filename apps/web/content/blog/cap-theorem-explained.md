@@ -7,6 +7,7 @@ secondaryKeywords:
   - consistency
   - eventual consistency
   - strong consistency
+category: data-and-consistency
 tags:
   - fundamentals
   - distributed-systems

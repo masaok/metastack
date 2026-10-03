@@ -6,6 +6,7 @@ primaryKeyword: design news feed
 secondaryKeywords:
   - fanout on write
   - fanout on read
+category: worked-designs
 tags:
   - designs
   - distributed-systems

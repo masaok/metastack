@@ -5,6 +5,7 @@ description: Idempotency keys in system design. How a client retries a payment o
 primaryKeyword: idempotency
 secondaryKeywords:
   - idempotency keys
+category: traffic-and-reliability
 tags:
   - fundamentals
   - designs

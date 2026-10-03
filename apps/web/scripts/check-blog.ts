@@ -6,9 +6,15 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  BALANCE_FROM_POSTS,
+  CATEGORIES,
+  CATEGORY_MAX_RATIO,
+  CATEGORY_MIN_POSTS,
+  categoryPath,
   DESCRIPTION_MAX,
   DESCRIPTION_MIN,
   firstParagraph,
+  groupByCategory,
   hasTopLevelHeading,
   headingsOf,
   keywordInSlug,
@@ -20,6 +26,7 @@ import {
   postPath,
   proseWordCount,
   TITLE_MAX,
+  type Category,
   type Post,
   type PostFile,
 } from "../src/lib/blog/schema";
@@ -32,6 +39,8 @@ export interface Problem {
 
 export interface CheckInput {
   files: PostFile[];
+  /** The category list, in index order. */
+  categories: readonly Category[];
   keywordsDoc: string;
   /** Internal routes that exist outside the blog, e.g. "/study", "/cards/url-shortener". */
   routes: Set<string>;
@@ -43,6 +52,9 @@ export interface CheckInput {
 export const RULES: Record<string, string> = {
   shape: "front matter parses and matches the Post schema; slug matches file name; slugs unique",
   "keyword-map": "primary keyword is a row in docs/blog-keywords.md and owned by exactly one post",
+  category:
+    "post names a category from the list, the keyword map row names the same one, and category slugs are unique",
+  "category-balance": `with ${BALANCE_FROM_POSTS} or more published posts: at least 2 categories, each with at least ${CATEGORY_MIN_POSTS} published posts, the largest at most ${CATEGORY_MAX_RATIO} times the smallest`,
   "keyword-placement": "primary keyword appears in title, slug, description and first paragraph",
   "title-length": `title is at most ${TITLE_MAX} characters`,
   "description-length": `description is ${DESCRIPTION_MIN} to ${DESCRIPTION_MAX} characters`,
@@ -69,6 +81,24 @@ export function keywordRows(doc: string): string[] {
   return rows;
 }
 
+/** Keyword to category slug, read from the map's `Category` column. Null when the column is missing. */
+export function keywordCategories(doc: string): Map<string, string> | null {
+  let column = -1;
+  const categories = new Map<string, string>();
+  for (const line of doc.split("\n")) {
+    const cells = line.split("|").map((c) => c.trim());
+    if (cells.length < 6 || !cells[1]) continue;
+    const keyword = cells[1].toLowerCase();
+    if (keyword === "keyword") {
+      column = cells.findIndex((c) => c.toLowerCase() === "category");
+      continue;
+    }
+    if (/^-+$/.test(keyword) || column < 0) continue;
+    categories.set(keyword, (cells[column] ?? "").replace(/`/g, ""));
+  }
+  return column < 0 ? null : categories;
+}
+
 export function checkBlog(input: CheckInput): Problem[] {
   const problems: Problem[] = [];
   const add = (rule: keyof typeof RULES, path: string, message: string) =>
@@ -80,7 +110,9 @@ export function checkBlog(input: CheckInput): Problem[] {
       ? "title-length"
       : /description must be/.test(i.message)
         ? "description-length"
-        : "shape";
+        : /^category: /.test(i.message)
+          ? "category"
+          : "shape";
     add(rule, i.path, i.message);
   }
 
@@ -162,6 +194,14 @@ export function checkBlog(input: CheckInput): Problem[] {
         continue;
       }
       if (route === "/blog") continue;
+      const categoryMatch = /^\/blog\/category\/([^/]+)$/.exec(route);
+      if (categoryMatch) {
+        // A category page exists only while the category has a published post.
+        if (!published.some((p) => p.category === categoryMatch[1])) {
+          add("internal-links", path, `line ${link.line}: ${route} is not a category with posts`);
+        }
+        continue;
+      }
       if (!input.routes.has(route)) {
         add("internal-links", path, `line ${link.line}: ${route} is not a known route`);
         continue;
@@ -183,6 +223,58 @@ export function checkBlog(input: CheckInput): Problem[] {
     }
     if (!post.draft && post.publishedAt > input.today) {
       add("dates", path, `publishedAt ${post.publishedAt} is in the future (today ${input.today})`);
+    }
+  }
+
+  const listPath = "apps/web/src/lib/blog/schema.ts";
+  const slugs = input.categories.map((c) => c.slug);
+  for (const slug of new Set(slugs.filter((s, i) => slugs.indexOf(s) !== i))) {
+    add("category", listPath, `category slug "${slug}" is used by more than one category`);
+  }
+  const mapped = keywordCategories(input.keywordsDoc);
+  if (!mapped) {
+    add("category", "docs/blog-keywords.md", "the keyword map has no Category column");
+  }
+  for (const post of posts) {
+    if (!slugs.includes(post.category)) {
+      add("category", post.sourcePath, `category "${post.category}" is not in the category list`);
+    }
+    const planned = mapped?.get(post.primaryKeyword.toLowerCase());
+    if (planned !== undefined && planned !== post.category) {
+      add(
+        "category",
+        post.sourcePath,
+        `category "${post.category}" differs from the keyword map, which says "${planned || "(empty)"}"`,
+      );
+    }
+  }
+
+  if (published.length >= BALANCE_FROM_POSTS) {
+    const counts = input.categories
+      .map((c) => ({ slug: c.slug, n: published.filter((p) => p.category === c.slug).length }))
+      .filter((c) => c.n > 0);
+    const summary = counts.map((c) => `${c.slug}=${c.n}`).join(", ");
+    const sizes = counts.map((c) => c.n);
+    const smallest = Math.min(...sizes);
+    const largest = Math.max(...sizes);
+    if (counts.length < 2) {
+      add("category-balance", listPath, `only one category holds posts (${summary}), need 2`);
+    }
+    for (const c of counts) {
+      if (c.n < CATEGORY_MIN_POSTS) {
+        add(
+          "category-balance",
+          listPath,
+          `category "${c.slug}" has ${c.n} published post, need ${CATEGORY_MIN_POSTS} (${summary})`,
+        );
+      }
+    }
+    if (largest > CATEGORY_MAX_RATIO * smallest) {
+      add(
+        "category-balance",
+        listPath,
+        `largest category has ${largest} published posts, more than ${CATEGORY_MAX_RATIO} times the smallest's ${smallest} (${summary})`,
+      );
     }
   }
 
@@ -237,6 +329,7 @@ export function readInput(repoRoot: string, today = new Date().toISOString().sli
   }));
   return {
     files,
+    categories: CATEGORIES,
     keywordsDoc: readFileSync(join(repoRoot, "docs", "blog-keywords.md"), "utf8"),
     routes: projectRoutes(repoRoot),
     consumers,
@@ -257,6 +350,10 @@ function main() {
     );
     for (const p of published) {
       console.log(`  ${postPath(p.slug)}  ${proseWordCount(p.body)} words`);
+    }
+    console.log("  posts per category:");
+    for (const c of groupByCategory(published, input.categories)) {
+      console.log(`    ${categoryPath(c.slug)}  ${c.posts.length}`);
     }
     return;
   }

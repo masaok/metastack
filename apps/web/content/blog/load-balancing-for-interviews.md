@@ -6,6 +6,7 @@ primaryKeyword: load balancing
 secondaryKeywords:
   - layer 4
   - layer 7
+category: traffic-and-reliability
 tags:
   - fundamentals
   - distributed-systems

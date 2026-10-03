@@ -6,6 +6,7 @@ primaryKeyword: message queues
 secondaryKeywords:
   - pub sub
   - delivery guarantees
+category: traffic-and-reliability
 tags:
   - fundamentals
   - distributed-systems

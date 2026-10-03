@@ -6,6 +6,7 @@ primaryKeyword: back-of-the-envelope estimation
 secondaryKeywords:
   - capacity estimation interview
   - latency numbers every programmer should know
+category: worked-designs
 tags:
   - estimation
   - interviews

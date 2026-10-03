@@ -9,6 +9,56 @@ export const BLOG_PATH = "/blog";
 export const FEED_PATH = "/feed.xml";
 export const BLOG_AUTHOR = "Masao Kitamura";
 
+export interface Category {
+  /** Unique, lowercase, hyphenated. The path under `/blog/category/`. */
+  slug: string;
+  /** Shown on the index card and as the category page heading. */
+  name: string;
+  /** Shown on the card, and the category page's meta description. */
+  description: string;
+}
+
+/**
+ * The blog's categories, in the order the index shows them. A post names
+ * exactly one by slug. Add one only when two or more posts will live in it.
+ */
+export const CATEGORIES: readonly Category[] = [
+  {
+    slug: "study-method",
+    name: "Study method",
+    description:
+      "How to make system design knowledge stick: flashcards, spaced repetition and the scheduler that decides what you review next.",
+  },
+  {
+    slug: "data-and-consistency",
+    name: "Data and consistency",
+    description:
+      "Where data lives and what a read is allowed to return: CAP, PACELC, partitioning, consistent hashing and choosing a database.",
+  },
+  {
+    slug: "traffic-and-reliability",
+    name: "Traffic and reliability",
+    description:
+      "Moving requests through a system without losing or repeating work: load balancing, rate limiting, queues and idempotency.",
+  },
+  {
+    slug: "worked-designs",
+    name: "Worked designs",
+    description:
+      "Full interview prompts answered step by step, and the back-of-the-envelope estimation that sizes them.",
+  },
+];
+
+export const CATEGORY_MIN_POSTS = 2;
+/** The largest category may hold at most this many times the posts of the smallest. */
+export const CATEGORY_MAX_RATIO = 2;
+/** Below this many published posts the blog is too small to balance. */
+export const BALANCE_FROM_POSTS = 4;
+
+export function getCategory(slug: string): Category | undefined {
+  return CATEGORIES.find((c) => c.slug === slug);
+}
+
 export const TITLE_MAX = 60;
 export const DESCRIPTION_MIN = 120;
 export const DESCRIPTION_MAX = 160;
@@ -31,6 +81,12 @@ export const postFrontMatterSchema = z.object({
     .max(DESCRIPTION_MAX, `description must be at most ${DESCRIPTION_MAX} characters`),
   primaryKeyword: z.string().min(1),
   secondaryKeywords: z.array(z.string().min(1)).default([]),
+  category: z
+    .string()
+    .refine(
+      (slug) => getCategory(slug) !== undefined,
+      `category must be one of: ${CATEGORIES.map((c) => c.slug).join(", ")}`,
+    ),
   tags: z.array(z.string().min(1)).min(1),
   author: z.string().min(1).default(BLOG_AUTHOR),
   createdAt: isoDate,
@@ -230,4 +286,30 @@ export function publishedOnly(posts: Post[]): Post[] {
 
 export function postPath(slug: string): string {
   return `${BLOG_PATH}/${slug}`;
+}
+
+/** Category pages have their own segment, so a category can never collide with a post slug. */
+export function categoryPath(slug: string): string {
+  return `${BLOG_PATH}/category/${slug}`;
+}
+
+export interface CategoryWithPosts extends Category {
+  posts: Post[];
+}
+
+/**
+ * Each category that has at least one of `posts`, in list order, with its
+ * posts in the order given. An empty category is left out, so it gets no card,
+ * no page and no sitemap entry.
+ */
+export function groupByCategory(
+  posts: readonly Post[],
+  categories: readonly Category[] = CATEGORIES,
+): CategoryWithPosts[] {
+  return categories
+    .map((category) => ({
+      ...category,
+      posts: posts.filter((post) => post.category === category.slug),
+    }))
+    .filter((category) => category.posts.length > 0);
 }

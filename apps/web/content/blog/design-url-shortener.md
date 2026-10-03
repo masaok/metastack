@@ -6,6 +6,7 @@ primaryKeyword: design url shortener
 secondaryKeywords:
   - url shortener
   - short codes
+category: worked-designs
 tags:
   - designs
   - estimation

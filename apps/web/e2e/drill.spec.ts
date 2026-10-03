@@ -218,3 +218,38 @@ test.describe("drill flow", () => {
     expect(file.suggestedFilename()).toMatch(/^metastack-progress-\d{4}-\d{2}-\d{2}\.json$/);
   });
 });
+
+test.describe("blog", () => {
+  test("index lists categories, a category lists its posts, a post links back", async ({
+    page,
+  }) => {
+    await page.goto("/blog");
+    const cards = page.getByRole("main").getByRole("link", { name: /, \d+ posts?$/ });
+    await expect(cards).not.toHaveCount(0);
+    // The index is categories only: no post is linked from it.
+    await expect(
+      page.getByRole("main").locator('a[href^="/blog/"]:not([href^="/blog/category/"])'),
+    ).toHaveCount(0);
+
+    const first = cards.first();
+    const label = (await first.getAttribute("aria-label"))!;
+    const [name, count] = [label.split(", ")[0]!, Number(/(\d+) posts?$/.exec(label)![1])];
+    await first.click();
+    await expect(page).toHaveURL(/\/blog\/category\/[a-z0-9-]+$/);
+    await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
+    const posts = page.getByRole("main").getByRole("article");
+    await expect(posts).toHaveCount(count);
+
+    await posts.first().getByRole("link").first().click();
+    await expect(page).toHaveURL(/\/blog\/[a-z0-9-]+$/);
+    await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name }).click();
+    await expect(page).toHaveURL(/\/blog\/category\/[a-z0-9-]+$/);
+    await page.getByRole("link", { name: "All categories" }).click();
+    await expect(page).toHaveURL(/\/blog$/);
+  });
+
+  test("an unknown category is not found", async ({ page }) => {
+    const response = await page.goto("/blog/category/no-such-category");
+    expect(response?.status()).toBe(404);
+  });
+});

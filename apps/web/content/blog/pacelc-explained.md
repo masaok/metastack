@@ -6,6 +6,7 @@ primaryKeyword: pacelc
 secondaryKeywords:
   - latency
   - consistency
+category: data-and-consistency
 tags:
   - fundamentals
   - distributed-systems

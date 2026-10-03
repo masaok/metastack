@@ -7,6 +7,7 @@ secondaryKeywords:
   - fsrs algorithm
   - sm-2 algorithm
   - anki fsrs
+category: study-method
 tags:
   - scheduling
   - fsrs

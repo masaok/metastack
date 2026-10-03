@@ -8,6 +8,7 @@ secondaryKeywords:
   - relational databases
   - document databases
   - key value stores
+category: data-and-consistency
 tags:
   - fundamentals
   - databases

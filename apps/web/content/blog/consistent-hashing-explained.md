@@ -6,6 +6,7 @@ primaryKeyword: consistent hashing explained
 secondaryKeywords:
   - hash ring
   - virtual nodes
+category: data-and-consistency
 tags:
   - fundamentals
   - caching

@@ -6,6 +6,7 @@ primaryKeyword: rate limiting
 secondaryKeywords:
   - design rate limiter
   - token bucket
+category: traffic-and-reliability
 tags:
   - fundamentals
   - designs

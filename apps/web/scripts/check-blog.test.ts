@@ -3,9 +3,13 @@
 // fixture here is not enforced. Run: pnpm check:blog:test
 import assert from "node:assert/strict";
 
+import { CATEGORIES } from "../src/lib/blog/schema";
 import { checkBlog, RULES, type CheckInput } from "./check-blog";
 
 const TODAY = "2026-10-02";
+// Fixture posts use real category slugs, because the post schema only accepts those.
+const CATEGORY = CATEGORIES[0]!.slug;
+const SECOND_CATEGORY = CATEGORIES[1]!.slug;
 
 const sentence =
   "Caches answer reads before the database does, so the write strategy decides what a stale read can cost.";
@@ -38,6 +42,7 @@ function post(
       "Write-through, write-back and write-around, what each costs on a miss, and how to pick one when the interviewer asks about cache write strategies.",
     primaryKeyword: "cache write strategies",
     secondaryKeywords: ["write-through vs write-back"],
+    category: CATEGORY,
     tags: ["caching"],
     createdAt: "2026-09-30",
     publishedAt: "2026-10-01",
@@ -75,11 +80,12 @@ function other(keyword: string, overrides: Partial<Record<string, unknown>> = {}
 
 const others = () => [other("write-behind caches"), other("cache ttl")];
 
-const keywordsDoc = (keywords: string[]) =>
+/** A keyword map. Every row is filed under `CATEGORY` unless `categories` says otherwise. */
+const keywordsDoc = (keywords: string[], categories: Record<string, string> = {}) =>
   [
-    "| Keyword | Intent | Post title | Slug | Status |",
-    "| --- | --- | --- | --- | --- |",
-    ...keywords.map((k) => `| ${k} | learn | t | s | published |`),
+    "| Keyword | Intent | Category | Post title | Slug | Status |",
+    "| --- | --- | --- | --- | --- | --- |",
+    ...keywords.map((k) => `| ${k} | learn | ${categories[k] ?? CATEGORY} | t | s | published |`),
   ].join("\n");
 
 const goodConsumers = [
@@ -90,6 +96,7 @@ const goodConsumers = [
 function input(overrides: Partial<CheckInput> = {}): CheckInput {
   return {
     files: [post(), ...others()],
+    categories: CATEGORIES,
     keywordsDoc: keywordsDoc(["cache write strategies", "write-behind caches", "cache ttl"]),
     routes: new Set(["/", "/study", "/decks", "/cards", "/settings", "/cards/url-shortener"]),
     consumers: goodConsumers,
@@ -185,6 +192,80 @@ expectFail(
   withMain(post({ description: "x".repeat(161) })),
 );
 
+expectFail("category", "unknown category", withMain(post({ category: "misc" })));
+expectFail("category", "missing category", withMain(post({ category: undefined })));
+expectFail(
+  "category",
+  "two categories share a slug",
+  input({ categories: [...CATEGORIES, { ...CATEGORIES[0]!, name: "Again" }] }),
+);
+expectFail(
+  "category",
+  "keyword map files the post elsewhere",
+  input({
+    keywordsDoc: keywordsDoc(["cache write strategies", "write-behind caches", "cache ttl"], {
+      "cache write strategies": SECOND_CATEGORY,
+    }),
+  }),
+);
+expectFail(
+  "category",
+  "keyword map has no Category column",
+  input({
+    keywordsDoc: [
+      "| Keyword | Intent | Post title | Slug | Status |",
+      "| --- | --- | --- | --- | --- |",
+      ...["cache write strategies", "write-behind caches", "cache ttl"].map(
+        (k) => `| ${k} | learn | t | s | published |`,
+      ),
+    ].join("\n"),
+  }),
+);
+
+/** The valid fixture plus extra published posts, each filed under the category given. */
+function sized(extra: Record<string, string>) {
+  const names = [
+    "cache write strategies",
+    "write-behind caches",
+    "cache ttl",
+    ...Object.keys(extra),
+  ];
+  return input({
+    files: [
+      post(),
+      ...others(),
+      ...Object.entries(extra).map(([keyword, category]) => other(keyword, { category })),
+    ],
+    keywordsDoc: keywordsDoc(names, extra),
+  });
+}
+
+// Three posts are too few to balance, so one category is fine until the fourth.
+expectFail("category-balance", "four posts in one category", sized({ "cache keys": CATEGORY }));
+expectFail(
+  "category-balance",
+  "a category with one post",
+  sized({ "cache keys": SECOND_CATEGORY }),
+);
+expectFail(
+  "category-balance",
+  "largest is more than twice the smallest",
+  sized({
+    "cache keys": CATEGORY,
+    "cache tiers": CATEGORY,
+    "cache warming": SECOND_CATEGORY,
+    "cache stampede": SECOND_CATEGORY,
+  }),
+);
+expectPass(
+  "balanced categories",
+  sized({
+    "cache keys": CATEGORY,
+    "cache warming": SECOND_CATEGORY,
+    "cache stampede": SECOND_CATEGORY,
+  }),
+);
+
 expectFail("no-h1", "h1 in body", withMain(post({}, `# Title\n\n${body()}`)));
 expectFail("min-words", "1,000 words", withMain(post({}, body({ words: 1000 }))));
 expectFail("sections", "three h2s", withMain(post({}, body({ sections: 3 }))));
@@ -193,6 +274,15 @@ expectFail(
   "internal-links",
   "unknown post",
   withMain(post({}, body({ extra: "[x](/blog/missing)" }))),
+);
+expectFail(
+  "internal-links",
+  "category with no posts",
+  withMain(post({}, body({ extra: `[x](/blog/category/${SECOND_CATEGORY})` }))),
+);
+expectPass(
+  "link to a category that has posts",
+  withMain(post({}, body({ extra: `[x](/blog/category/${CATEGORY})` }))),
 );
 expectFail("internal-links", "unknown anchor", withMain(post({}, body({ extra: "[x](#nope)" }))));
 expectFail(

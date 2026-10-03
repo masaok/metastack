@@ -6,6 +6,7 @@ primaryKeyword: database partitioning
 secondaryKeywords:
   - sharding
   - partitioning
+category: data-and-consistency
 tags:
   - fundamentals
   - distributed-systems
