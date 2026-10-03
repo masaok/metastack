@@ -423,7 +423,7 @@ export function StudySession({
 
   if (status === "loading") {
     return (
-      <SessionFrame title={title}>
+      <SessionFrame title={title} wide>
         <div className="index-card h-[360px] animate-pulse" />
       </SessionFrame>
     );
@@ -497,7 +497,7 @@ export function StudySession({
 
   if (status === "ready" && !activeId) {
     return (
-      <SessionFrame title={title}>
+      <SessionFrame title={title} wide>
         <div className="index-card h-[360px] animate-pulse" />
       </SessionFrame>
     );
@@ -510,6 +510,7 @@ export function StudySession({
   return (
     <SessionFrame
       title={title}
+      wide
       right={
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
@@ -588,196 +589,201 @@ export function StudySession({
             </span>
           </header>
 
-          <h2 className="card-prompt mt-5 max-w-2xl text-balance">{current.prompt.trim()}</h2>
+          {/* On a wide viewport the question stays beside the work instead of above it. */}
+          <div className="lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-10">
+            <h2 className="card-prompt mt-5 max-w-2xl text-balance lg:sticky lg:top-20">
+              {current.prompt.trim()}
+            </h2>
 
-          {phase === "prompt" && (
-            <div className="mt-7" data-exercise={exercise ? "" : undefined}>
-              {exercise ? (
-                <ExercisePanel
-                  key={exercise.serial}
-                  exercise={exercise.exercise}
-                  card={current}
-                  onCovered={creditPoints}
-                  onDone={reveal}
-                />
-              ) : scratchOpen ? (
-                <textarea
-                  ref={scratchRef}
-                  value={scratch}
-                  onChange={(e) => setScratch(e.target.value)}
-                  placeholder="Sketch your answer. Cmd/Ctrl+Enter to reveal."
-                  rows={5}
-                  className="w-full resize-y rounded-xl border border-rule bg-paper-2 px-4 py-3 font-mono text-sm text-ink placeholder:text-ink-3"
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setScratchOpen(true);
-                    setTimeout(() => scratchRef.current?.focus(), 0);
-                  }}
-                  className="inline-flex items-center gap-2 text-sm text-ink-2 hover:text-ink"
-                >
-                  <PenLine className="h-4 w-4" /> Add a scratchpad
-                </button>
-              )}
-            </div>
-          )}
+            {phase === "prompt" && (
+              <div className="mt-7 lg:mt-5" data-exercise={exercise ? "" : undefined}>
+                {exercise ? (
+                  <ExercisePanel
+                    key={exercise.serial}
+                    exercise={exercise.exercise}
+                    card={current}
+                    onCovered={creditPoints}
+                    onDone={reveal}
+                  />
+                ) : scratchOpen ? (
+                  <textarea
+                    ref={scratchRef}
+                    value={scratch}
+                    onChange={(e) => setScratch(e.target.value)}
+                    placeholder="Sketch your answer. Cmd/Ctrl+Enter to reveal."
+                    rows={5}
+                    className="w-full resize-y rounded-xl border border-rule bg-paper-2 px-4 py-3 font-mono text-sm text-ink placeholder:text-ink-3"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setScratchOpen(true);
+                      setTimeout(() => scratchRef.current?.focus(), 0);
+                    }}
+                    className="inline-flex items-center gap-2 text-sm text-ink-2 hover:text-ink"
+                  >
+                    <PenLine className="h-4 w-4" /> Add a scratchpad
+                  </button>
+                )}
+              </div>
+            )}
 
-          {phase === "revealed" && (
-            <div className="mt-7">
-              <h3 className="text-sm font-medium text-ink-2">
-                {settings.mode === "rubric" ? "Tick the points you covered" : "Key points"}
-              </h3>
-              <ol className="mt-3 space-y-2">
-                {current.keyPoints.map((kp, i) => {
-                  const on = checked.has(i);
-                  const Row = settings.mode === "rubric" ? "label" : "div";
-                  return (
-                    <li key={kp}>
-                      <Row
+            {phase === "revealed" && (
+              <div className="mt-7 lg:mt-5">
+                <h3 className="text-sm font-medium text-ink-2">
+                  {settings.mode === "rubric" ? "Tick the points you covered" : "Key points"}
+                </h3>
+                <ol className="mt-3 space-y-2">
+                  {current.keyPoints.map((kp, i) => {
+                    const on = checked.has(i);
+                    const Row = settings.mode === "rubric" ? "label" : "div";
+                    return (
+                      <li key={kp}>
+                        <Row
+                          className={cn(
+                            "-mx-2 flex items-start gap-3 rounded-lg px-2 py-1.5",
+                            settings.mode === "rubric" && "cursor-pointer hover:bg-paper-2",
+                          )}
+                        >
+                          {settings.mode === "rubric" ? (
+                            <input
+                              type="checkbox"
+                              checked={on}
+                              onChange={() =>
+                                setChecked((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(i)) next.delete(i);
+                                  else next.add(i);
+                                  return next;
+                                })
+                              }
+                              className="mt-1 h-4 w-4 shrink-0 accent-[var(--red)]"
+                            />
+                          ) : (
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
+                          )}
+                          <span className={cn("leading-snug", on && "text-ink-2")}>
+                            {kp}
+                            {current.eli5?.[i] && (
+                              <span className="mt-1 block text-sm text-ink-2">
+                                <span className="sr-only">In plain words: </span>
+                                {current.eli5[i]}
+                              </span>
+                            )}
+                          </span>
+                          {settings.mode === "rubric" && i < 9 && (
+                            <Kbd className="mt-0.5 ml-auto hidden sm:inline-flex">{i + 1}</Kbd>
+                          )}
+                        </Row>
+                      </li>
+                    );
+                  })}
+                </ol>
+
+                {scratch.trim() && (
+                  <div className="mt-5 rounded-xl border border-rule bg-paper-2 px-4 py-3">
+                    <p className="text-xs font-medium text-ink-3">Your scratchpad</p>
+                    <pre className="mt-1 font-mono text-sm whitespace-pre-wrap text-ink-2">
+                      {scratch}
+                    </pre>
+                  </div>
+                )}
+
+                <div className="mt-8 border-t border-rule pt-6">
+                  {settings.mode === "rubric" && suggested && (
+                    <p className="mb-3 text-sm text-ink-2">
+                      {checked.size}/{current.keyPoints.length} covered → suggested{" "}
+                      <strong className="text-ink">{RATING_LABEL[suggested]}</strong>. Press{" "}
+                      <Kbd>enter</Kbd> to accept or pick another.
+                    </p>
+                  )}
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {RATINGS.map((r) => (
+                      <Button
+                        key={r}
+                        variant="rate"
+                        size="lg"
+                        onClick={() => void applyRating(r)}
                         className={cn(
-                          "-mx-2 flex items-start gap-3 rounded-lg px-2 py-1.5",
-                          settings.mode === "rubric" && "cursor-pointer hover:bg-paper-2",
+                          "h-auto flex-col gap-0.5 rounded-xl py-2.5",
+                          RATING_TONE[r],
+                          suggested === r && "ring-2 ring-ink/70 ring-offset-2 ring-offset-paper",
                         )}
                       >
-                        {settings.mode === "rubric" ? (
-                          <input
-                            type="checkbox"
-                            checked={on}
-                            onChange={() =>
-                              setChecked((prev) => {
-                                const next = new Set(prev);
-                                if (next.has(i)) next.delete(i);
-                                else next.add(i);
-                                return next;
-                              })
-                            }
-                            className="mt-1 h-4 w-4 shrink-0 accent-[var(--red)]"
-                          />
-                        ) : (
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-3" />
-                        )}
-                        <span className={cn("leading-snug", on && "text-ink-2")}>
-                          {kp}
-                          {current.eli5?.[i] && (
-                            <span className="mt-1 block text-sm text-ink-2">
-                              <span className="sr-only">In plain words: </span>
-                              {current.eli5[i]}
-                            </span>
-                          )}
+                        <span className="font-medium">{RATING_LABEL[r]}</span>
+                        <span className="font-mono text-xs text-ink-3">
+                          {previews ? formatInterval(new Date(), previews[r]) : ""}
                         </span>
-                        {settings.mode === "rubric" && i < 9 && (
-                          <Kbd className="mt-0.5 ml-auto hidden sm:inline-flex">{i + 1}</Kbd>
-                        )}
-                      </Row>
-                    </li>
-                  );
-                })}
-              </ol>
-
-              {scratch.trim() && (
-                <div className="mt-5 rounded-xl border border-rule bg-paper-2 px-4 py-3">
-                  <p className="text-xs font-medium text-ink-3">Your scratchpad</p>
-                  <pre className="mt-1 font-mono text-sm whitespace-pre-wrap text-ink-2">
-                    {scratch}
-                  </pre>
-                </div>
-              )}
-
-              <div className="mt-8 border-t border-rule pt-6">
-                {settings.mode === "rubric" && suggested && (
-                  <p className="mb-3 text-sm text-ink-2">
-                    {checked.size}/{current.keyPoints.length} covered → suggested{" "}
-                    <strong className="text-ink">{RATING_LABEL[suggested]}</strong>. Press{" "}
-                    <Kbd>enter</Kbd> to accept or pick another.
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs text-ink-3">
+                    {settings.mode === "quick" ? (
+                      <>
+                        Rate with <Kbd>1</Kbd>–<Kbd>4</Kbd>.
+                      </>
+                    ) : (
+                      <>
+                        Override with <Kbd>A</Kbd> <Kbd>H</Kbd> <Kbd>G</Kbd> <Kbd>E</Kbd>.
+                      </>
+                    )}
                   </p>
-                )}
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {RATINGS.map((r) => (
-                    <Button
-                      key={r}
-                      variant="rate"
-                      size="lg"
-                      onClick={() => void applyRating(r)}
-                      className={cn(
-                        "h-auto flex-col gap-0.5 rounded-xl py-2.5",
-                        RATING_TONE[r],
-                        suggested === r && "ring-2 ring-ink/70 ring-offset-2 ring-offset-paper",
-                      )}
-                    >
-                      <span className="font-medium">{RATING_LABEL[r]}</span>
-                      <span className="font-mono text-xs text-ink-3">
-                        {previews ? formatInterval(new Date(), previews[r]) : ""}
-                      </span>
-                    </Button>
-                  ))}
                 </div>
-                <p className="mt-3 text-xs text-ink-3">
-                  {settings.mode === "quick" ? (
-                    <>
-                      Rate with <Kbd>1</Kbd>–<Kbd>4</Kbd>.
-                    </>
-                  ) : (
-                    <>
-                      Override with <Kbd>A</Kbd> <Kbd>H</Kbd> <Kbd>G</Kbd> <Kbd>E</Kbd>.
-                    </>
-                  )}
-                </p>
-              </div>
 
-              <details className="group mt-8">
-                <summary className="cursor-pointer list-none text-sm font-medium text-ink-2 hover:text-ink">
-                  <span className="inline-flex items-center gap-2">
-                    <RotateCcw className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
-                    Model answer
-                    {current.stages && ` · ${current.stages.length} stages`}
-                  </span>
-                </summary>
-                <div className="mt-4">
-                  {current.stages && (
-                    <ol className="mb-6 space-y-3">
-                      {current.stages.map((stage, i) => (
-                        <li
-                          key={stage.name}
-                          className="rounded-xl border border-rule bg-paper-2 px-4 py-3"
-                        >
-                          <p className="text-sm font-medium text-ink">
-                            <span className="mr-2 font-mono text-ink-3">{i + 1}</span>
-                            {stage.name}
-                          </p>
-                          <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm text-ink-2">
-                            {stage.keyPoints.map((p) => (
-                              <li key={p}>{p}</li>
-                            ))}
-                          </ul>
-                        </li>
-                      ))}
-                    </ol>
-                  )}
-                  <Markdown source={current.body} />
-                  {current.followUps.length > 0 && (
-                    <div className="mt-6">
-                      <p className="text-sm font-medium text-ink-2">Likely follow-ups</p>
-                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-2">
-                        {current.followUps.map((f) => (
-                          <li key={f}>{f}</li>
+                <details className="group mt-8">
+                  <summary className="cursor-pointer list-none text-sm font-medium text-ink-2 hover:text-ink">
+                    <span className="inline-flex items-center gap-2">
+                      <RotateCcw className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                      Model answer
+                      {current.stages && ` · ${current.stages.length} stages`}
+                    </span>
+                  </summary>
+                  <div className="mt-4">
+                    {current.stages && (
+                      <ol className="mb-6 space-y-3">
+                        {current.stages.map((stage, i) => (
+                          <li
+                            key={stage.name}
+                            className="rounded-xl border border-rule bg-paper-2 px-4 py-3"
+                          >
+                            <p className="text-sm font-medium text-ink">
+                              <span className="mr-2 font-mono text-ink-3">{i + 1}</span>
+                              {stage.name}
+                            </p>
+                            <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm text-ink-2">
+                              {stage.keyPoints.map((p) => (
+                                <li key={p}>{p}</li>
+                              ))}
+                            </ul>
+                          </li>
                         ))}
-                      </ul>
-                    </div>
-                  )}
-                  <p className="mt-6 text-sm">
-                    <Link
-                      href={`/cards/${current.id}`}
-                      className="inline-flex items-center gap-1 text-ink-2 underline underline-offset-4 hover:text-ink"
-                    >
-                      Open this card <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
-                  </p>
-                </div>
-              </details>
-            </div>
-          )}
+                      </ol>
+                    )}
+                    <Markdown source={current.body} />
+                    {current.followUps.length > 0 && (
+                      <div className="mt-6">
+                        <p className="text-sm font-medium text-ink-2">Likely follow-ups</p>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-2">
+                          {current.followUps.map((f) => (
+                            <li key={f}>{f}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <p className="mt-6 text-sm">
+                      <Link
+                        href={`/cards/${current.id}`}
+                        className="inline-flex items-center gap-1 text-ink-2 underline underline-offset-4 hover:text-ink"
+                      >
+                        Open this card <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    </p>
+                  </div>
+                </details>
+              </div>
+            )}
+          </div>
         </div>
 
         {phase === "prompt" && (
@@ -817,14 +823,19 @@ function SkipButton({
 function SessionFrame({
   title,
   right,
+  wide = false,
   children,
 }: {
   title: string;
   right?: React.ReactNode;
+  /** Match the site header's width on large viewports. The study card lays out in two columns there. */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+    <div
+      className={cn("mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10", wide && "lg:max-w-6xl")}
+    >
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-xl font-bold tracking-tight text-ink">{title}</h1>
         {right}

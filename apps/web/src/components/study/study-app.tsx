@@ -114,7 +114,7 @@ export function StudyApp({ cards }: { cards: readonly Card[] }) {
 
   if (!display) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:max-w-6xl">
         <div className="index-card h-[360px] animate-pulse" />
       </div>
     );
