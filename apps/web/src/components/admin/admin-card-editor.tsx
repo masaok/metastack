@@ -130,7 +130,9 @@ export function AdminCardEditor({
   const isNew = !card;
   const [draft, setDraft] = useState<Draft>(() => draftFrom(card));
   const [issues, setIssues] = useState<string[]>([]);
-  const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "deleting">("idle");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const busy = status === "saving" || status === "deleting";
 
   function change(patch: Partial<Draft>) {
     setDraft((prev) => ({ ...prev, ...patch }));
@@ -155,6 +157,31 @@ export function AdminCardEditor({
     change({
       tags: draft.tags.includes(tag) ? draft.tags.filter((t) => t !== tag) : [...draft.tags, tag],
     });
+  }
+
+  async function remove() {
+    if (!card) return;
+    setStatus("deleting");
+    setIssues([]);
+    try {
+      const response = await fetch(`/api/admin/cards/${card.id}`, { method: "DELETE" });
+      const data = (await response.json().catch(() => null)) as {
+        issues?: string[];
+        error?: string;
+      } | null;
+      if (!response.ok) {
+        setIssues(data?.issues ?? [data?.error ?? `The delete failed (${response.status}).`]);
+        setStatus("idle");
+        setConfirmingDelete(false);
+        return;
+      }
+      router.push("/admin/cards");
+      router.refresh();
+    } catch {
+      setIssues(["The delete did not reach the server. Check your connection and try again."]);
+      setStatus("idle");
+      setConfirmingDelete(false);
+    }
   }
 
   async function save(event: React.FormEvent) {
@@ -202,7 +229,7 @@ export function AdminCardEditor({
           <p className="ml-auto text-sm text-ink-3" role="status">
             {status === "saved" ? "Saved" : ""}
           </p>
-          <Button type="submit" size="sm" disabled={status === "saving"}>
+          <Button type="submit" size="sm" disabled={busy}>
             {status === "saving" ? "Saving" : isNew ? "Create card" : "Save"}
           </Button>
         </div>
@@ -214,7 +241,7 @@ export function AdminCardEditor({
                 role="alert"
                 className="rounded-xl border border-red/30 bg-red/10 px-4 py-3 text-sm text-red-ink"
               >
-                <p className="font-medium">The card was not saved.</p>
+                <p className="font-medium">That did not go through.</p>
                 <ul className="mt-1.5 list-disc space-y-0.5 pl-5">
                   {issues.map((issue) => (
                     <li key={issue}>{issue}</li>
@@ -476,6 +503,43 @@ export function AdminCardEditor({
                 </p>
               ) : null}
             </Group>
+
+            {card ? (
+              <Group
+                title="Delete"
+                description="Removes the card from the database for good. To take it off the site and keep it, clear Published instead."
+              >
+                {confirmingDelete ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-sm text-ink-2">
+                      Delete <span className="font-mono text-ink">{card.id}</span>? This cannot be
+                      undone.
+                    </p>
+                    <Button size="sm" onClick={() => void remove()} disabled={busy}>
+                      {status === "deleting" ? "Deleting" : "Yes, delete it"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setConfirmingDelete(false)}
+                      disabled={busy}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-red-ink"
+                    onClick={() => setConfirmingDelete(true)}
+                    disabled={busy}
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden /> Delete card
+                  </Button>
+                )}
+              </Group>
+            ) : null}
           </div>
         </div>
       </form>

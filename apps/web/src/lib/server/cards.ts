@@ -7,7 +7,7 @@ import type { Card } from "@metastack/content";
 import { seedCards } from "@metastack/content/seed";
 
 import { hasDatabaseUrl } from "@/lib/auth/env";
-import { cardExists, selectCards, upsertCards } from "@/lib/cards/store";
+import { cardExists, deleteCard, selectCards, upsertCards } from "@/lib/cards/store";
 
 import { ensureSchema } from "./neon";
 
@@ -61,4 +61,14 @@ export async function saveCard(card: Card, mode: "create" | "update"): Promise<S
   await upsertCards(sql, [card], { overwrite: mode === "update" });
   revalidateTag(CARDS_TAG, { expire: 0 });
   return "saved";
+}
+
+/**
+ * Delete one card from the admin editor. Returns false when it was not stored.
+ * Progress rows for the card are kept; nothing shows them once the card is gone.
+ */
+export async function removeCard(id: string): Promise<boolean> {
+  const removed = await deleteCard(await ensureSchema(), id);
+  if (removed) revalidateTag(CARDS_TAG, { expire: 0 });
+  return removed;
 }

@@ -1,6 +1,6 @@
 import { parseCardInput } from "@/lib/cards/draft";
 import { adminOrRefusal, today } from "@/lib/server/admin-api";
-import { saveCard } from "@/lib/server/cards";
+import { removeCard, saveCard } from "@/lib/server/cards";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,4 +24,16 @@ export async function PUT(request: Request, { params }: Context) {
     return Response.json({ issues: [`id: no card with the id "${id}"`] }, { status: 404 });
   }
   return Response.json({ card: parsed.card });
+}
+
+/** Delete a stored card. */
+export async function DELETE(_request: Request, { params }: Context) {
+  const admin = await adminOrRefusal();
+  if (admin instanceof Response) return admin;
+
+  const { id } = await params;
+  if (!(await removeCard(id))) {
+    return Response.json({ issues: [`id: no card with the id "${id}"`] }, { status: 404 });
+  }
+  return Response.json({ deleted: id });
 }

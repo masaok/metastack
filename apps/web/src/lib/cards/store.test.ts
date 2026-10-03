@@ -4,6 +4,7 @@ import type { Card } from "@metastack/content";
 
 import {
   cardExists,
+  deleteCard,
   rowToCard,
   selectCards,
   upsertCards,
@@ -99,6 +100,19 @@ async function main() {
 
   assert.equal(await cardExists(spy, row.id), true);
   assert.equal(await cardExists({ query: async () => [] }, row.id), false);
+
+  // Delete reports whether a row was removed.
+  const deletes: Array<{ text: string; params?: unknown[] }> = [];
+  const remover: CardsSql = {
+    query: async (text, params) => {
+      deletes.push({ text, params });
+      return params?.[0] === row.id ? [{ id: row.id }] : [];
+    },
+  };
+  assert.equal(await deleteCard(remover, row.id), true);
+  assert.equal(await deleteCard(remover, "not-stored"), false);
+  assert.match(deletes[0]!.text, /DELETE FROM cards WHERE id = \$1/);
+  assert.deepEqual(deletes[0]!.params, [row.id]);
 
   console.log("card store ok");
 }

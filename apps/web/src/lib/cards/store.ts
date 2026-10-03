@@ -120,6 +120,12 @@ export async function cardExists(sql: CardsSql, id: string): Promise<boolean> {
   return rows.length > 0;
 }
 
+/** Remove one card. Returns false when no card had that id. */
+export async function deleteCard(sql: CardsSql, id: string): Promise<boolean> {
+  const rows = (await sql.query(`DELETE FROM cards WHERE id = $1 RETURNING id`, [id])) as unknown[];
+  return rows.length > 0;
+}
+
 /**
  * Insert the cards. A stored card with the same id is kept, or replaced when
  * `overwrite` is set. Rows for other ids are left alone.
