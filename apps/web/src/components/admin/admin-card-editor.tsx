@@ -247,7 +247,7 @@ export function AdminCardEditor({
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
-          <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-6">
+          <div className="w-full space-y-8 px-4 py-6">
             {issues.length > 0 ? (
               <div
                 role="alert"
@@ -262,369 +262,390 @@ export function AdminCardEditor({
               </div>
             ) : null}
 
-            <Group title="Card">
-              <Field label="Id" hint={isNew ? "Kebab-case. It cannot change later." : undefined}>
-                <input
-                  value={draft.id}
-                  onChange={(event) => change({ id: event.target.value })}
-                  disabled={!isNew}
-                  placeholder="cache-aside-pattern"
-                  className={cn(INPUT, "font-mono disabled:text-ink-3")}
-                />
-              </Field>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Deck">
-                  <select
-                    value={draft.deck}
-                    onChange={(event) => change({ deck: event.target.value as DeckSlug })}
-                    className={INPUT}
+            {/* Two columns when there is room, so the form uses the width instead of one long strip. */}
+            <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
+              <div className="space-y-8">
+                <Group title="Card">
+                  <Field
+                    label="Id"
+                    hint={isNew ? "Kebab-case. It cannot change later." : undefined}
                   >
-                    {DECKS.map((deck) => (
-                      <option key={deck.slug} value={deck.slug}>
-                        {deck.title}
-                      </option>
+                    <input
+                      value={draft.id}
+                      onChange={(event) => change({ id: event.target.value })}
+                      disabled={!isNew}
+                      placeholder="cache-aside-pattern"
+                      className={cn(INPUT, "font-mono disabled:text-ink-3")}
+                    />
+                  </Field>
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <Field label="Deck">
+                      <select
+                        value={draft.deck}
+                        onChange={(event) => change({ deck: event.target.value as DeckSlug })}
+                        className={INPUT}
+                      >
+                        {DECKS.map((deck) => (
+                          <option key={deck.slug} value={deck.slug}>
+                            {deck.title}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Type">
+                      <select
+                        value={draft.type}
+                        onChange={(event) => change({ type: event.target.value as CardType })}
+                        className={INPUT}
+                      >
+                        {CARD_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Difficulty">
+                      <select
+                        value={draft.difficulty}
+                        onChange={(event) => change({ difficulty: Number(event.target.value) })}
+                        className={INPUT}
+                      >
+                        <option value={1}>1 · easy</option>
+                        <option value={2}>2 · medium</option>
+                        <option value={3}>3 · hard</option>
+                      </select>
+                    </Field>
+                  </div>
+                  <Field label="Prompt" hint="Phrased the way an interviewer would ask it.">
+                    <textarea
+                      value={draft.prompt}
+                      onChange={(event) => change({ prompt: event.target.value })}
+                      rows={3}
+                      className={INPUT}
+                    />
+                  </Field>
+                  <fieldset>
+                    <legend className="text-sm font-medium text-ink">Tags</legend>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {TAGS.map((tag) => {
+                        const on = draft.tags.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => toggleTag(tag)}
+                            className={cn(
+                              "rounded-full border px-2.5 py-1 text-xs",
+                              on
+                                ? "border-ink bg-ink text-bg"
+                                : "border-rule text-ink-2 hover:border-rule-strong hover:text-ink",
+                            )}
+                          >
+                            {tag}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                </Group>
+
+                <Group
+                  title="Key points"
+                  description="Each point is something a strong answer says. The plain-language line is optional, but fill in all of them or none."
+                >
+                  <ol className="space-y-3">
+                    {draft.points.map((point, i) => (
+                      <li key={i} className="flex gap-2">
+                        <span className="mt-2 w-4 shrink-0 font-mono text-xs text-ink-3">
+                          {i + 1}
+                        </span>
+                        <div className="min-w-0 flex-1 space-y-1.5">
+                          <textarea
+                            value={point.text}
+                            onChange={(event) =>
+                              changeRow("points", i, { text: event.target.value })
+                            }
+                            rows={2}
+                            aria-label={`Key point ${i + 1}`}
+                            placeholder="Key point"
+                            className={INPUT}
+                          />
+                          <textarea
+                            value={point.eli5}
+                            onChange={(event) =>
+                              changeRow("points", i, { eli5: event.target.value })
+                            }
+                            rows={2}
+                            aria-label={`Plain-language version of key point ${i + 1}`}
+                            placeholder="In plain words"
+                            className={cn(INPUT, "text-ink-2")}
+                          />
+                        </div>
+                        <RemoveButton
+                          label={`Remove key point ${i + 1}`}
+                          onClick={() => removeRow("points", i)}
+                        />
+                      </li>
                     ))}
-                  </select>
-                </Field>
-                <Field label="Type">
-                  <select
-                    value={draft.type}
-                    onChange={(event) => change({ type: event.target.value as CardType })}
-                    className={INPUT}
+                  </ol>
+                  <AddButton onClick={() => change({ points: [...draft.points, BLANK_POINT] })}>
+                    Add a key point
+                  </AddButton>
+                </Group>
+
+                {draft.type === "design" ? (
+                  <Group
+                    title="Stages"
+                    description="Design cards are drilled stage by stage. One key point per line."
                   >
-                    {CARD_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Difficulty">
-                  <select
-                    value={draft.difficulty}
-                    onChange={(event) => change({ difficulty: Number(event.target.value) })}
-                    className={INPUT}
+                    <ol className="space-y-3">
+                      {draft.stages.map((stage, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="mt-2 w-4 shrink-0 font-mono text-xs text-ink-3">
+                            {i + 1}
+                          </span>
+                          <div className="min-w-0 flex-1 space-y-1.5">
+                            <input
+                              value={stage.name}
+                              onChange={(event) =>
+                                changeRow("stages", i, { name: event.target.value })
+                              }
+                              aria-label={`Stage ${i + 1} name`}
+                              placeholder="Stage name"
+                              className={INPUT}
+                            />
+                            <textarea
+                              value={stage.points}
+                              onChange={(event) =>
+                                changeRow("stages", i, { points: event.target.value })
+                              }
+                              rows={3}
+                              aria-label={`Stage ${i + 1} key points`}
+                              placeholder="One key point per line"
+                              className={INPUT}
+                            />
+                          </div>
+                          <RemoveButton
+                            label={`Remove stage ${i + 1}`}
+                            onClick={() => removeRow("stages", i)}
+                          />
+                        </li>
+                      ))}
+                    </ol>
+                    <AddButton onClick={() => change({ stages: [...draft.stages, BLANK_STAGE] })}>
+                      Add a stage
+                    </AddButton>
+                  </Group>
+                ) : null}
+
+                <Group
+                  title="Model answer"
+                  description="Markdown. Mermaid code fences render as diagrams."
+                >
+                  <div
+                    role="group"
+                    aria-label="Model answer view"
+                    className="inline-flex rounded-full border border-rule p-0.5 text-xs"
                   >
-                    <option value={1}>1 · easy</option>
-                    <option value={2}>2 · medium</option>
-                    <option value={3}>3 · hard</option>
-                  </select>
-                </Field>
-              </div>
-              <Field label="Prompt" hint="Phrased the way an interviewer would ask it.">
-                <textarea
-                  value={draft.prompt}
-                  onChange={(event) => change({ prompt: event.target.value })}
-                  rows={3}
-                  className={INPUT}
-                />
-              </Field>
-              <fieldset>
-                <legend className="text-sm font-medium text-ink">Tags</legend>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {TAGS.map((tag) => {
-                    const on = draft.tags.includes(tag);
-                    return (
+                    {(["write", "preview"] as const).map((view) => (
                       <button
-                        key={tag}
+                        key={view}
                         type="button"
-                        aria-pressed={on}
-                        onClick={() => toggleTag(tag)}
+                        onClick={() => setAnswerView(view)}
+                        aria-pressed={answerView === view}
                         className={cn(
-                          "rounded-full border px-2.5 py-1 text-xs",
-                          on
-                            ? "border-ink bg-ink text-bg"
-                            : "border-rule text-ink-2 hover:border-rule-strong hover:text-ink",
+                          "rounded-full px-2.5 py-1 capitalize",
+                          answerView === view ? "bg-ink text-bg" : "text-ink-2 hover:text-ink",
                         )}
                       >
-                        {tag}
+                        {view}
                       </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
-            </Group>
-
-            <Group
-              title="Key points"
-              description="Each point is something a strong answer says. The plain-language line is optional, but fill in all of them or none."
-            >
-              <ol className="space-y-3">
-                {draft.points.map((point, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="mt-2 w-4 shrink-0 font-mono text-xs text-ink-3">{i + 1}</span>
-                    <div className="min-w-0 flex-1 space-y-1.5">
-                      <textarea
-                        value={point.text}
-                        onChange={(event) => changeRow("points", i, { text: event.target.value })}
-                        rows={2}
-                        aria-label={`Key point ${i + 1}`}
-                        placeholder="Key point"
-                        className={INPUT}
-                      />
-                      <textarea
-                        value={point.eli5}
-                        onChange={(event) => changeRow("points", i, { eli5: event.target.value })}
-                        rows={2}
-                        aria-label={`Plain-language version of key point ${i + 1}`}
-                        placeholder="In plain words"
-                        className={cn(INPUT, "text-ink-2")}
-                      />
-                    </div>
-                    <RemoveButton
-                      label={`Remove key point ${i + 1}`}
-                      onClick={() => removeRow("points", i)}
-                    />
-                  </li>
-                ))}
-              </ol>
-              <AddButton onClick={() => change({ points: [...draft.points, BLANK_POINT] })}>
-                Add a key point
-              </AddButton>
-            </Group>
-
-            {draft.type === "design" ? (
-              <Group
-                title="Stages"
-                description="Design cards are drilled stage by stage. One key point per line."
-              >
-                <ol className="space-y-3">
-                  {draft.stages.map((stage, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="mt-2 w-4 shrink-0 font-mono text-xs text-ink-3">
-                        {i + 1}
-                      </span>
-                      <div className="min-w-0 flex-1 space-y-1.5">
-                        <input
-                          value={stage.name}
-                          onChange={(event) => changeRow("stages", i, { name: event.target.value })}
-                          aria-label={`Stage ${i + 1} name`}
-                          placeholder="Stage name"
-                          className={INPUT}
-                        />
-                        <textarea
-                          value={stage.points}
-                          onChange={(event) =>
-                            changeRow("stages", i, { points: event.target.value })
-                          }
-                          rows={3}
-                          aria-label={`Stage ${i + 1} key points`}
-                          placeholder="One key point per line"
-                          className={INPUT}
-                        />
-                      </div>
-                      <RemoveButton
-                        label={`Remove stage ${i + 1}`}
-                        onClick={() => removeRow("stages", i)}
-                      />
-                    </li>
-                  ))}
-                </ol>
-                <AddButton onClick={() => change({ stages: [...draft.stages, BLANK_STAGE] })}>
-                  Add a stage
-                </AddButton>
-              </Group>
-            ) : null}
-
-            <Group
-              title="Model answer"
-              description="Markdown. Mermaid code fences render as diagrams."
-            >
-              <div
-                role="group"
-                aria-label="Model answer view"
-                className="inline-flex rounded-full border border-rule p-0.5 text-xs"
-              >
-                {(["write", "preview"] as const).map((view) => (
-                  <button
-                    key={view}
-                    type="button"
-                    onClick={() => setAnswerView(view)}
-                    aria-pressed={answerView === view}
-                    className={cn(
-                      "rounded-full px-2.5 py-1 capitalize",
-                      answerView === view ? "bg-ink text-bg" : "text-ink-2 hover:text-ink",
-                    )}
-                  >
-                    {view}
-                  </button>
-                ))}
-              </div>
-              {answerView === "write" ? (
-                <textarea
-                  value={draft.body}
-                  onChange={(event) => change({ body: event.target.value })}
-                  rows={16}
-                  aria-label="Model answer"
-                  className={cn(INPUT, "font-mono")}
-                />
-              ) : draft.body.trim() ? (
-                // The same renderer the study card and the card page use.
-                <div className="rounded-md border border-rule bg-bg px-4 py-3">
-                  <Markdown source={draft.body} />
-                </div>
-              ) : (
-                <p className="text-sm text-ink-3">Nothing to preview yet.</p>
-              )}
-            </Group>
-
-            <Group
-              title="Distractors"
-              description="Plausible but wrong statements for the pick exercise, each with a short reason it is wrong. Leave empty, or give two to five."
-            >
-              <ol className="space-y-3">
-                {draft.distractors.map((distractor, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="mt-2 w-4 shrink-0 font-mono text-xs text-ink-3">{i + 1}</span>
-                    <div className="min-w-0 flex-1 space-y-1.5">
-                      <textarea
-                        value={distractor.text}
-                        onChange={(event) =>
-                          changeRow("distractors", i, { text: event.target.value })
-                        }
-                        rows={2}
-                        aria-label={`Distractor ${i + 1}`}
-                        placeholder="Wrong statement"
-                        className={INPUT}
-                      />
-                      <textarea
-                        value={distractor.why}
-                        onChange={(event) =>
-                          changeRow("distractors", i, { why: event.target.value })
-                        }
-                        rows={2}
-                        aria-label={`Why distractor ${i + 1} is wrong`}
-                        placeholder="Why it is wrong"
-                        className={cn(INPUT, "text-ink-2")}
-                      />
-                    </div>
-                    <RemoveButton
-                      label={`Remove distractor ${i + 1}`}
-                      onClick={() => removeRow("distractors", i)}
-                    />
-                  </li>
-                ))}
-              </ol>
-              <AddButton
-                onClick={() => change({ distractors: [...draft.distractors, BLANK_DISTRACTOR] })}
-              >
-                Add a distractor
-              </AddButton>
-            </Group>
-
-            <Group title="Follow-ups" description="Likely follow-up questions, one per line.">
-              <textarea
-                value={draft.followUps}
-                onChange={(event) => change({ followUps: event.target.value })}
-                rows={3}
-                aria-label="Follow-up questions"
-                className={INPUT}
-              />
-            </Group>
-
-            <Group title="References" description="Public sources. At least one.">
-              <ul className="space-y-2">
-                {draft.references.map((reference, i) => (
-                  <li key={i} className="flex gap-2">
-                    <div className="grid min-w-0 flex-1 gap-1.5 sm:grid-cols-2">
-                      <input
-                        value={reference.title}
-                        onChange={(event) =>
-                          changeRow("references", i, { title: event.target.value })
-                        }
-                        aria-label={`Reference ${i + 1} title`}
-                        placeholder="Title"
-                        className={INPUT}
-                      />
-                      <input
-                        value={reference.url}
-                        onChange={(event) =>
-                          changeRow("references", i, { url: event.target.value })
-                        }
-                        aria-label={`Reference ${i + 1} URL`}
-                        placeholder="https://"
-                        type="url"
-                        className={INPUT}
-                      />
-                    </div>
-                    <RemoveButton
-                      label={`Remove reference ${i + 1}`}
-                      onClick={() => removeRow("references", i)}
-                    />
-                  </li>
-                ))}
-              </ul>
-              <AddButton
-                onClick={() => change({ references: [...draft.references, BLANK_REFERENCE] })}
-              >
-                Add a reference
-              </AddButton>
-            </Group>
-
-            <Group title="Publishing">
-              <label className="flex cursor-pointer items-start gap-3">
-                <input
-                  type="checkbox"
-                  checked={draft.reviewed}
-                  onChange={(event) => change({ reviewed: event.target.checked })}
-                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--red)]"
-                />
-                <span>
-                  <span className="text-sm font-medium text-ink">Published</span>
-                  <span className="block text-sm text-ink-2">
-                    A published card is on the site and in study sessions. Clear this to take a card
-                    off the site without losing anyone&apos;s progress on it.
-                  </span>
-                </span>
-              </label>
-              {card?.reviewed ? (
-                <p className="text-sm">
-                  <Link
-                    href={`/cards/${card.id}`}
-                    className="text-ink-2 underline underline-offset-4 hover:text-ink"
-                  >
-                    View the published card
-                  </Link>
-                </p>
-              ) : null}
-            </Group>
-
-            {card ? (
-              <Group
-                title="Delete"
-                description="Removes the card from the database for good. To take it off the site and keep it, clear Published instead."
-              >
-                {confirmingDelete ? (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-sm text-ink-2">
-                      Delete <span className="font-mono text-ink">{card.id}</span>? This cannot be
-                      undone.
-                    </p>
-                    <Button size="sm" onClick={() => void remove()} disabled={busy}>
-                      {status === "deleting" ? "Deleting" : "Yes, delete it"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setConfirmingDelete(false)}
-                      disabled={busy}
-                    >
-                      Cancel
-                    </Button>
+                    ))}
                   </div>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-red-ink"
-                    onClick={() => setConfirmingDelete(true)}
-                    disabled={busy}
+                  {answerView === "write" ? (
+                    <textarea
+                      value={draft.body}
+                      onChange={(event) => change({ body: event.target.value })}
+                      rows={16}
+                      aria-label="Model answer"
+                      className={cn(INPUT, "font-mono")}
+                    />
+                  ) : draft.body.trim() ? (
+                    // The same renderer the study card and the card page use.
+                    <div className="rounded-md border border-rule bg-bg px-4 py-3">
+                      <Markdown source={draft.body} />
+                    </div>
+                  ) : (
+                    <p className="text-sm text-ink-3">Nothing to preview yet.</p>
+                  )}
+                </Group>
+              </div>
+              <div className="space-y-8">
+                <Group
+                  title="Distractors"
+                  description="Plausible but wrong statements for the pick exercise, each with a short reason it is wrong. Leave empty, or give two to five."
+                >
+                  <ol className="space-y-3">
+                    {draft.distractors.map((distractor, i) => (
+                      <li key={i} className="flex gap-2">
+                        <span className="mt-2 w-4 shrink-0 font-mono text-xs text-ink-3">
+                          {i + 1}
+                        </span>
+                        <div className="min-w-0 flex-1 space-y-1.5">
+                          <textarea
+                            value={distractor.text}
+                            onChange={(event) =>
+                              changeRow("distractors", i, { text: event.target.value })
+                            }
+                            rows={2}
+                            aria-label={`Distractor ${i + 1}`}
+                            placeholder="Wrong statement"
+                            className={INPUT}
+                          />
+                          <textarea
+                            value={distractor.why}
+                            onChange={(event) =>
+                              changeRow("distractors", i, { why: event.target.value })
+                            }
+                            rows={2}
+                            aria-label={`Why distractor ${i + 1} is wrong`}
+                            placeholder="Why it is wrong"
+                            className={cn(INPUT, "text-ink-2")}
+                          />
+                        </div>
+                        <RemoveButton
+                          label={`Remove distractor ${i + 1}`}
+                          onClick={() => removeRow("distractors", i)}
+                        />
+                      </li>
+                    ))}
+                  </ol>
+                  <AddButton
+                    onClick={() =>
+                      change({ distractors: [...draft.distractors, BLANK_DISTRACTOR] })
+                    }
                   >
-                    <Trash2 className="h-4 w-4" aria-hidden /> Delete card
-                  </Button>
-                )}
-              </Group>
-            ) : null}
+                    Add a distractor
+                  </AddButton>
+                </Group>
+
+                <Group title="Follow-ups" description="Likely follow-up questions, one per line.">
+                  <textarea
+                    value={draft.followUps}
+                    onChange={(event) => change({ followUps: event.target.value })}
+                    rows={3}
+                    aria-label="Follow-up questions"
+                    className={INPUT}
+                  />
+                </Group>
+
+                <Group title="References" description="Public sources. At least one.">
+                  <ul className="space-y-2">
+                    {draft.references.map((reference, i) => (
+                      <li key={i} className="flex gap-2">
+                        <div className="grid min-w-0 flex-1 gap-1.5 sm:grid-cols-2">
+                          <input
+                            value={reference.title}
+                            onChange={(event) =>
+                              changeRow("references", i, { title: event.target.value })
+                            }
+                            aria-label={`Reference ${i + 1} title`}
+                            placeholder="Title"
+                            className={INPUT}
+                          />
+                          <input
+                            value={reference.url}
+                            onChange={(event) =>
+                              changeRow("references", i, { url: event.target.value })
+                            }
+                            aria-label={`Reference ${i + 1} URL`}
+                            placeholder="https://"
+                            type="url"
+                            className={INPUT}
+                          />
+                        </div>
+                        <RemoveButton
+                          label={`Remove reference ${i + 1}`}
+                          onClick={() => removeRow("references", i)}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                  <AddButton
+                    onClick={() => change({ references: [...draft.references, BLANK_REFERENCE] })}
+                  >
+                    Add a reference
+                  </AddButton>
+                </Group>
+
+                <Group title="Publishing">
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={draft.reviewed}
+                      onChange={(event) => change({ reviewed: event.target.checked })}
+                      className="mt-1 h-4 w-4 shrink-0 accent-[var(--red)]"
+                    />
+                    <span>
+                      <span className="text-sm font-medium text-ink">Published</span>
+                      <span className="block text-sm text-ink-2">
+                        A published card is on the site and in study sessions. Clear this to take a
+                        card off the site without losing anyone&apos;s progress on it.
+                      </span>
+                    </span>
+                  </label>
+                  {card?.reviewed ? (
+                    <p className="text-sm">
+                      <Link
+                        href={`/cards/${card.id}`}
+                        className="text-ink-2 underline underline-offset-4 hover:text-ink"
+                      >
+                        View the published card
+                      </Link>
+                    </p>
+                  ) : null}
+                </Group>
+
+                {card ? (
+                  <Group
+                    title="Delete"
+                    description="Removes the card from the database for good. To take it off the site and keep it, clear Published instead."
+                  >
+                    {confirmingDelete ? (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="text-sm text-ink-2">
+                          Delete <span className="font-mono text-ink">{card.id}</span>? This cannot
+                          be undone.
+                        </p>
+                        <Button size="sm" onClick={() => void remove()} disabled={busy}>
+                          {status === "deleting" ? "Deleting" : "Yes, delete it"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setConfirmingDelete(false)}
+                          disabled={busy}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-red-ink"
+                        onClick={() => setConfirmingDelete(true)}
+                        disabled={busy}
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden /> Delete card
+                      </Button>
+                    )}
+                  </Group>
+                ) : null}
+              </div>
+            </div>
           </div>
         </div>
       </form>

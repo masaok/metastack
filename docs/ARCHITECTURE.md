@@ -59,7 +59,7 @@ Next.js 16 App Router. Card pages are pre-rendered. Sign-in and progress sync ar
 - `components/study/session.tsx`: the drill loop. After each rating it writes IndexedDB, then posts the review to `/api/progress/review` if a session cookie is present.
 - `components/markdown.tsx` + `mermaid-block.tsx`: react-markdown with GFM; Mermaid fences are rendered client-side with a lazily loaded Mermaid bundle, themed to match light/dark.
 - `lib/settings.ts`: the preference model (`newLimit`, `mode`, `theme`) and the parser both the browser and `/api/settings` use.
-- Theme is a `data-theme` attribute set by an inline script before paint. The script reads a `localStorage` cache. `lib/theme.ts` writes that cache and the attribute.
+- Theme is a `data-theme` attribute set by an inline script before paint. The toggle is in the site header and, on dashboard and admin pages, in the sidebar above the account. The script reads a `localStorage` cache. `lib/theme.ts` writes that cache and the attribute.
 
 ## Key flows
 

@@ -16,6 +16,7 @@ import Link from "next/link";
 
 import { GithubSignIn } from "@/components/github-sign-in";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { SessionUser } from "@/lib/sync";
 import { cn } from "@/lib/utils";
 
@@ -140,6 +141,12 @@ export function DashboardShell({
             </Link>
           </div>
         ) : null}
+        <div className="shrink-0 border-t border-rule px-2 py-2">
+          <ThemeToggle
+            label
+            className="h-auto w-full gap-2 rounded-md px-2 py-2 text-sm sm:justify-start"
+          />
+        </div>
         <div className="shrink-0 border-t border-rule p-2">
           {user ? (
             <div className="flex items-center gap-2 px-1 py-1">

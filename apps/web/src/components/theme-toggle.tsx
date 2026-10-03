@@ -13,7 +13,14 @@ function subscribe(onChange: () => void) {
   return () => observer.disconnect();
 }
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  label = false,
+}: {
+  className?: string;
+  /** Show the name of the theme the button switches to beside the icon, where there is room. */
+  label?: boolean;
+}) {
   const theme = useSyncExternalStore(subscribe, currentTheme, () => "light" as const);
 
   function toggle() {
@@ -32,7 +39,14 @@ export function ThemeToggle({ className }: { className?: string }) {
         className,
       )}
     >
-      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {theme === "dark" ? (
+        <Sun className="h-4 w-4 shrink-0" aria-hidden />
+      ) : (
+        <Moon className="h-4 w-4 shrink-0" aria-hidden />
+      )}
+      {label ? (
+        <span className="hidden sm:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+      ) : null}
     </button>
   );
 }

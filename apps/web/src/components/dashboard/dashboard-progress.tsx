@@ -142,7 +142,7 @@ function ProgressBody({
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4">
+    <div className="w-full space-y-4">
       <section className="rounded-xl border border-rule bg-paper px-5 py-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
