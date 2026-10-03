@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+import { GithubSignIn } from "@/components/github-sign-in";
 import { fetchSession, type SessionUser } from "@/lib/sync";
 
-export function AuthButton() {
+export function AuthButton({ compact = false }: { compact?: boolean }) {
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
 
   useEffect(() => {
@@ -12,17 +13,15 @@ export function AuthButton() {
   }, []);
 
   if (user === undefined) {
-    return <span className="hidden h-9 w-9 sm:inline-block" aria-hidden />;
+    return <span className="inline-block h-9 w-9" aria-hidden />;
   }
 
   if (!user) {
     return (
-      <a
-        href="/api/auth/github"
-        className="rounded-full px-3 py-1.5 text-sm text-ink-2 hover:bg-paper-2 hover:text-ink"
-      >
-        Sign in
-      </a>
+      <GithubSignIn
+        className={compact ? "w-9 px-0" : undefined}
+        labelClassName={compact ? "sr-only" : undefined}
+      />
     );
   }
 

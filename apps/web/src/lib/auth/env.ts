@@ -26,13 +26,23 @@ export function databaseUrl(): string {
   return url;
 }
 
+/**
+ * Public origin. In development the incoming request wins, and `127.0.0.1`
+ * is rewritten to `localhost`, so the GitHub callback stays
+ * `http://localhost:<port>/api/auth/callback/github` — the URL registered on
+ * the dev OAuth app. `NEXT_PUBLIC_SITE_URL` still applies in production.
+ */
 export function siteUrl(requestUrl?: string): string {
+  if (process.env.NODE_ENV !== "production" && requestUrl) return requestOrigin(requestUrl);
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-  if (requestUrl) {
-    const u = new URL(requestUrl);
-    return `${u.protocol}//${u.host}`;
-  }
+  if (requestUrl) return requestOrigin(requestUrl);
   return "https://www.metastack.app";
+}
+
+function requestOrigin(requestUrl: string): string {
+  const u = new URL(requestUrl);
+  if (u.hostname === "127.0.0.1") u.hostname = "localhost";
+  return u.origin;
 }
 
 export function githubCallbackUrl(requestUrl?: string): string {

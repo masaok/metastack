@@ -43,6 +43,9 @@ export function SiteHeader() {
           >
             <Github className="h-4 w-4" />
           </a>
+          <span className="sm:hidden">
+            <AuthButton compact />
+          </span>
           <span className="hidden sm:inline-flex">
             <AuthButton />
           </span>
@@ -63,7 +66,6 @@ export function SiteHeader() {
             {item.label}
           </Link>
         ))}
-        <AuthButton />
       </nav>
     </header>
   );

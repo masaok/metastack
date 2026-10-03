@@ -4,6 +4,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Download, Trash2, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { GithubSignIn } from "@/components/github-sign-in";
 import { Button } from "@/components/ui/button";
 import {
   db,
@@ -53,7 +54,7 @@ export function SettingsPanel() {
         return;
       }
       if (auth === "error") {
-        setMessage({ tone: "error", text: "GitHub sign-in failed. Check the app callback URL." });
+        setMessage({ tone: "error", text: "GitHub sign-in failed." });
         return;
       }
       if (auth === "ok") {
@@ -227,12 +228,7 @@ export function SettingsPanel() {
               </a>
             </>
           ) : (
-            <a
-              href="/api/auth/github"
-              className={cn(buttonClass, "bg-ink text-bg hover:opacity-90")}
-            >
-              Sign in with GitHub
-            </a>
+            <GithubSignIn />
           )}
         </div>
       </Section>

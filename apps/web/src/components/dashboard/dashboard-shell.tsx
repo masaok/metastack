@@ -5,13 +5,13 @@ import {
   GalleryVerticalEnd,
   Layers,
   LayoutGrid,
-  LogIn,
   Play,
   Settings,
   Shield,
 } from "lucide-react";
 import Link from "next/link";
 
+import { GithubSignIn } from "@/components/github-sign-in";
 import { Logo } from "@/components/logo";
 import type { SessionUser } from "@/lib/sync";
 import { cn } from "@/lib/utils";
@@ -144,13 +144,10 @@ export function DashboardShell({
               </div>
             </div>
           ) : (
-            <a
-              href="/api/auth/github"
-              className="flex items-center justify-center gap-2 rounded-md bg-ink px-2 py-2 text-sm text-bg hover:opacity-90 sm:justify-start"
-            >
-              <LogIn className="h-4 w-4 shrink-0 sm:hidden" aria-hidden />
-              <span className="sr-only sm:not-sr-only">Sign in with GitHub</span>
-            </a>
+            <GithubSignIn
+              className="w-full px-0 sm:justify-start sm:px-3"
+              labelClassName="sr-only sm:not-sr-only"
+            />
           )}
         </div>
       </aside>

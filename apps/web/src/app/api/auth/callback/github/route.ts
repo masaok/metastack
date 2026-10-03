@@ -19,7 +19,8 @@ export async function GET(request: Request) {
     await upsertUser(user);
     await setSessionCookie(user);
     return Response.redirect(`${origin}/dashboard?auth=ok`);
-  } catch {
+  } catch (err) {
+    console.error("GitHub sign-in failed:", err instanceof Error ? err.message : err);
     return Response.redirect(`${origin}/settings?auth=error`);
   }
 }
