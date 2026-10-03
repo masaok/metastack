@@ -22,6 +22,28 @@ export async function fetchSession(): Promise<SessionUser | null> {
   return body.user;
 }
 
+// One session request per page load. Sign-in and sign-out are full-page
+// redirects, so the module (and this cache) starts fresh after either.
+let cachedSession: SessionUser | null | undefined;
+let inflightSession: Promise<SessionUser | null> | undefined;
+
+/** The cached session without fetching: `undefined` until the first load resolves. */
+export function peekSession(): SessionUser | null | undefined {
+  return cachedSession;
+}
+
+/** The session, fetched at most once per page load. Null when signed out. */
+export function loadSession(): Promise<SessionUser | null> {
+  if (cachedSession !== undefined) return Promise.resolve(cachedSession);
+  inflightSession ??= fetchSession()
+    .catch(() => null)
+    .then((user) => {
+      cachedSession = user;
+      return user;
+    });
+  return inflightSession;
+}
+
 export async function pushReview(state: CardState, review: ReviewRecord): Promise<void> {
   const res = await fetch("/api/progress/review", {
     method: "POST",
@@ -35,6 +57,7 @@ export async function pushReview(state: CardState, review: ReviewRecord): Promis
 
 /** Sends changed preferences to the account. Signed-out visitors keep them local. */
 export async function pushSettings(patch: Partial<Settings>): Promise<void> {
+  if (!(await loadSession())) return;
   const res = await fetch("/api/settings", {
     method: "PATCH",
     credentials: "same-origin",
@@ -51,6 +74,7 @@ export async function pushSettings(patch: Partial<Settings>): Promise<void> {
  * on any device.
  */
 export async function pullSettings(): Promise<Partial<Settings> | null> {
+  if (!(await loadSession())) return null;
   const res = await fetch("/api/settings", { credentials: "same-origin" });
   if (res.status === 401) return null;
   if (!res.ok) throw new Error("Could not load settings from the server.");
