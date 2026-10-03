@@ -13,7 +13,7 @@
     "db:seed": "pnpm --filter @metastack/content compile && tsx --env-file-if-exists=../../.env.local scripts/seed-cards.ts",
     "check:blog": "tsx scripts/check-blog.ts ../..",
     "check:blog:test": "tsx scripts/check-blog.test.ts",
-    "test": "tsx src/lib/progress/merge.test.ts && tsx src/lib/dashboard/rows.test.ts && tsx src/lib/auth/admin.test.ts && tsx src/lib/settings.test.ts && tsx src/lib/cards/store.test.ts && tsx src/lib/cards/draft.test.ts && tsx src/lib/study/exercise.test.ts"
+    "test": "tsx src/lib/progress/merge.test.ts && tsx src/lib/dashboard/rows.test.ts && tsx src/lib/dashboard/progress.test.ts && tsx src/lib/auth/admin.test.ts && tsx src/lib/settings.test.ts && tsx src/lib/cards/store.test.ts && tsx src/lib/cards/draft.test.ts && tsx src/lib/study/exercise.test.ts"
   },
   "dependencies": {
     "@metastack/content": "workspace:*",

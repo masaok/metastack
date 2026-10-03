@@ -16,6 +16,8 @@
   --red: #e2505c;
   --red-ink: #b7303c;
   --blue: #2f5fd0;
+  /* A lighter step of the blue, for the second step of a one-hue chart ramp. */
+  --blue-soft: #8fa9e8;
   --green: #1f9d6a;
   --amber: #d9941b;
   --shadow: 21 32 58;
@@ -34,6 +36,7 @@
   --red: #ff6b76;
   --red-ink: #ff8b94;
   --blue: #7ea2ff;
+  --blue-soft: #4a63ad;
   --green: #4cc695;
   --amber: #f0b43a;
   --shadow: 0 0 0;
@@ -51,6 +54,7 @@
   --color-red: var(--red);
   --color-red-ink: var(--red-ink);
   --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
   --color-green: var(--green);
   --color-amber: var(--amber);
 

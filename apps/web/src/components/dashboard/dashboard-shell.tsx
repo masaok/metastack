@@ -9,6 +9,7 @@ import {
   Play,
   Settings,
   Shield,
+  Table2,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+  { href: "/dashboard/cards", label: "My cards", icon: Table2 },
   { href: "/study", label: "Study", icon: Play },
   { href: "/decks", label: "Decks", icon: Layers },
   { href: "/cards", label: "Cards", icon: GalleryVerticalEnd },
@@ -42,7 +44,7 @@ export function DashboardShell({
 }: {
   user: SessionUser | null;
   deckOptions: Array<{ slug: string; title: string }>;
-  active: "/dashboard" | "/admin" | "/admin/users" | "/admin/cards";
+  active: "/dashboard" | "/dashboard/cards" | "/admin" | "/admin/users" | "/admin/cards";
   children: React.ReactNode;
 }) {
   const onAdmin = active.startsWith("/admin");

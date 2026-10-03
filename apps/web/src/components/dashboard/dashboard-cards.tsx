@@ -29,7 +29,7 @@ const RATING_LABEL: Record<NonNullable<DashboardRow["rating"]>, string> = {
   easy: "Easy",
 };
 
-export function DashboardView({
+export function DashboardCards({
   rows,
   user,
   deckOptions,
@@ -59,10 +59,10 @@ export function DashboardView({
   const studied = rows.filter((row) => row.state !== "new").length;
 
   return (
-    <DashboardShell user={user} deckOptions={deckOptions} active="/dashboard">
+    <DashboardShell user={user} deckOptions={deckOptions} active="/dashboard/cards">
       <section className="flex h-full min-w-0 flex-1 flex-col">
         <div className="flex shrink-0 items-center justify-between border-b border-rule bg-paper px-4 py-3">
-          <h1 className="font-display text-base font-semibold">Cards</h1>
+          <h1 className="font-display text-base font-semibold">My cards</h1>
           <p className="text-sm text-ink-3">
             Studied {studied}/{rows.length}
           </p>

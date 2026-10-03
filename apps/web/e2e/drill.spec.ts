@@ -113,15 +113,36 @@ test.describe("drill flow", () => {
       .toBe(3);
   });
 
-  test("card permalink opens that card and the back button returns", async ({ page }) => {
+  test("dashboard shows progress from this browser and links to the card table", async ({
+    page,
+  }) => {
     await page.goto("/dashboard");
+    await expect(page.getByRole("heading", { name: "Progress" })).toBeVisible();
+    await expect(page.getByText(/0 of \d+ started/)).toBeVisible();
+
+    await page.goto("/study/estimation");
+    await page.getByRole("button", { name: "Quick" }).click();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("3");
+    await expect(page.getByText("2/")).toBeVisible();
+
+    await page.goto("/dashboard");
+    await expect(page.getByText(/1 of \d+ started/)).toBeVisible();
+    await expect(page.getByText("1 review in all")).toBeVisible();
+    await page.getByRole("link", { name: "My cards", exact: true }).click();
+    await expect(page).toHaveURL(/\/dashboard\/cards$/);
+    await expect(page.getByRole("heading", { name: "My cards" })).toBeVisible();
+  });
+
+  test("card permalink opens that card and the back button returns", async ({ page }) => {
+    await page.goto("/dashboard/cards");
     await page.getByRole("link", { name: "Study url-shortener", exact: true }).click();
     await expect(page).toHaveURL(/\/study\/card\/url-shortener$/);
     await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toContainText(
       "URL shortener",
     );
     await page.goBack();
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page).toHaveURL(/\/dashboard\/cards$/);
 
     await page.goto("/study/estimation");
     await expect(page).toHaveURL(/\/study\/card\/[a-z0-9-]+$/);
