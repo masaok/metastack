@@ -3,11 +3,10 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The mark is a flashcard with MS cut out of it, on top of a second card
- * that shows only its red top and right edge. The S is three stacked bars.
+ * The mark is a flashcard with an M cut out of it, on top of a second card
+ * that shows only its red top and right edge.
  */
-const MONOGRAM =
-  "M5 24.5V11.5l3.5 5.5 3.5-5.5v13M23.5 11.5H19.75a3.25 3.25 0 0 0 0 6.5h1a3.25 3.25 0 0 1 0 6.5H17";
+const MONOGRAM = "M8 25V11l6.5 9 6.5-9v14";
 
 export function Logo({ className, title = "MetaStack" }: { className?: string; title?: string }) {
   const id = useId().replace(/:/g, "");
@@ -21,7 +20,7 @@ export function Logo({ className, title = "MetaStack" }: { className?: string; t
             d={MONOGRAM}
             fill="none"
             stroke="#000"
-            strokeWidth="2.4"
+            strokeWidth="3.4"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
