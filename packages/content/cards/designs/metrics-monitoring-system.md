@@ -19,6 +19,10 @@ eli5:
   - Keep fine detail for a few days and only summaries for older data, so storage stays affordable
   - Drawing charts and checking alarms are separate jobs, and the alarm job keeps watching the latest data
   - Every distinct label value creates another line, so a label like user id creates millions of lines
+distractors:
+  - Use the user id as a label on every metric so any user can be looked up, since labels cost nothing
+  - Keep raw full-resolution samples for ever, because downsampling loses data
+  - Evaluate alert rules through the dashboard query path, so alerts wait in the same queue as ad hoc queries
 followUps:
   - Why is high cardinality the main scaling problem, and how do you protect against it?
   - How do you keep alerting working when the metrics pipeline itself is degraded?

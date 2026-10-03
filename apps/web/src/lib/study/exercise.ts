@@ -9,9 +9,17 @@ import type { Card } from "@metastack/content";
 export const EXERCISE_KINDS = ["slots", "cues", "match", "pick"] as const;
 export type ExerciseKind = (typeof EXERCISE_KINDS)[number];
 
+/** The word shown on the card for each kind. */
+export const EXERCISE_LABEL: Record<ExerciseKind, string> = {
+  slots: "recall",
+  cues: "hints",
+  match: "match",
+  pick: "pick",
+};
+
 export interface PickOption {
   text: string;
-  /** Index of the key point this is, or null for a point borrowed from another card. */
+  /** Index of the key point this is, or null for a wrong answer. */
   point: number | null;
 }
 
@@ -22,12 +30,15 @@ export type Exercise =
   | { kind: "cues"; cues: readonly string[] }
   /** Match each plain-language line to its key point. `order` is the asking order. */
   | { kind: "match"; lines: readonly string[]; order: readonly number[] }
-  /** Pick this card's key points out of a list that mixes in other cards' points. */
-  | { kind: "pick"; options: readonly PickOption[] };
+  /**
+   * Pick this card's key points out of a list that mixes in wrong answers.
+   * `authored` says the wrong answers are the card's own distractors, not borrowed points.
+   */
+  | { kind: "pick"; options: readonly PickOption[]; authored: boolean };
 
 type Random = () => number;
 
-/** Points borrowed from other cards in a pick exercise. */
+/** Wrong answers mixed into a pick exercise. */
 export const DISTRACTOR_COUNT = 3;
 
 function shuffled<T>(xs: readonly T[], random: Random): T[] {
@@ -55,12 +66,25 @@ function distractorPool(card: Card, bank: readonly Card[]): string[] {
   );
 }
 
+/**
+ * The wrong answers a pick can draw from: the card's own distractors, or for a
+ * card without them, points borrowed from related cards. Null when neither is enough.
+ */
+function wrongAnswers(
+  card: Card,
+  bank: readonly Card[],
+): { texts: readonly string[]; authored: boolean } | null {
+  if (card.distractors) return { texts: card.distractors, authored: true };
+  const borrowed = distractorPool(card, bank);
+  return borrowed.length >= DISTRACTOR_COUNT ? { texts: borrowed, authored: false } : null;
+}
+
 export function eligibleKinds(card: Card, bank: readonly Card[]): ExerciseKind[] {
   const lines = plainLines(card);
   const kinds: ExerciseKind[] = ["slots"];
   if (lines) kinds.push("cues");
   if (lines && new Set(lines).size === lines.length) kinds.push("match");
-  if (distractorPool(card, bank).length >= DISTRACTOR_COUNT) kinds.push("pick");
+  if (wrongAnswers(card, bank)) kinds.push("pick");
   return kinds;
 }
 
@@ -87,18 +111,19 @@ export function buildExercise(
         ),
       };
     case "pick": {
-      const distractors = shuffled(distractorPool(card, bank), random).slice(0, DISTRACTOR_COUNT);
+      const wrong = wrongAnswers(card, bank)!;
+      const distractors = shuffled(wrong.texts, random).slice(0, DISTRACTOR_COUNT);
       const options: PickOption[] = [
         ...card.keyPoints.map((text, point) => ({ text, point })),
         ...distractors.map((text) => ({ text, point: null })),
       ];
-      return { kind, options: shuffled(options, random) };
+      return { kind, options: shuffled(options, random), authored: wrong.authored };
     }
   }
 }
 
 /**
- * Key points credited for a pick. Each borrowed point that was selected cancels
+ * Key points credited for a pick. Each wrong answer that was selected cancels
  * one correct pick, so selecting everything scores no better than selecting nothing.
  */
 export function scorePick(options: readonly PickOption[], selected: ReadonlySet<number>): number[] {

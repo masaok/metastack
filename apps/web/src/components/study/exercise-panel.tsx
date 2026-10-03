@@ -27,7 +27,7 @@ export function ExercisePanel({ exercise, ...props }: PanelProps & { exercise: E
     case "match":
       return <MatchExercise {...props} lines={exercise.lines} order={exercise.order} />;
     case "pick":
-      return <PickExercise {...props} options={exercise.options} />;
+      return <PickExercise {...props} options={exercise.options} authored={exercise.authored} />;
   }
 }
 
@@ -227,12 +227,14 @@ function MatchExercise({
   );
 }
 
-/** Pick this card's key points out of a list that mixes in other cards' points. */
+/** Pick this card's key points out of a list that mixes in wrong answers. */
 function PickExercise({
   options,
+  authored,
   onCovered,
   onDone,
-}: PanelProps & { options: readonly PickOption[] }) {
+}: PanelProps & { options: readonly PickOption[]; authored: boolean }) {
+  const wrongLabel = authored ? "A common mistake" : "From another card";
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [marked, setMarked] = useState(false);
 
@@ -292,8 +294,8 @@ function PickExercise({
                           ? "Key point, picked"
                           : "Key point, missed"
                         : on
-                          ? "From another card"
-                          : "From another card, left out"}
+                          ? wrongLabel
+                          : `${wrongLabel}, left out`}
                     </span>
                   )}
                 </span>

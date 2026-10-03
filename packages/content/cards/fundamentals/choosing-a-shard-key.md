@@ -19,6 +19,10 @@ eli5:
   - Splitting by user spreads the work evenly, but a report for one customer then has to ask every machine
   - Think about how many distinct values there are, where the writes land and how it grows, not only how big it is today
   - Assume you will have to move data later, and pick a scheme that makes moving cheap
+distractors:
+  - Choose the column with the fewest distinct values so that each shard stays large and easy to manage
+  - A hashed user id keeps all of a tenant's rows on one shard, so tenant reports stay cheap
+  - The shard key can be changed later at little cost, so optimise only for today's data size
 followUps:
   - How would you handle one tenant that is 30% of all traffic?
   - What changes if the product adds cross-tenant analytics?

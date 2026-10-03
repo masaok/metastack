@@ -19,6 +19,10 @@ eli5:
   - With no leader at all, a write goes to most of the copies and differences are settled when someone reads
   - Clashes are settled by keeping the latest, by letting the app merge them, or by data types built to merge themselves
   - Choose by where the writes come from, how much clashing you can live with, and whether a client can try another leader
+distractors:
+  - Multi-leader replication never has write conflicts, because each leader owns its own rows
+  - Single-leader replication keeps accepting writes on both sides of a partition
+  - Leaderless replication depends on one coordinator node that orders every write
 followUps:
   - Why is last-writer-wins dangerous and when is it acceptable?
   - How does a quorum (W + R > N) give you read-your-writes?

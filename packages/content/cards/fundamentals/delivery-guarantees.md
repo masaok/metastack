@@ -19,6 +19,10 @@ eli5:
   - Nobody can promise exactly one arrival over a flaky network, so make the receiver ignore repeats and the effect happens once
   - Tag each action with an id, or write in a way that repeating changes nothing, and repeats become harmless
   - Some log systems save the result and the bookmark of how far you read in a single step, so inside them each message counts once
+distractors:
+  - At-least-once delivery never produces duplicates, because the broker tracks acknowledgements
+  - Exactly-once delivery across a network is achieved simply by retrying until an acknowledgement arrives
+  - At-most-once is the safest guarantee when a lost message is unacceptable
 followUps:
   - Where would you store processed message ids and for how long?
   - Why does acknowledging before processing give you at-most-once?

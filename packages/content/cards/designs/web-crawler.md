@@ -19,6 +19,10 @@ eli5:
   - Remember which addresses you have seen with a compact filter, and spot near-identical pages by comparing fingerprints
   - Remember address lookups and spread visits across many sites so no one server gets hammered
   - Guard against endless page mazes, follow redirects, give up on slow pages, and come back sooner to pages that change often
+distractors:
+  - Fetch as many pages in parallel from each host as possible, to finish that host quickly
+  - Keep every URL already seen in one relational table and query it before each fetch
+  - Recrawl every page on the same fixed schedule, however often it changes
 followUps:
   - How do you prioritise which of 10 billion known URLs to fetch next?
   - How would you crawl JavaScript-heavy pages and what does it cost?

@@ -19,6 +19,10 @@ eli5:
   - The video is served as short clips plus a list of them, so the player can change quality from one clip to the next
   - Copies near viewers do the delivering, because no single building has enough outgoing capacity
   - Titles, view counts and comments live in a different service and database from the video files
+distractors:
+  - Upload each video through the application servers in a single request
+  - Serve one MP4 file per video at a single fixed bitrate
+  - Stream to viewers directly from the origin datacenter and keep the CDN for thumbnails only
 followUps:
   - How do you make a newly uploaded video watchable quickly instead of waiting for all renditions?
   - How would live streaming change the pipeline and the latency expectations?

@@ -20,6 +20,10 @@ eli5:
   - Divide the reads by what one copy can serve to count copies, then add spares for failures
   - Before adding copies, check how far they fall behind, how many connections they need, and whether a cache would remove most reads
   - Past a dozen or so copies, feeding them all gets painful, so cache or split the data instead
+distractors:
+  - Replicas do not apply writes, so each one offers its full 15,000 QPS for reads
+  - 2,000 × 50 = 10,000 reads per second
+  - Adding replicas scales linearly without limit, so 100 replicas is as easy as 10
 followUps:
   - How does adding a cache with a 90% hit rate change the replica count?
   - When do you move from replicas to sharding?

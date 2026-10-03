@@ -19,6 +19,10 @@ eli5:
   - Throw things out once they reach a set age no matter how popular, which limits how old data gets and not how much room it takes
   - Reading through everything once can push all the useful items out of a recency-based cache
   - Real caches mix these rules or use cheap approximations of them
+distractors:
+  - LFU adapts instantly when popularity shifts, so it needs no aging of old counts
+  - A TTL caps how much memory the cache can use
+  - An O(1) LRU cache is built on a min-heap keyed by last access time
 followUps:
   - Why does Redis use approximated LRU instead of exact LRU?
   - What is the problem with a naive LFU under a changing workload?

@@ -19,6 +19,10 @@ eli5:
   - Right after someone writes, send that person's reads to the main database for a short while
   - Or carry a marker of how far the write got and only read from a copy that has reached it, waiting or falling back otherwise
   - Keep each person on one copy, and stop sending reads to any copy that falls too far behind
+distractors:
+  - Synchronous commit on the primary guarantees that an asynchronous replica is never behind
+  - Spreading each user's reads randomly across replicas prevents data flipping between old and new
+  - Lag only affects analytics queries, users never notice it
 followUps:
   - How would you pass a "last write position" from the client through to the read routing layer?
   - When is reading stale data completely fine?

@@ -19,6 +19,10 @@ eli5:
   - Busy hours run at several times the average, so size for the busy hours
   - Count reads and writes separately, because there are far more reads and they grow in different ways
   - Say your guesses aloud and round boldly, because the method is what is being judged
+distractors:
+  - There are about 3,600 seconds in a day
+  - Peak traffic equals the average, because requests spread evenly over 24 hours
+  - 100M × 20 = 200 million requests per day
 followUps:
   - How would a global user base versus a single-country user base change the peak multiplier?
   - What is the next number you need to size the database tier?

@@ -70,6 +70,7 @@ assert.deepEqual([...match.order].sort(), [0, 1, 2]);
 // A pick holds every key point once, plus points from related cards only.
 const pick = buildExercise(target, bank, () => 0.75);
 assert.ok(pick.kind === "pick");
+assert.equal(pick.authored, false);
 assert.equal(pick.options.length, target.keyPoints.length + DISTRACTOR_COUNT);
 assert.deepEqual(
   pick.options.flatMap((option) => (option.point === null ? [] : [option.point])).sort(),
@@ -79,6 +80,17 @@ for (const option of pick.options) {
   if (option.point === null) assert.match(option.text, /^neighbour /);
   else assert.equal(option.text, target.keyPoints[option.point]);
 }
+
+// A card's own distractors replace borrowed points, even with no related card.
+const wrong = ["wrong one", "wrong two", "wrong three", "wrong four"];
+const authored = card("authored", { distractors: wrong, tags: ["search"] });
+assert.deepEqual(eligibleKinds(authored, [authored]), [...EXERCISE_KINDS]);
+const ownPick = buildExercise(authored, [authored, ...bank], () => 0.75);
+assert.ok(ownPick.kind === "pick");
+assert.equal(ownPick.authored, true);
+const ownWrong = ownPick.options.filter((option) => option.point === null);
+assert.equal(ownWrong.length, DISTRACTOR_COUNT);
+for (const option of ownWrong) assert.ok(wrong.includes(option.text));
 
 // Scoring credits correct picks and lets each borrowed point cancel one of them.
 const options = [

@@ -50,6 +50,21 @@ describe("frontMatterSchema", () => {
     expect(short.error?.issues[0]?.path).toEqual(["eli5"]);
   });
 
+  it("accepts two to five distractors that differ from the key points", () => {
+    expect(frontMatterSchema.parse(valid).distractors).toBeUndefined();
+    const wrong = ["Caches never go stale", "A cache makes writes durable"];
+    expect(frontMatterSchema.parse({ ...valid, distractors: wrong }).distractors).toEqual(wrong);
+    expect(frontMatterSchema.safeParse({ ...valid, distractors: ["only one"] }).success).toBe(
+      false,
+    );
+    const repeat = frontMatterSchema.safeParse({
+      ...valid,
+      distractors: ["Caches never go stale", valid.keyPoints[0]],
+    });
+    expect(repeat.success).toBe(false);
+    expect(repeat.error?.issues[0]?.path).toEqual(["distractors", 1]);
+  });
+
   it("requires at least one reference with a real URL", () => {
     expect(frontMatterSchema.safeParse({ ...valid, references: [] }).success).toBe(false);
     expect(

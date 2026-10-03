@@ -3,7 +3,7 @@ import "server-only";
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 
 import { databaseUrl } from "@/lib/auth/env";
-import { CARDS_TABLE } from "@/lib/cards/store";
+import { CARDS_MIGRATIONS, CARDS_TABLE } from "@/lib/cards/store";
 
 type Sql = NeonQueryFunction<false, false>;
 
@@ -59,6 +59,7 @@ const STATEMENTS = [
   `ALTER TABLE settings ALTER COLUMN new_limit DROP NOT NULL, ALTER COLUMN new_limit DROP DEFAULT,
     ALTER COLUMN mode DROP NOT NULL, ALTER COLUMN mode DROP DEFAULT`,
   CARDS_TABLE,
+  ...CARDS_MIGRATIONS,
 ];
 
 export function getSql(): Sql {

@@ -19,6 +19,10 @@ eli5:
   - Waiting for copies makes every write as slow as the slowest copy, and a copy that is down can stall writes
   - A common middle path waits for one copy and lets the others catch up later
   - Copies that lag behind give out old answers and make it harder to promote one safely
+distractors:
+  - Asynchronous replication guarantees that no committed write is lost when the leader fails
+  - Synchronous replication has lower write latency, because followers share the work
+  - With fully synchronous replication the system stays writable when a follower is down
 followUps:
   - How do you pick a new leader after a crash under async replication without losing acknowledged writes?
   - What is the relationship to quorum writes in Dynamo-style systems?

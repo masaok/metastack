@@ -19,6 +19,10 @@ eli5:
   - Hand the user a temporary permission slip so they upload straight to the warehouse and skip your servers
   - Hand out downloads through copies near the user, with expiring passes for private files
   - Make thumbnails and conversions afterwards in the background, triggered when a file arrives
+distractors:
+  - Store the image bytes in a database BLOB column so files and metadata commit in one transaction and scale together
+  - Route every upload through the application servers so they can stream the bytes onward to storage
+  - Generate thumbnails synchronously inside the upload request so they exist before it returns
 followUps:
   - How do you prevent an orphaned object when the database write fails after upload?
   - How would you support resumable uploads for multi-gigabyte files?

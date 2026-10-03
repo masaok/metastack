@@ -19,6 +19,10 @@ eli5:
   - Some systems pick staying up and answering fast, and accept that copies agree a little later
   - Others always wait for agreement and accept slower answers
   - Mixtures exist too, and one system can choose differently for different requests
+distractors:
+  - PACELC replaces CAP and says nothing about behaviour during a partition
+  - The E in PACELC stands for eventual consistency
+  - Dynamo and Cassandra are PC/EC systems in their default configuration
 followUps:
   - Why does Spanner accept higher write latency, and how does TrueTime help it?
   - Which PACELC class does a read replica with async replication put you in?

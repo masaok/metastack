@@ -19,6 +19,10 @@ eli5:
   - A wristband works until it wears off, so make it wear off quickly and hand out a new one at the desk
   - Keep the ticket in a locked pocket that page scripts cannot reach into
   - Knowing who you are is not the same as letting you in. Each door still checks whether you may enter that room
+distractors:
+  - A JWT payload is encrypted by default, so it is safe to put secrets in its claims
+  - Logging out by deleting the JWT in the browser also invalidates any copy an attacker has taken
+  - Keeping tokens in localStorage protects them from cross-site scripting, since scripts cannot read it
 followUps:
   - How would you rotate signing keys without logging everyone out?
   - Where do you put authorization checks in a microservice architecture?

@@ -19,6 +19,10 @@ eli5:
   - The basic version cannot forget an item, though variants that count or store small tags can
   - It saves pointless disk lookups, stops caching things asked for only once, and checks whether a name or address was seen before
   - As a rule of thumb, ten switches per item gets about one wrong maybe in a hundred
+distractors:
+  - A Bloom filter can report an element as absent even though it was added
+  - Deleting an element just clears its bits, which leaves every other element unaffected
+  - The false-positive rate stays fixed however many elements are added to a filter of a given size
 followUps:
   - How does RocksDB use Bloom filters per SSTable and what does it save?
   - How would you size a filter for 1 billion URLs at 0.1% false positives?

@@ -19,6 +19,10 @@ eli5:
   - Counting per clock minute is cheap, but a caller can spend a full quota just before the minute turns and another just after
   - Remembering every request time is exact but costly, and blending the current and previous counts comes close for far less
   - For a public API the usual pick is a token bucket per caller, with headers that say how much is left and when it refills
+distractors:
+  - A token bucket forbids bursts, requests always leave at a constant rate
+  - Fixed window counters are exact and never admit more than the limit around a window boundary
+  - A sliding window log uses the least memory of the four, because it stores a single counter
 followUps:
   - How do you communicate limits to clients and what status code do you return?
   - How would you implement token bucket with only a counter and a timestamp?

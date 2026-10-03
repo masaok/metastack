@@ -20,6 +20,10 @@ eli5:
   - Multiply viewers by hours watched by the stream rate to get a day's total, which here lands above a hundred petabytes
   - Keeping several quality levels means more files to store, but each viewer still downloads only one of them
   - Sending data out is the biggest bill, so the share of requests answered by nearby copies matters most
+distractors:
+  - Peak egress is 5M × 3 Mbps = 15 Gbps, which one datacenter uplink can carry
+  - Offering five renditions per title multiplies egress by five, since every viewer downloads all of them
+  - Storage cost dominates egress cost, so the edge cache hit rate matters little
 followUps:
   - How much origin bandwidth do you need if the CDN hit rate is 98%?
   - How do live streams change the caching story compared with on-demand?

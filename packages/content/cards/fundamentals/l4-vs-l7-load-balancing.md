@@ -18,6 +18,10 @@ eli5:
   - Because it reads requests it can route by content, handle encryption, compress replies and report on every request
   - The lower kind wins on raw speed, for traffic that is not web traffic, and when encryption must stay intact end to end
   - Many setups use both, the lower kind at the front feeding a row of the higher kind
+distractors:
+  - An L4 balancer routes on the URL path and cookies
+  - L7 is faster than L4 because it understands the protocol and can skip work
+  - An L7 balancer can inspect HTTP headers while leaving end-to-end TLS untouched
 followUps:
   - Where does WebSocket traffic fit, and what does an L7 balancer need to support it?
   - How does TLS termination at L7 affect your security story?

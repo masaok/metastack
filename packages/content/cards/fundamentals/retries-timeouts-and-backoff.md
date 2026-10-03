@@ -19,6 +19,10 @@ eli5:
   - Wait longer after each failure and add randomness, so a crowd of clients does not all come back at the same instant
   - Limit retries to a small share of traffic, so a struggling service is not pushed over the edge
   - Retry in one place only, because retries stacked at every layer multiply each other
+distractors:
+  - Retry every failed request, including 400 and 404 responses, since any failure may be transient
+  - Retry immediately and at a fixed interval, so that recovery is as fast as possible
+  - Add retries at every layer of the stack for defence in depth
 followUps:
   - Why does a retry storm often make an outage longer, and what is a circuit breaker's role?
   - How do you choose the initial timeout for a new dependency?

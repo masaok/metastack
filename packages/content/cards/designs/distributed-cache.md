@@ -19,6 +19,10 @@ eli5:
   - When a popular item is missing, let one request fetch it while the rest wait or get the old value, so the database is not trampled
   - For a key everyone wants, keep copies closer to callers or split it across machines
   - Say out loud who fills the cache, who clears it on a write, and what happens when a machine joins or leaves
+distractors:
+  - Assign keys with hash mod N so that adding a node moves no keys
+  - Let memory grow without bound and rely on the operating system to swap cold items to disk
+  - On a miss, let every waiting request query the database at once so the entry fills as fast as possible
 followUps:
   - How does a client discover the cluster topology and react to a node failure?
   - When would you choose a look-aside cache versus a read-through cache?
