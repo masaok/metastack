@@ -107,6 +107,18 @@ test.describe("drill flow", () => {
     await expect(page.getByRole("heading", { name: "Key points" })).toBeVisible();
   });
 
+  test("theme choice survives a reload and stays local when signed out", async ({ page }) => {
+    await page.goto("/settings");
+    await page.getByRole("radio", { name: "Dark" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.getByRole("radio", { name: "Dark" })).toHaveAttribute("aria-checked", "true");
+
+    const res = await page.request.get("/api/settings");
+    expect(res.status()).toBe(401);
+  });
+
   test("settings export produces a JSON file", async ({ page }) => {
     await page.goto("/settings");
     const download = page.waitForEvent("download");
