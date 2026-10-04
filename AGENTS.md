@@ -22,7 +22,7 @@ This is a **public, MIT-licensed** repository. Everything you write here will be
 
 ## Engineering practices (see `docs/ENGINEERING_PRACTICES.md`)
 
-- Verification is structural. Hooks format staged files at commit and run typecheck + build at push; CI runs named required jobs. Never bypass a hook with `--no-verify` or weaken a check to get green.
+- Verification is structural. Hooks format staged files at commit and run `pnpm verify` (every check, then the build) at push; CI runs named required jobs. Never bypass a hook with `--no-verify` or weaken a check to get green.
 - Automated paths run read-only tools only: `lint`, `format:check`. `lint:fix` and `format` are for humans.
 - One home per fact. Node version lives in `.nvmrc` (CI, `engines`, `@types/node` follow it). pnpm version lives in `packageManager`. Tags, decks and card types live in `packages/content/src/schema.ts`; derive, never restate.
 - A check that reads generated files generates them in the same command.

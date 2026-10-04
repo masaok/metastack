@@ -87,7 +87,7 @@ pnpm typecheck && pnpm lint && pnpm test
 - `packages/srs` must stay at 100% coverage. If you add a branch, add a test.
 - Keep `packages/srs` and `packages/content` free of browser or Node-only APIs so they stay portable.
 - UI must work with keyboard only and in both themes.
-- Formatting is automatic: `pnpm install` installs a pre-commit hook that formats staged files, and a pre-push hook that runs typecheck and the production build. `pnpm lint:fix` is a convenience for you; CI only runs the read-only `pnpm lint`.
+- Formatting is automatic: `pnpm install` installs a pre-commit hook that formats staged files, and a pre-push hook that runs `pnpm verify`: every check CI runs, then the production build. `pnpm lint:fix` is a convenience for you; CI only runs the read-only `pnpm lint`.
 - One home per fact: Node version in `.nvmrc` (CI and `engines` follow it), pnpm version in `packageManager`, tags and decks in `packages/content/src/schema.ts`.
 - If you add a hand-written check script, add a test that proves it fails on the thing it detects, and run that test in CI right before the check. See `scripts/*.test.*`.
 
