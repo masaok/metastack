@@ -1,9 +1,15 @@
-import { ArrowRight, Rss } from "lucide-react";
+import { ArrowRight, Clock, Rss } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getPublishedPosts } from "@/lib/blog/load";
-import { BLOG_PATH, categoryPath, FEED_PATH, groupByCategory } from "@/lib/blog/schema";
+import {
+  BLOG_PATH,
+  categoryPath,
+  FEED_PATH,
+  groupByCategory,
+  RECENT_PATH,
+} from "@/lib/blog/schema";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -34,12 +40,20 @@ export default function BlogIndexPage() {
             the cards. Pick a subject.
           </p>
         </div>
-        <a
-          href={FEED_PATH}
-          className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"
-        >
-          <Rss className="h-4 w-4" /> RSS
-        </a>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href={RECENT_PATH}
+            className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"
+          >
+            <Clock className="h-4 w-4" aria-hidden /> Recent posts
+          </Link>
+          <a
+            href={FEED_PATH}
+            className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"
+          >
+            <Rss className="h-4 w-4" /> RSS
+          </a>
+        </div>
       </div>
       {categories.length === 0 ? (
         <p className="mt-10 text-ink-2">No posts yet.</p>

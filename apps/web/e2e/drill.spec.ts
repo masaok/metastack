@@ -228,7 +228,9 @@ test.describe("blog", () => {
     await expect(cards).not.toHaveCount(0);
     // The index is categories only: no post is linked from it.
     await expect(
-      page.getByRole("main").locator('a[href^="/blog/"]:not([href^="/blog/category/"])'),
+      page
+        .getByRole("main")
+        .locator('a[href^="/blog/"]:not([href^="/blog/category/"]):not([href="/blog/recent"])'),
     ).toHaveCount(0);
 
     const first = cards.first();
@@ -251,5 +253,19 @@ test.describe("blog", () => {
   test("an unknown category is not found", async ({ page }) => {
     const response = await page.goto("/blog/category/no-such-category");
     expect(response?.status()).toBe(404);
+  });
+
+  test("recent lists posts newest first", async ({ page }) => {
+    await page.goto("/blog");
+    await page.getByRole("main").getByRole("link", { name: "Recent posts" }).click();
+    await expect(page).toHaveURL(/\/blog\/recent$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Recent posts" })).toBeVisible();
+    const dates = page.getByRole("main").getByRole("article").locator("time");
+    const values = await dates.evaluateAll((nodes) =>
+      nodes.map((n) => n.getAttribute("datetime") ?? ""),
+    );
+    expect(values.length).toBeGreaterThan(0);
+    const sorted = [...values].sort((a, b) => b.localeCompare(a));
+    expect(values).toEqual(sorted);
   });
 });

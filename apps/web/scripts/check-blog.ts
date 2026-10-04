@@ -193,7 +193,7 @@ export function checkBlog(input: CheckInput): Problem[] {
         }
         continue;
       }
-      if (route === "/blog") continue;
+      if (route === "/blog" || route === "/blog/recent") continue;
       const categoryMatch = /^\/blog\/category\/([^/]+)$/.exec(route);
       if (categoryMatch) {
         // A category page exists only while the category has a published post.

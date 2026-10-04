@@ -11,7 +11,6 @@ category: data-and-consistency
 tags:
   - fundamentals
   - distributed-systems
-author: Masao Kitamura
 createdAt: 2026-10-02
 publishedAt: 2026-10-02
 draft: false

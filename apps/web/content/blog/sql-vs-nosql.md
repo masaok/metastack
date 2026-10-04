@@ -12,7 +12,6 @@ category: data-and-consistency
 tags:
   - fundamentals
   - databases
-author: Masao Kitamura
 createdAt: 2026-10-02
 publishedAt: 2026-10-02
 draft: false

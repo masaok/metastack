@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { DECKS } from "@metastack/content";
 
 import { getPublishedPosts } from "@/lib/blog/load";
-import { BLOG_PATH, categoryPath, groupByCategory, postPath } from "@/lib/blog/schema";
+import { BLOG_PATH, categoryPath, groupByCategory, postPath, RECENT_PATH } from "@/lib/blog/schema";
 import { loadCards } from "@/lib/server/cards";
 
 export const dynamic = "force-static";
@@ -29,6 +29,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blog: MetadataRoute.Sitemap = [
     {
       url: `${SITE_URL}${BLOG_PATH}`,
+      lastModified: newest,
+      changeFrequency: "weekly",
+    },
+    {
+      url: `${SITE_URL}${RECENT_PATH}`,
       lastModified: newest,
       changeFrequency: "weekly",
     },

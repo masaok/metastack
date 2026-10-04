@@ -36,7 +36,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.description,
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt ?? post.publishedAt,
-      authors: [post.author],
       tags: post.tags,
     },
     twitter: { card: "summary", title: post.title, description: post.description },
@@ -59,7 +58,8 @@ export default async function BlogPostPage({ params }: Props) {
     description: post.description,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt ?? post.publishedAt,
-    author: { "@type": "Person", name: post.author },
+    // Posts carry no personal byline. The site is both author and publisher.
+    author: { "@type": "Organization", name: "MetaStack", url: siteUrl },
     publisher: { "@type": "Organization", name: "MetaStack", url: siteUrl },
     mainEntityOfPage: `${siteUrl}${postPath(post.slug)}`,
     keywords: [post.primaryKeyword, ...post.secondaryKeywords].join(", "),
@@ -88,8 +88,6 @@ export default async function BlogPostPage({ params }: Props) {
         <article className="index-card min-w-0 px-6 pt-5 pb-8 sm:px-9">
           <header className="flex flex-wrap items-center gap-2 text-xs text-ink-3">
             <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
-            <span>·</span>
-            <span>{post.author}</span>
             {post.draft && <Badge tone="amber">draft</Badge>}
             <span className="ml-auto flex gap-1">
               {post.tags.map((t) => (

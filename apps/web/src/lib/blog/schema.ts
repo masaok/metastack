@@ -6,8 +6,8 @@ import matter from "gray-matter";
 import { z } from "zod";
 
 export const BLOG_PATH = "/blog";
+export const RECENT_PATH = "/blog/recent";
 export const FEED_PATH = "/feed.xml";
-export const BLOG_AUTHOR = "Masao Kitamura";
 
 export interface Category {
   /** Unique, lowercase, hyphenated. The path under `/blog/category/`. */
@@ -46,6 +46,30 @@ export const CATEGORIES: readonly Category[] = [
     name: "Worked designs",
     description:
       "Full interview prompts answered step by step, and the back-of-the-envelope estimation that sizes them.",
+  },
+  {
+    slug: "caching-and-storage",
+    name: "Caching and storage",
+    description:
+      "What you store, where you store it, and how you keep a copy close to the read: caches, CDNs, object stores and specialist databases.",
+  },
+  {
+    slug: "architecture",
+    name: "Architecture",
+    description:
+      "How services are cut and how work moves between them: monoliths, microservices, events, CQRS and the API in front.",
+  },
+  {
+    slug: "consensus-and-coordination",
+    name: "Consensus and coordination",
+    description:
+      "How distributed nodes agree, elect a leader, lock a resource and finish a write that touches more than one store.",
+  },
+  {
+    slug: "observability-and-ops",
+    name: "Observability and ops",
+    description:
+      "Knowing the system is healthy and sizing it before the load arrives: metrics, logs, traces, SLOs and capacity planning.",
   },
 ];
 
@@ -88,7 +112,6 @@ export const postFrontMatterSchema = z.object({
       `category must be one of: ${CATEGORIES.map((c) => c.slug).join(", ")}`,
     ),
   tags: z.array(z.string().min(1)).min(1),
-  author: z.string().min(1).default(BLOG_AUTHOR),
   createdAt: isoDate,
   publishedAt: isoDate,
   updatedAt: isoDate.optional(),

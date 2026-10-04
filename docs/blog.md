@@ -1,6 +1,6 @@
 # Blog
 
-Posts live in `apps/web/content/blog/<slug>.md`. The page is `/blog/<slug>`. The index is `/blog` and shows one card per category. A category page is `/blog/category/<slug>`. The feed is `/feed.xml`. The sitemap includes the index, every category page and every published post.
+Posts live in `apps/web/content/blog/<slug>.md`. The page is `/blog/<slug>`. The index is `/blog` and shows one card per category. A category page is `/blog/category/<slug>`. `/blog/recent` lists every published post, newest first. The feed is `/feed.xml`. The sitemap includes the index, the recent list, every category page and every published post.
 
 ## Shape
 
@@ -11,7 +11,7 @@ Front matter is the `Post` schema in `apps/web/src/lib/blog/schema.ts`. The one 
 The list is `CATEGORIES` in `apps/web/src/lib/blog/schema.ts`: a slug, a name and a description each. It is the only place a category is defined, and its order is the order of the cards on the index.
 
 - A post names exactly one category by slug in its `category` front matter. The schema rejects a slug that is not in the list. Tags stay free-form.
-- The index lists categories, not posts. Each card shows the name, the description and the count of published posts, and the whole card links to the category page.
+- The index lists categories, not posts. Each card shows the name, the description and the count of published posts, and the whole card links to the category page. A separate [recent](/blog/recent) list, linked from the index, shows every published post newest first.
 - A category page lists that category's posts, newest first. A category with no published post has no card, no page and no sitemap entry. An unknown category is a 404.
 - Post URLs do not contain the category, so a post that moves category keeps its URL.
 - The content check enforces balance once there are four published posts: at least two categories, at least two published posts in each, and the largest at most twice the smallest. Fix a failure with a post in the smaller category or a better split, never by filing a post where it does not belong.
