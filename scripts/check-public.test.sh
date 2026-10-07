@@ -4,6 +4,11 @@
 # tree and fails on each condition it exists to detect, including untracked files.
 set -euo pipefail
 
+# Git exports GIT_DIR and friends to hooks. From a linked worktree GIT_DIR is
+# absolute, so `git -C <tmp>` below would add and commit into the real repo.
+# Drop every repo-local variable so each throwaway repo stands alone.
+unset $(git rev-parse --local-env-vars)
+
 here="$(cd "$(dirname "$0")" && pwd)"
 check="$here/check-public.sh"
 tmp="$(mktemp -d)"
