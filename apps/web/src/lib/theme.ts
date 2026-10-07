@@ -26,3 +26,23 @@ export function applyTheme(theme: Theme): void {
     // storage unavailable; the attribute still applies for this page
   }
 }
+
+/**
+ * Re-applies the OS theme whenever it changes, unless the user picked Light
+ * or Dark. Uses the same rule as the inline script: an explicit choice is the
+ * only thing cached in localStorage. Returns the unsubscribe function.
+ */
+export function followSystemTheme(): () => void {
+  const query = window.matchMedia("(prefers-color-scheme: dark)");
+  const onChange = () => {
+    let explicit: string | null = null;
+    try {
+      explicit = localStorage.getItem(THEME_STORAGE_KEY);
+    } catch {
+      // storage unavailable; treat the choice as System
+    }
+    if (explicit !== "light" && explicit !== "dark") applyTheme("system");
+  };
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}

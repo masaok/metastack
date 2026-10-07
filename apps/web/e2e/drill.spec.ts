@@ -210,6 +210,22 @@ test.describe("drill flow", () => {
     expect(res.status()).toBe(401);
   });
 
+  test("System follows the OS theme live, and an explicit theme ignores it", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/settings");
+    await page.getByRole("radio", { name: "System" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+    await page.getByRole("radio", { name: "Light" }).click();
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  });
+
   test("settings export produces a JSON file", async ({ page }) => {
     await page.goto("/settings");
     const download = page.waitForEvent("download");

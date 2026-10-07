@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { getStoredSettings, setSetting } from "@/lib/db";
 import { isTheme } from "@/lib/settings";
 import { pullSettings } from "@/lib/sync";
-import { THEME_STORAGE_KEY } from "@/lib/theme";
+import { followSystemTheme, THEME_STORAGE_KEY } from "@/lib/theme";
 
 /** Themes chosen before preferences lived in IndexedDB were only in localStorage. */
 async function adoptLegacyTheme() {
@@ -25,14 +25,18 @@ let pulled = false;
 /**
  * On each page load, copies the signed-in account's preferences from the
  * database into this browser. Signed-out visitors keep their local copy.
+ * While mounted, a System theme follows the OS as it changes.
  */
 export function PreferencesSync() {
   useEffect(() => {
-    if (pulled) return;
-    pulled = true;
-    void adoptLegacyTheme()
-      .then(pullSettings)
-      .catch(() => undefined);
+    if (!pulled) {
+      pulled = true;
+      void adoptLegacyTheme()
+        .then(pullSettings)
+        .catch(() => undefined);
+    }
+    // Outside the once-per-load guard: strict mode's cleanup removes the listener before the re-run.
+    return followSystemTheme();
   }, []);
   return null;
 }
