@@ -19,12 +19,17 @@ async function adoptLegacyTheme() {
   if (isTheme(legacy)) await setSetting("theme", legacy);
 }
 
+// Module scope, so strict mode's second effect run in dev reuses the first pull.
+let pulled = false;
+
 /**
  * On each page load, copies the signed-in account's preferences from the
  * database into this browser. Signed-out visitors keep their local copy.
  */
 export function PreferencesSync() {
   useEffect(() => {
+    if (pulled) return;
+    pulled = true;
     void adoptLegacyTheme()
       .then(pullSettings)
       .catch(() => undefined);
