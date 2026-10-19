@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Hide the floating Next.js dev-tools bubble. Compile and runtime errors still surface.
   devIndicators: false,
+  // The blog meta route reads the Markdown posts at request time.
+  outputFileTracingIncludes: {
+    "/api/blog/meta": ["./content/blog/**/*"],
+  },
 };
 
 export default nextConfig;
